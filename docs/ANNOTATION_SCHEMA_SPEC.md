@@ -159,7 +159,17 @@ Constraint shape is selected by its operator: `eq`/`neq` use `value`; `in` uses 
 
 Production validation MUST enter through the generated registry dispatcher; base schemas are building blocks only. Every class has catalog and request schemas with a matching `class_id` constant. Catalog critical fields are required conditionally for `validated`; `needs_review` may be partial when every gap is diagnosed, and `invalid` requires an issue.
 
-Evidence MUST exist for every present AI-derived value; fixed-by-class and deterministic imported values are exempt. An implicit substitution statement (`explicit: false`, `policy: unspecified`, `raw_text: null`) has no source evidence and requires none; an explicit non-`unspecified` policy with its source `raw_text` requires evidence. Canonical brand/manufacturer IDs are taxonomy values, while original spelling belongs in evidence. Identifier normalization is deterministic and configured by `normalizer_id`, never invented by AI. Structured GTIN and supplier SKU columns are imported directly by the catalog builder; GTIN shape and checksum are validated.
+Evidence MUST exist for every present AI-derived semantic field declared by the
+class `evidence_policy`; fixed-by-class and deterministic imported values are exempt.
+Constraint evidence is attached to the semantic field node. Separate evidence is
+not created for the representation's structural fields: `role`, `operator`, `value`,
+`values`, `min`, or `max`. An implicit substitution statement (`explicit: false`,
+`policy: unspecified`, `raw_text: null`) has no source evidence and requires none;
+an explicit non-`unspecified` policy with its source `raw_text` requires evidence.
+Canonical brand/manufacturer IDs are taxonomy values, while original spelling
+belongs in evidence. Identifier normalization is deterministic and configured by
+`normalizer_id`, never invented by AI. Structured GTIN and supplier SKU columns are
+imported directly by the catalog builder; GTIN shape and checksum are validated.
 
 ## Barcode and GTIN scope
 

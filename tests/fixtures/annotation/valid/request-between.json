@@ -11,7 +11,7 @@
     "lines": [
       {
         "line_id": "1",
-        "raw_text": "Муфта 32×1/2",
+        "raw_text": "Муфта PPR, наружная резьба, диаметр трубы 25–40 мм",
         "class_id": "fitting.adapter.ppr.male_thread",
         "requested_identity": {},
         "constraints": {
@@ -40,11 +40,11 @@
           "evidence": [
             {
               "json_pointer": "/class_id",
-              "source_text": "source"
+              "source_text": "Муфта PPR, наружная резьба"
             },
             {
               "json_pointer": "/constraints/ports/0/pipe_outer_diameter_mm",
-              "source_text": "source"
+              "source_text": "25–40 мм"
             }
           ]
         }
