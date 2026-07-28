@@ -16,8 +16,12 @@ function headerRows(sheet) {
     .slice(0, 30);
 }
 
+function configuredSheet(sheet, source) {
+  return source.sheets.find(candidate => candidate.name === sheet.name) ?? null;
+}
+
 function configuredHeader(sheet, source) {
-  const config = source.sheets.find(candidate => candidate.name === sheet.name);
+  const config = configuredSheet(sheet, source);
   if (!config?.header_row) return null;
   const row = sheet.rows.find(candidate => candidate.number === config.header_row);
   if (!row) return {row: config.header_row, values: {}};
@@ -49,10 +53,17 @@ for (const source of config.sources) {
       merged_ranges: sheet.merged_ranges,
       formula_count: sheet.formula_count,
       formula_without_cached_value_count: sheet.formula_without_cached_value_count,
-      disposition: source.sheets.some(item => item.name === sheet.name) ? 'configured' : 'ignored',
+      disposition: configuredSheet(sheet, source) ? 'configured' : 'ignored',
       ignored_reason: ignored.get(sheet.name) ?? null,
       configured_header: configuredHeader(sheet, source),
-      candidate_header_rows: headerRows(sheet)
+      configured_columns: configuredSheet(sheet, source)?.columns ?? null,
+      row_predicate: configuredSheet(sheet, source)?.row_predicate ?? null,
+      context_columns: configuredSheet(sheet, source)?.context_columns ?? [],
+      carry_forward_context_columns: configuredSheet(sheet, source)?.carry_forward_context_columns ?? [],
+      candidate_header_rows: headerRows(sheet),
+      warnings: configuredSheet(sheet, source) && !configuredHeader(sheet, source)
+        ? [{code: 'CONFIGURED_HEADER_ROW_NOT_FOUND'}]
+        : []
     }))
   });
 }
@@ -64,6 +75,9 @@ for (const source of sources) {
   lines.push('| Sheet | State | Rows | Formulas | Missing cached formulas | Disposition |', '|---|---:|---:|---:|---:|---|');
   for (const sheet of source.sheets) lines.push(`| ${sheet.name.replaceAll('|', '\\|')} | ${sheet.state} | ${sheet.nonempty_row_count} | ${sheet.formula_count} | ${sheet.formula_without_cached_value_count} | ${sheet.disposition}${sheet.ignored_reason ? ` — ${sheet.ignored_reason}` : ''} |`);
   lines.push('');
+  for (const sheet of source.sheets.filter(item => item.disposition === 'configured')) {
+    lines.push(`### ${sheet.name}`, '', `- Header row: ${sheet.configured_header?.row ?? 'missing'}`, `- Columns: \`${JSON.stringify(sheet.configured_columns)}\``, `- Row predicate: \`${sheet.row_predicate}\``, `- Context columns: ${sheet.context_columns.join(', ') || 'none'}`, `- Carry-forward context columns: ${sheet.carry_forward_context_columns.join(', ') || 'none'}`, '');
+  }
 }
 await writeText('reports/catalog-source-inspection.md', lines.join('\n'));
 console.log(`Inspected ${sources.length} workbooks.`);
