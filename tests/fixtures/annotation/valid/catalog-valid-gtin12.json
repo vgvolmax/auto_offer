@@ -1,0 +1,106 @@
+{
+  "kind": "catalog_item",
+  "data": {
+    "schema_version": "1.1.0",
+    "taxonomy_version": "1.0.0",
+    "source_item_id": "sku-1",
+    "class_id": "fitting.adapter.ppr.male_thread",
+    "identity": {
+      "brand": "valtec",
+      "manufacturer": "valtec",
+      "manufacturer_articles": [
+        "VT.123"
+      ],
+      "models": [
+        "Adapter"
+      ],
+      "gtins": [
+        "036000291452"
+      ],
+      "supplier_skus": [
+        "SKU-1"
+      ]
+    },
+    "attributes": {
+      "body_material": "PP-R",
+      "construction": "one_piece",
+      "color": "white",
+      "pressure_class": "PN20"
+    },
+    "ports": [
+      {
+        "role": "pipe",
+        "connection_kind": "socket_fusion",
+        "system": "PPR",
+        "pipe_outer_diameter_mm": 32
+      },
+      {
+        "role": "thread",
+        "connection_kind": "male_thread",
+        "thread_standard": "G",
+        "thread_size": {
+          "numerator": 1,
+          "denominator": 2,
+          "unit": "inch"
+        }
+      }
+    ],
+    "annotation": {
+      "status": "validated",
+      "unknown_fields": [],
+      "issues": [],
+      "ambiguities": [],
+      "evidence": [
+        {
+          "json_pointer": "/class_id",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/identity/brand",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/identity/manufacturer",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/identity/manufacturer_articles/0",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/identity/models/0",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/attributes/body_material",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/attributes/construction",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/attributes/color",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/attributes/pressure_class",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/ports/1/thread_standard",
+          "source_text": "source"
+        },
+        {
+          "json_pointer": "/ports/1/thread_size",
+          "source_text": "source"
+        }
+      ]
+    }
+  },
+  "expected_schema_valid": true
+}

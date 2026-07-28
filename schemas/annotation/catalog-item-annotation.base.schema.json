@@ -1,96 +1,210 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.local/schemas/annotation/catalog-item-annotation.base.schema.json",
-  "title": "Base AI catalog item annotation",
+  "title": "Base AI catalog item annotation (building block)",
+  "$comment": "Not a production entry point; use generated catalog dispatcher.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "taxonomy_version", "source_item_id", "class_id", "identity", "attributes", "ports", "annotation"],
+  "required": [
+    "schema_version",
+    "taxonomy_version",
+    "source_item_id",
+    "class_id",
+    "identity",
+    "attributes",
+    "ports",
+    "annotation"
+  ],
   "properties": {
-    "schema_version": {"const": "1.0.0"},
-    "taxonomy_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
-    "source_item_id": {"type": "string", "minLength": 1},
-    "class_id": {"type": "string", "minLength": 1},
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "taxonomy_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "source_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "class_id": {
+      "$ref": "common.schema.json#/$defs/canonicalId"
+    },
     "identity": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["brand", "manufacturer", "manufacturer_articles", "models", "series", "gtins", "supplier_skus"],
+      "required": [
+        "manufacturer_articles",
+        "models",
+        "gtins",
+        "supplier_skus"
+      ],
       "properties": {
-        "brand": {"type": ["string", "null"]},
-        "manufacturer": {"type": ["string", "null"]},
-        "manufacturer_articles": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "models": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "series": {"type": ["string", "null"]},
-        "gtins": {"type": "array", "items": {"type": "string", "pattern": "^[0-9]{8,14}$"}, "uniqueItems": true},
-        "supplier_skus": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        "brand": {
+          "$ref": "common.schema.json#/$defs/canonicalId"
+        },
+        "manufacturer": {
+          "$ref": "common.schema.json#/$defs/canonicalId"
+        },
+        "manufacturer_articles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "models": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "series": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gtins": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "oneOf": [
+              {
+                "pattern": "^[0-9]{8}$"
+              },
+              {
+                "pattern": "^[0-9]{12}$"
+              },
+              {
+                "pattern": "^[0-9]{13}$"
+              },
+              {
+                "pattern": "^[0-9]{14}$"
+              }
+            ]
+          }
+        },
+        "supplier_skus": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
       }
     },
-    "attributes": {"type": "object"},
-    "ports": {"type": "array", "items": {"$ref": "#/$defs/port"}},
-    "annotation": {"$ref": "#/$defs/annotation"}
+    "attributes": {
+      "type": "object"
+    },
+    "ports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/port"
+      }
+    },
+    "annotation": {
+      "$ref": "#/$defs/annotation"
+    }
   },
   "$defs": {
-    "rationalInch": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["numerator", "denominator", "unit"],
-      "properties": {
-        "numerator": {"type": "integer", "minimum": 0},
-        "denominator": {"type": "integer", "minimum": 1},
-        "unit": {"const": "inch"}
-      }
-    },
     "port": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["role", "connection_kind"],
+      "required": [
+        "role",
+        "connection_kind"
+      ],
       "properties": {
-        "role": {"type": "string", "minLength": 1},
-        "connection_kind": {"type": "string", "minLength": 1},
-        "system": {"type": ["string", "null"]},
-        "nominal_diameter_dn": {"type": ["number", "null"], "exclusiveMinimum": 0},
-        "pipe_outer_diameter_mm": {"type": ["number", "null"], "exclusiveMinimum": 0},
-        "pipe_wall_thickness_mm": {"type": ["number", "null"], "exclusiveMinimum": 0},
-        "thread_standard": {"type": ["string", "null"]},
-        "thread_size": {"oneOf": [{"$ref": "#/$defs/rationalInch"}, {"type": "null"}]}
-      }
-    },
-    "evidence": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["json_path", "source_text"],
-      "properties": {
-        "json_path": {"type": "string", "minLength": 1},
-        "source_text": {"type": "string"},
-        "raw_value": {},
-        "page": {"type": "integer", "minimum": 1},
-        "row": {"type": "integer", "minimum": 1},
-        "sheet": {"type": "string"},
-        "cell": {"type": "string"},
-        "bounding_box": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}}
-      }
-    },
-    "ambiguity": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["json_path", "reason_code", "source_text"],
-      "properties": {
-        "json_path": {"type": "string"},
-        "reason_code": {"type": "string"},
-        "source_text": {"type": "string"},
-        "possible_values": {"type": "array", "minItems": 2, "items": {}}
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "connection_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "system": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nominal_diameter_dn": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "pipe_outer_diameter_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "pipe_wall_thickness_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "thread_standard": {
+          "type": "string",
+          "minLength": 1
+        },
+        "thread_size": {
+          "$ref": "common.schema.json#/$defs/rationalInch"
+        }
       }
     },
     "annotation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "unknown_fields", "warnings", "ambiguities", "evidence"],
+      "required": [
+        "status",
+        "unknown_fields",
+        "issues",
+        "ambiguities",
+        "evidence"
+      ],
       "properties": {
-        "status": {"enum": ["validated", "needs_review", "invalid"]},
-        "class_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-        "unknown_fields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "warnings": {"type": "array", "items": {"type": "string"}},
-        "ambiguities": {"type": "array", "items": {"$ref": "#/$defs/ambiguity"}},
-        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+        "status": {
+          "$ref": "common.schema.json#/$defs/annotationStatus"
+        },
+        "class_confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "unknown_fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/jsonPointer"
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/annotationIssue"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/annotationIssue"
+          }
+        },
+        "ambiguities": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/ambiguity"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/evidence"
+          }
+        }
       }
     }
   }
