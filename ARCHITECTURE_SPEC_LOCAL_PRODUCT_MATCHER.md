@@ -1077,9 +1077,11 @@ Confidence модели не меняет статус автоматическ�
     "ambiguities": [],
     "evidence": [
       {
-        "json_path": "constraints.ports[0].pipe_outer_diameter_mm",
+        "json_pointer": "/constraints/ports/0/pipe_outer_diameter_mm",
         "source_text": "32 мм × 1\"",
-        "page": 3
+        "source_position": {
+          "page": 3
+        }
       }
     ]
   }

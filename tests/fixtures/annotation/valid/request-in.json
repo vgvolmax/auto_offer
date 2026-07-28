@@ -11,7 +11,7 @@
     "lines": [
       {
         "line_id": "1",
-        "raw_text": "Муфта 32×1/2",
+        "raw_text": "Муфта VALTEC или RTP 32×1/2",
         "class_id": "fitting.adapter.ppr.male_thread",
         "requested_identity": {
           "brand": {
@@ -39,11 +39,11 @@
           "evidence": [
             {
               "json_pointer": "/class_id",
-              "source_text": "source"
+              "source_text": "Муфта"
             },
             {
               "json_pointer": "/requested_identity/brand",
-              "source_text": "source"
+              "source_text": "VALTEC или RTP"
             }
           ]
         }
