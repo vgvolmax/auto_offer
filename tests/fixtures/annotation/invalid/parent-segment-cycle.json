@@ -1,0 +1,32 @@
+{
+  "kind": "document_segmentation",
+  "data": {
+    "schema_version": "1.1.0",
+    "taxonomy_version": "1.0.0",
+    "document": {
+      "source_file": "x.xlsx",
+      "document_type": "product_request"
+    },
+    "segments": [
+      {
+        "segment_id": "h",
+        "segment_type": "heading",
+        "raw_text": "PPR",
+        "parent_segment_id": "p"
+      },
+      {
+        "segment_id": "p",
+        "segment_type": "product_line",
+        "raw_text": "adapter",
+        "parent_segment_id": "h",
+        "context_segment_ids": [
+          "h"
+        ]
+      }
+    ]
+  },
+  "expected_schema_valid": true,
+  "expected_semantic_codes": [
+    "PARENT_CYCLE"
+  ]
+}

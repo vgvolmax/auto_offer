@@ -1,0 +1,93 @@
+{
+  "kind": "request_document",
+  "data": {
+    "schema_version": "1.1.0",
+    "taxonomy_version": "1.0.0",
+    "request_id": "r1",
+    "document": {
+      "source_file": "request.xlsx",
+      "document_type": "product_request"
+    },
+    "lines": [
+      {
+        "line_id": "1",
+        "raw_text": "Муфта 32×1/2",
+        "class_id": "fitting.adapter.ppr.male_thread",
+        "requested_identity": {},
+        "constraints": {
+          "attributes": {
+            "body_material": {
+              "operator": "in",
+              "values": [
+                "PP-R",
+                "PP-RCT"
+              ]
+            },
+            "construction": {
+              "operator": "eq",
+              "value": "one_piece"
+            },
+            "color": {
+              "operator": "neq",
+              "value": "grey"
+            },
+            "pressure_class": {
+              "operator": "eq",
+              "value": "PN20"
+            }
+          },
+          "ports": [
+            {
+              "role": "thread",
+              "thread_standard": {
+                "operator": "in",
+                "values": [
+                  "G",
+                  "R"
+                ]
+              }
+            }
+          ]
+        },
+        "substitution_statement": {
+          "explicit": false,
+          "policy": "unspecified",
+          "raw_text": null
+        },
+        "annotation": {
+          "status": "validated",
+          "unknown_fields": [],
+          "issues": [],
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "source"
+            },
+            {
+              "json_pointer": "/constraints/attributes/body_material",
+              "source_text": "source"
+            },
+            {
+              "json_pointer": "/constraints/attributes/construction",
+              "source_text": "source"
+            },
+            {
+              "json_pointer": "/constraints/attributes/color",
+              "source_text": "source"
+            },
+            {
+              "json_pointer": "/constraints/attributes/pressure_class",
+              "source_text": "source"
+            },
+            {
+              "json_pointer": "/constraints/ports/0/thread_standard",
+              "source_text": "source"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expected_schema_valid": true
+}

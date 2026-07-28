@@ -7,7 +7,7 @@
   "scripts": {
     "generate:annotation-schemas": "node scripts/generate-annotation-dispatchers.mjs",
     "check:annotation-schemas": "node scripts/check-annotation-contracts.mjs",
-    "test:annotation": "node --test tests/annotation-contracts.test.mjs",
+    "test:annotation": "node --test tests/annotation-*.test.mjs",
     "test": "npm run check:annotation-schemas && npm run test:annotation"
   },
   "dependencies": {"ajv": "^8.17.1", "ajv-formats": "^3.0.1"}
