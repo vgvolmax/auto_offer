@@ -1,0 +1,18 @@
+{
+  "class_count": 27,
+  "mass_annotation_allowed": false,
+  "open_question_count": 192,
+  "payload_file": "taxonomy/generated/taxonomy.proposed.full.json.gz",
+  "payload_sha256": "99ce9c4a97cf40d0f50da86a4deba0440c793ff3d39c6c136aff1a1d5cec6fee",
+  "payload_uncompressed_sha256": "338453e1dfc06950d11108606dd5730dc2c490e38d707dc4aa4288c986a0c3b4",
+  "proposal_schema_version": "1.0.0",
+  "proposal_version": "0.1.0",
+  "source_file_hashes": {
+    "rtp-clearance": "a4a092a94b19251b7bf954d9918b1f1ea36b2cd46274e4f199d2618e392486aa",
+    "rtp-distribution": "d546f898d4fc8bed9ba540ab6ca5f92aaaba3fc42b81a69541324da47a34605a",
+    "rtp-main": "b772906f3937491e0012cbd33ef86b7b88a0d3a1b8404f7d4acabddef79c9626",
+    "rtp-new": "a4b71a3caf1a5de26d5c4261991f32806be6fbdc5936ee676471818ccbcc70e9"
+  },
+  "source_inventory_sha256": "ca598a7ed338eadf49cc0f89edc8fdf42841929c1a5c712fac671b6998f47be8",
+  "status": "proposed"
+}
