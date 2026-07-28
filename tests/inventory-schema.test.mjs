@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { gunzipSync } from 'node:zlib';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { canonicalStringify } from '../scripts/catalog/lib/canonical-json.mjs';
@@ -21,14 +23,17 @@ const validateInventory = ajv.compile(inventorySchema);
 const validateRules = ajv.compile(rulesSchema);
 const validateTaxonomy = ajv.compile(taxonomySchema);
 
-const taxonomy = await json('taxonomy/taxonomy.proposed.json');
+const taxonomyIndex = await json('taxonomy/taxonomy.proposed.json');
 const classMapIndex = await json('taxonomy/class-map.proposed.json');
-const classMapParts = await Promise.all(classMapIndex.part_files.map(json));
-const classMap = Object.assign({}, ...classMapParts);
 const unresolvedIndex = await json('taxonomy/unresolved-cases.json');
-const unresolvedParts = await Promise.all(unresolvedIndex.part_files.map(json));
-const unresolvedCases = unresolvedParts.flat();
-const inspection = await json('reports/catalog-source-inspection.json');
+const inspectionIndex = await json('reports/catalog-source-inspection.json');
+async function gzipJson(file) { return JSON.parse(gunzipSync(await readFile(file)).toString('utf8')); }
+const taxonomy = await gzipJson(taxonomyIndex.payload_file);
+const classMapDocument = await gzipJson(classMapIndex.payload_file);
+const classMap = classMapDocument.clusters;
+const unresolvedDocument = await gzipJson(unresolvedIndex.payload_file);
+const unresolvedCases = unresolvedDocument.cases;
+const inspection = await gzipJson(inspectionIndex.payload_file);
 const report = await json('reports/catalog-source-inventory.json');
 const manifest = await json('reports/catalog-source-inventory-manifest.json');
 
@@ -63,10 +68,10 @@ test('representative inventory record passes its schema', () => {
 });
 
 test('committed proposal indexes, reports, and manifest are internally consistent', () => {
-  assert.equal(classMapIndex.cluster_count, Object.keys(classMap).length);
-  assert.equal(unresolvedIndex.case_count, unresolvedCases.length);
-  assert.equal(classMapIndex.cluster_count, 1515);
-  assert.equal(unresolvedIndex.case_count, 192);
+  assert.equal(classMapDocument.cluster_count, Object.keys(classMap).length);
+  assert.equal(unresolvedDocument.case_count, unresolvedCases.length);
+  assert.equal(classMapDocument.cluster_count, 1515);
+  assert.equal(unresolvedDocument.case_count, 192);
   assert.equal(report.total_inventory_records, 4452);
   assert.deepEqual(report.row_status_counts, {non_product: 339, product_candidate: 4113});
   assert.deepEqual(report.taxonomy_status_counts, {ambiguous: 300, not_applicable: 339, proposed_mapped: 3333, unsupported: 480});
@@ -75,6 +80,8 @@ test('committed proposal indexes, reports, and manifest are internally consisten
   assert.equal(manifest.total_inventory_records, report.total_inventory_records);
   assert.equal(manifest.inventory_sha256, report.inventory_file_sha256);
   assert.equal(manifest.proposal_input_sha256, taxonomy.source_inventory_sha256);
+  assert.equal(taxonomyIndex.class_count, Object.keys(taxonomy.classes).length);
+  assert.equal(taxonomyIndex.open_question_count, taxonomy.open_questions.length);
   assert.equal(manifest.committed, false);
   assert.equal(manifest.contains_prices, false);
   assert.equal(manifest.source_files.length, 4);
@@ -104,8 +111,6 @@ test('committed generated JSON is canonical and deterministic', async () => {
     'taxonomy/taxonomy.proposed.json',
     'taxonomy/class-map.proposed.json',
     'taxonomy/unresolved-cases.json',
-    ...classMapIndex.part_files,
-    ...unresolvedIndex.part_files,
     'reports/catalog-source-inspection.json',
     'reports/catalog-source-inventory.json',
     'reports/catalog-source-inventory-manifest.json'
@@ -113,6 +118,16 @@ test('committed generated JSON is canonical and deterministic', async () => {
   for (const file of jsonFiles) {
     const raw = await text(file);
     assert.equal(raw, `${canonicalStringify(JSON.parse(raw), 2)}\n`, file);
+  }
+});
+
+test('compressed proposal payloads are deterministic and hash-anchored', async () => {
+  for (const index of [taxonomyIndex, classMapIndex, unresolvedIndex, inspectionIndex]) {
+    const compressed = await readFile(index.payload_file);
+    const raw = gunzipSync(compressed).toString('utf8');
+    assert.equal(createHash('sha256').update(compressed).digest('hex'), index.payload_sha256);
+    assert.equal(createHash('sha256').update(raw).digest('hex'), index.payload_uncompressed_sha256);
+    assert.equal(raw, `${canonicalStringify(JSON.parse(raw), 2)}\n`);
   }
 });
 
