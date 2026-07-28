@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.1.0",
+  "classes": {
+    "fitting.adapter.ppr.male_thread": {
+      "catalog_schema": "class-specific/fitting.adapter.ppr.male_thread.catalog.schema.json",
+      "request_schema": "class-specific/fitting.adapter.ppr.male_thread.request.schema.json"
+    }
+  }
+}

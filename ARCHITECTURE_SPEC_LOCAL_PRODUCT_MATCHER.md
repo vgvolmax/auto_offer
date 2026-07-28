@@ -1063,7 +1063,7 @@ Confidence модели не меняет статус автоматическ�
     "raw_text": null
   },
   "annotation": {
-    "status": "valid",
+    "status": "validated",
     "class_confidence": 0.97,
     "warnings": [],
     "ambiguities": [],
@@ -2069,3 +2069,11 @@ app.html
 3. детерминированные class-specific rules exact/equivalent/alternative.
 
 При соблюдении этих границ приложение остается простым, локальным и проверяемым, а расширение каталога и числа классов не требует переноса логики сопоставления обратно в ИИ.
+
+## Annotation contract 1.1.0 invariants
+
+Annotation validity (faithful extraction) is distinct from matching sufficiency (enough data for a future deterministic matcher). A missing, unstated request characteristic is not an annotation error. In particular, no implicit `G` thread-standard default is permitted: omission is represented as omission, while ambiguous source text requires `needs_review` and a blocking RFC 6901 ambiguity pointer.
+
+The only annotation statuses are `validated`, `needs_review`, and `invalid`; `deprecated` belongs exclusively to product lifecycle. Production annotations pass base structural validation, mandatory registry-driven class validation, and deterministic semantic validation. Every AI-derived technical leaf MUST carry evidence. Structured SKU and GTIN columns bypass AI and are imported deterministically.
+
+Every required path in future matching rules MUST declare a missing-value policy: `fixed_by_class`, `request_required`, `optional_if_not_requested`, or another explicitly named policy. Optional quantity does not block technical matching, although it may block later commercial calculation. Constraint operators, sparse requested identity, conditional catalog completeness, and the incompatible `1.0.0 → 1.1.0` migration are normative in `docs/ANNOTATION_SCHEMA_SPEC.md`.

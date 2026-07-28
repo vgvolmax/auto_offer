@@ -134,3 +134,29 @@ JSON Schema дополняется детерминированным validator:
 5. fixtures для unknown и ambiguity;
 6. invalid fixtures для лишних полей, неверных port roles и неверных типов;
 7. golden prompt/output tests.
+
+## Annotation contract 1.1.0 (normative)
+
+### Validity and matching sufficiency
+
+**Annotation validity** means that the annotation faithfully reflects the source document. **Matching sufficiency** means that the extracted characteristics are sufficient for deterministic matching. These are independent: a request such as `Муфта PPR 32×1"` MAY be `validated` while omitting an unmentioned `thread_standard`; a future matcher MAY report `insufficient_data`. The AI MUST NOT infer `G` or any other domain default. An ambiguous stated value requires `needs_review`, a blocking ambiguity, and blocks automatic processing.
+
+Annotation status is exactly `validated`, `needs_review`, or `invalid`; `deprecated` is a product lifecycle status only. All diagnostic field references use RFC 6901 JSON Pointer (for example `/constraints/ports/0/pipe_outer_diameter_mm`). Stable issue `code` values, not localized messages, are the programmatic interface.
+
+### Typed constraint algebra
+
+Constraint shape is selected by its operator: `eq`/`neq` use `value`; `in` uses a non-empty unique `values` array; numeric `gte`/`lte` use `value`; inclusive `between` uses `min` and `max`; and set operators `contains_all`/`contains_any` use `values`. Enum and identifier constraints allow `eq`, `neq`, `in`; numbers additionally allow `gte`, `lte`, `between`; rational inches allow `eq`, `neq`, `in`. The semantic validator enforces `min <= max` and reduced rational inches.
+
+`requested_identity` is sparse and contains only explicitly requested `brand`, `manufacturer`, `manufacturer_article`, `model`, `gtin`, or `supplier_sku` constraints. `{}` means no identity was requested. The former required-null identity representation is incompatible with 1.1.0.
+
+### Dispatch, partial annotations, and provenance
+
+Production validation MUST enter through the generated registry dispatcher; base schemas are building blocks only. Every class has catalog and request schemas with a matching `class_id` constant. Catalog critical fields are required conditionally for `validated`; `needs_review` may be partial when every gap is diagnosed, and `invalid` requires a blocking issue.
+
+Evidence is MUST for every AI-derived technical leaf; fixed-by-class values are exempt. Canonical brand/manufacturer IDs are taxonomy values, while original spelling belongs in evidence. Identifier normalization is deterministic and configured by `normalizer_id`, never invented by AI. Structured GTIN and supplier SKU columns are imported directly by the catalog builder; GTIN shape and checksum are validated.
+
+Quantity is optional for technical matching. If present, its unit is a canonical taxonomy value (`piece`, `meter`, `set`, `package`, or `coil`); source spellings belong in evidence. Segmentation parent and context references allow inherited heading/table facts, whose evidence points to the originating segment.
+
+### Migration 1.0.0 → 1.1.0
+
+Migrate dotted paths to RFC 6901 pointers, string warnings to coded issue objects, `in.value` to `in.values`, range values to `min`/`max`, and required-null request identity to a sparse object. Update status to the three-value annotation vocabulary, make quantity optional, enforce substitution consistency, and validate via the generated class dispatcher plus semantic validator. This is an intentionally incompatible request-identity migration.

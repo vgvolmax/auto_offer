@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/annotation/generated/request-line.dispatch.schema.json",
+  "title": "Generated request class dispatcher",
+  "oneOf": [
+    {
+      "$ref": "../class-specific/fitting.adapter.ppr.male_thread.request.schema.json"
+    }
+  ]
+}
