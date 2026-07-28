@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/annotation/class-specific/fitting.adapter.ppr.male_thread.request.schema.json",
+  "title": "Request line annotation: PPR adapter with male thread",
+  "allOf": [
+    {"$ref": "../request-line-annotation.base.schema.json"},
+    {
+      "type": "object",
+      "properties": {
+        "class_id": {"const": "fitting.adapter.ppr.male_thread"},
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "attributes": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "body_material": {"$ref": "#/$defs/enumConstraint"},
+                "construction": {"$ref": "#/$defs/enumConstraint"},
+                "color": {"$ref": "#/$defs/enumConstraint"},
+                "pressure_class": {"$ref": "#/$defs/enumConstraint"}
+              }
+            },
+            "ports": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 2,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["role"],
+                    "properties": {
+                      "role": {"const": "pipe"},
+                      "pipe_outer_diameter_mm": {"$ref": "#/$defs/numberConstraint"}
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["role"],
+                    "properties": {
+                      "role": {"const": "thread"},
+                      "thread_standard": {"$ref": "#/$defs/enumConstraint"},
+                      "thread_size": {"$ref": "#/$defs/rationalConstraint"}
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "operator": {"enum": ["eq", "neq", "in", "gte", "lte", "between", "contains_all", "contains_any"]},
+    "enumConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operator", "value"],
+      "properties": {"operator": {"$ref": "#/$defs/operator"}, "value": {}}
+    },
+    "numberConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operator", "value"],
+      "properties": {"operator": {"enum": ["eq", "neq", "in", "gte", "lte", "between"]}, "value": {}}
+    },
+    "rationalConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operator", "value"],
+      "properties": {
+        "operator": {"enum": ["eq", "neq", "in"]},
+        "value": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["numerator", "denominator", "unit"],
+          "properties": {
+            "numerator": {"type": "integer", "minimum": 0},
+            "denominator": {"type": "integer", "minimum": 1},
+            "unit": {"const": "inch"}
+          }
+        }
+      }
+    }
+  }
+}
