@@ -1,7 +1,7 @@
 import { loadCatalogSources, sha256File } from './lib/source-config.mjs';
 import { readWorkbook } from './lib/workbook-reader.mjs';
 import { validateSourceCoverage } from './lib/inventory-report.mjs';
-import { writeCanonicalJson, writeText } from './lib/output.mjs';
+import { writeCanonicalGzip, writeCanonicalJson, writeText } from './lib/output.mjs';
 
 function headerRows(sheet) {
   const headerWords = new Set(['арт', 'код', 'наименование', 'наименование товара', 'штрих-код', 'штрихкод']);
@@ -68,7 +68,18 @@ for (const source of config.sources) {
   });
 }
 const report = {inspection_schema_version: '1.0.0', sources};
-await writeCanonicalJson('reports/catalog-source-inspection.json', report);
+const inspectionPayload = 'reports/generated/catalog-source-inspection.full.json.gz';
+const inspectionHashes = await writeCanonicalGzip(inspectionPayload, report);
+await writeCanonicalJson('reports/catalog-source-inspection.json', {
+  inspection_schema_version: '1.0.0',
+  source_count: sources.length,
+  configured_sheet_count: sources.flatMap(source => source.sheets).filter(sheet => sheet.disposition === 'configured').length,
+  ignored_sheet_count: sources.flatMap(source => source.sheets).filter(sheet => sheet.disposition === 'ignored').length,
+  source_file_hashes: Object.fromEntries(sources.map(source => [source.source_id, source.sha256])),
+  payload_file: inspectionPayload,
+  payload_sha256: inspectionHashes.compressed_sha256,
+  payload_uncompressed_sha256: inspectionHashes.uncompressed_sha256
+});
 const lines = ['# Catalog source inspection', '', 'NOT APPROVED FOR MASS ANNOTATION', ''];
 for (const source of sources) {
   lines.push(`## ${source.source_id}`, '', `- File: \`${source.filename}\``, `- SHA-256: \`${source.sha256}\``, `- Price pool: \`${source.price_pool}\``, '');
