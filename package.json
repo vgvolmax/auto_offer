@@ -9,7 +9,13 @@
     "check:annotation-schemas": "node scripts/check-annotation-contracts.mjs",
     "test:annotation": "node --test tests/annotation-*.test.mjs",
     "test:catalog": "node --test tests/catalog-*.test.mjs",
-    "test": "npm run check:annotation-schemas && npm run test:annotation && npm run test:catalog"
+    "test:inventory": "node --test tests/inventory-*.test.mjs",
+    "catalog:inspect": "node scripts/catalog/inspect-price-workbooks.mjs",
+    "catalog:extract": "node scripts/catalog/extract-price-lines.mjs",
+    "catalog:propose-taxonomy": "node scripts/catalog/build-taxonomy-proposal.mjs",
+    "catalog:validate": "node scripts/catalog/validate-catalog-inventory.mjs",
+    "catalog:inventory": "npm run catalog:inspect && npm run catalog:extract && npm run catalog:propose-taxonomy && npm run catalog:validate",
+    "test": "npm run check:annotation-schemas && npm run test:annotation && npm run test:catalog && npm run test:inventory"
   },
   "dependencies": {"ajv": "^8.17.1", "ajv-formats": "^3.0.1"}
 }
