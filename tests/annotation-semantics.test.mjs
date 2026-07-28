@@ -10,6 +10,7 @@ const taxonomy = JSON.parse(await readFile(`${fixtureRoot}/taxonomy.fixture.json
 const registry = JSON.parse(await readFile('schemas/annotation/class-schema-registry.json', 'utf8'));
 const { ajv, classSchemas } = await loadAnnotationSchemas();
 const sparseRequest = JSON.parse(await readFile(`${fixtureRoot}/valid/request-sparse-identity.json`, 'utf8'));
+const completeCatalog = JSON.parse(await readFile(`${fixtureRoot}/valid/catalog-complete-ppr-adapter.json`, 'utf8'));
 const entryPoints = {
   document_segmentation: 'https://example.local/schemas/annotation/document-segmentation.schema.json',
   request_document: 'https://example.local/schemas/annotation/request-document.base.schema.json',
@@ -24,7 +25,6 @@ test('taxonomy accepts only normative object-based value sets', () => {
 function validateRequestGtin(gtin, status = 'validated') {
   const data = structuredClone(sparseRequest.data);
   const line = data.lines[0];
-  line.annotation.evidence.push({ json_pointer: '/substitution_statement', source_text: 'source' });
   if (gtin !== undefined) {
     line.requested_identity.gtin = gtin;
     line.annotation.evidence.push({ json_pointer: '/requested_identity/gtin', source_text: 'source' });
@@ -35,6 +35,28 @@ function validateRequestGtin(gtin, status = 'validated') {
   }
   return validateAnnotation({ kind: 'request_document', data, taxonomy, registry, schemas: classSchemas });
 }
+
+test('implicit unspecified substitution policy does not require fabricated evidence', () => {
+  const result = validateAnnotation({ kind: 'request_document', data: sparseRequest.data, taxonomy, registry, schemas: classSchemas });
+  assert.equal(result.valid, true);
+  assert.ok(!result.issues.some(({ code }) => code === 'MISSING_EVIDENCE'));
+});
+
+test('warnings are nonblocking while issues are always blocking', () => {
+  const data = structuredClone(sparseRequest.data);
+  const annotation = data.lines[0].annotation;
+  annotation.warnings = [{ code: 'CHECK_SOURCE' }];
+  assert.equal(validateAnnotation({ kind: 'request_document', data, taxonomy, registry, schemas: classSchemas }).valid, true);
+  annotation.issues.push({ code: 'BAD_VALUE' });
+  assert.ok(validateAnnotation({ kind: 'request_document', data, taxonomy, registry, schemas: classSchemas }).issues.some(({ code }) => code === 'VALIDATED_WITH_ISSUES'));
+});
+
+test('a present catalog series requires evidence', () => {
+  const data = structuredClone(completeCatalog.data);
+  data.annotation.evidence = data.annotation.evidence.filter(({ json_pointer }) => json_pointer !== '/identity/series');
+  const result = validateAnnotation({ kind: 'catalog_item', data, taxonomy, registry, schemas: classSchemas });
+  assert.ok(result.issues.some(({ code, path }) => code === 'MISSING_EVIDENCE' && path === '/identity/series'));
+});
 
 test('absent request GTIN is not treated as invalid', () => {
   const result = validateRequestGtin(undefined);

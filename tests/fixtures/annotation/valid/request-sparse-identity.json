@@ -11,7 +11,7 @@
     "lines": [
       {
         "line_id": "1",
-        "raw_text": "Муфта 32×1/2",
+        "raw_text": "Муфта 32×1/2, 2 шт.",
         "class_id": "fitting.adapter.ppr.male_thread",
         "requested_identity": {},
         "constraints": {
@@ -32,8 +32,16 @@
             {
               "json_pointer": "/class_id",
               "source_text": "source"
+            },
+            {
+              "json_pointer": "/quantity",
+              "source_text": "2 шт."
             }
           ]
+        },
+        "quantity": {
+          "value": 2,
+          "unit": "piece"
         }
       }
     ]

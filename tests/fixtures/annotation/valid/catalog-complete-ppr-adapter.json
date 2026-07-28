@@ -14,7 +14,7 @@
       "models": [
         "Adapter"
       ],
-      "series": null
+      "series": "VTp"
     },
     "attributes": {
       "body_material": "PP-R",
@@ -65,6 +65,10 @@
         {
           "json_pointer": "/identity/models/0",
           "source_text": "source"
+        },
+        {
+          "json_pointer": "/identity/series",
+          "source_text": "VTp"
         },
         {
           "json_pointer": "/attributes/body_material",

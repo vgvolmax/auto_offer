@@ -59,6 +59,7 @@
           "/identity/manufacturer",
           "/identity/manufacturer_articles/*",
           "/identity/models/*",
+          "/identity/series",
           "/attributes/*",
           "/ports/*/pipe_outer_diameter_mm",
           "/ports/*/thread_standard",

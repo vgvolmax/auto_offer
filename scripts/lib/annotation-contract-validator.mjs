@@ -63,9 +63,11 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
     }
 
     const annotation = item.annotation ?? {};
-    if (annotation.status === 'needs_review' && !annotation.unknown_fields?.length && !annotation.ambiguities?.length && !annotation.issues?.some(x => x.blocking !== false)) add('REVIEW_REASON_REQUIRED', `${prefix}/annotation/status`, 'needs_review requires a diagnostic');
-    if (annotation.status === 'validated' && annotation.ambiguities?.some(x => x.blocking !== false)) add('BLOCKING_AMBIGUITY', `${prefix}/annotation/ambiguities`, 'validated annotation cannot contain a blocking ambiguity');
-    if (annotation.status === 'invalid' && !annotation.issues?.some(x => x.blocking !== false)) add('BLOCKING_ISSUE_REQUIRED', `${prefix}/annotation/issues`, 'invalid annotation requires a blocking issue');
+    const hasBlockingAmbiguity = annotation.ambiguities?.some(x => x.blocking !== false);
+    if (annotation.status === 'validated' && annotation.issues?.length) add('VALIDATED_WITH_ISSUES', `${prefix}/annotation/issues`, 'validated annotation cannot contain issues');
+    if (annotation.status === 'needs_review' && !annotation.unknown_fields?.length && !annotation.issues?.length && !hasBlockingAmbiguity) add('REVIEW_REASON_REQUIRED', `${prefix}/annotation/status`, 'needs_review requires an unknown field, issue, or blocking ambiguity');
+    if (annotation.status === 'validated' && hasBlockingAmbiguity) add('BLOCKING_AMBIGUITY', `${prefix}/annotation/ambiguities`, 'validated annotation cannot contain a blocking ambiguity');
+    if (annotation.status === 'invalid' && !annotation.issues?.length) add('ISSUE_REQUIRED', `${prefix}/annotation/issues`, 'invalid annotation requires an issue');
 
     const allowed = registration.allowed_annotation_paths ?? [];
     for (const pointer of annotation.unknown_fields ?? []) {
@@ -89,6 +91,7 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
     walk(item, '', (value, pointer) => {
       if (!pointer || value === undefined || value === null) return;
       if (!(policy.required_patterns ?? []).some(pattern => matches(pattern, pointer))) return;
+      if (pointer === '/substitution_statement' && value.explicit === false && value.policy === 'unspecified' && value.raw_text === null) return;
       if ((policy.fixed_by_class_patterns ?? []).some(pattern => matches(pattern, pointer))) return;
       if ((policy.deterministic_import_patterns ?? []).some(pattern => matches(pattern, pointer))) return;
       if (!evidencePointers.has(pointer)) add('MISSING_EVIDENCE', `${prefix}${pointer}`, 'AI-derived value requires evidence');
@@ -104,7 +107,7 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
     }
     if (kind === 'catalog_item') {
       for (const pointer of registration.critical_catalog_paths ?? []) if (!pointerAt(item, pointer).exists) {
-        const explained = (annotation.unknown_fields ?? []).includes(pointer) || (annotation.ambiguities ?? []).some(x => x.json_pointer === pointer) || annotation.issues?.some(x => x.blocking !== false && x.json_pointer === pointer);
+        const explained = (annotation.unknown_fields ?? []).includes(pointer) || (annotation.ambiguities ?? []).some(x => x.json_pointer === pointer) || annotation.issues?.some(x => x.json_pointer === pointer);
         if (annotation.status === 'validated' || !explained) add('MISSING_CRITICAL_FIELD', pointer, 'Catalog annotation lacks an unexplained critical field');
       }
     } else {

@@ -77,13 +77,19 @@ Class-specific контракт задает:
 - `needs_review` — JSON загружается для диагностики, matching блокируется для элемента;
 - `invalid` — JSON не может быть принят production pipeline.
 
+`annotation.issues[]` всегда содержит блокирующие проблемы, а
+`annotation.warnings[]` — только неблокирующие предупреждения. Поле `blocking` у issue
+не существует. Поэтому `validated` требует пустого `issues[]` и отсутствия blocking
+ambiguities; `needs_review` требует unknown field, issue или blocking ambiguity; а
+`invalid` требует хотя бы один issue.
+
 `deprecated` является статусом сущности каталога, но не статусом AI-аннотации.
 
 ## 7. Evidence
 
-Каждое технически значимое извлеченное значение SHOULD иметь evidence с:
+Каждое присутствующее AI-derived значение MUST иметь evidence с:
 
-- `json_path`;
+- `json_pointer` по RFC 6901;
 - точным `source_text`;
 - source coordinates, если они доступны;
 - `raw_value`, когда normalization меняет представление.
@@ -113,7 +119,7 @@ fitting.adapter.ppr.male_thread
 
 JSON Schema дополняется детерминированным validator:
 
-- каждый evidence `json_path` существует в аннотации;
+- каждый evidence `json_pointer` существует в аннотации;
 - каждый unknown path допустим для класса и отсутствует среди известных значений;
 - ambiguity path допустим для класса;
 - `validated` запрещен при непустом списке blocking ambiguities;
@@ -151,9 +157,9 @@ Constraint shape is selected by its operator: `eq`/`neq` use `value`; `in` uses 
 
 ### Dispatch, partial annotations, and provenance
 
-Production validation MUST enter through the generated registry dispatcher; base schemas are building blocks only. Every class has catalog and request schemas with a matching `class_id` constant. Catalog critical fields are required conditionally for `validated`; `needs_review` may be partial when every gap is diagnosed, and `invalid` requires a blocking issue.
+Production validation MUST enter through the generated registry dispatcher; base schemas are building blocks only. Every class has catalog and request schemas with a matching `class_id` constant. Catalog critical fields are required conditionally for `validated`; `needs_review` may be partial when every gap is diagnosed, and `invalid` requires an issue.
 
-Evidence is MUST for every AI-derived technical leaf; fixed-by-class values are exempt. Canonical brand/manufacturer IDs are taxonomy values, while original spelling belongs in evidence. Identifier normalization is deterministic and configured by `normalizer_id`, never invented by AI. Structured GTIN and supplier SKU columns are imported directly by the catalog builder; GTIN shape and checksum are validated.
+Evidence MUST exist for every present AI-derived value; fixed-by-class and deterministic imported values are exempt. An implicit substitution statement (`explicit: false`, `policy: unspecified`, `raw_text: null`) has no source evidence and requires none; an explicit non-`unspecified` policy with its source `raw_text` requires evidence. Canonical brand/manufacturer IDs are taxonomy values, while original spelling belongs in evidence. Identifier normalization is deterministic and configured by `normalizer_id`, never invented by AI. Structured GTIN and supplier SKU columns are imported directly by the catalog builder; GTIN shape and checksum are validated.
 
 ## Barcode and GTIN scope
 
