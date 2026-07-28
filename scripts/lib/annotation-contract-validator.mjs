@@ -108,8 +108,11 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
         if (annotation.status === 'validated' || !explained) add('MISSING_CRITICAL_FIELD', pointer, 'Catalog annotation lacks an unexplained critical field');
       }
     } else {
-      const requestedValues = constraintValues(item.requested_identity?.gtin);
-      if (requestedValues.some(value => classifyGtin(value) !== 'valid') && annotation.status !== 'needs_review') add('INVALID_REQUEST_GTIN_REQUIRES_REVIEW', `${prefix}/requested_identity/gtin`, 'An invalid explicitly printed GTIN requires needs_review');
+      const requestedIdentity = item.requested_identity ?? {};
+      if (Object.hasOwn(requestedIdentity, 'gtin')) {
+        const requestedValues = constraintValues(requestedIdentity.gtin);
+        if (requestedValues.some(value => classifyGtin(value) !== 'valid') && annotation.status !== 'needs_review') add('INVALID_REQUEST_GTIN_REQUIRES_REVIEW', `${prefix}/requested_identity/gtin`, 'An invalid explicitly printed GTIN requires needs_review');
+      }
       const unit = item.quantity?.unit;
       if (unit && !getCanonicalValueIds(taxonomy, 'quantity_units').has(unit)) add('UNKNOWN_QUANTITY_UNIT', `${prefix}/quantity/unit`, 'Quantity unit is absent from taxonomy');
     }
