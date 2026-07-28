@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/catalog/catalog-raw-item.schema.json",
+  "title": "Deterministically imported catalog row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_item_id", "source", "raw_fields", "structured_identifiers"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "source_item_id": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["file", "sheet", "row"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "sheet": { "type": "string", "minLength": 1 },
+        "row": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "raw_fields": {
+      "type": "object", "additionalProperties": true,
+      "required": ["supplier_sku", "gtin", "name", "description"],
+      "properties": {
+        "supplier_sku": { "type": ["string", "null"] },
+        "gtin": { "type": ["string", "null"] },
+        "name": { "type": "string" },
+        "description": { "type": ["string", "null"] }
+      }
+    },
+    "structured_identifiers": {
+      "type": "object", "additionalProperties": false,
+      "required": ["supplier_sku", "gtins"],
+      "properties": {
+        "supplier_sku": { "type": ["string", "null"] },
+        "gtins": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

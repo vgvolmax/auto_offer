@@ -832,8 +832,16 @@ Matching engine MAY проверять перестановки только в�
     "manufacturer_articles": [],
     "models": [],
     "series": null,
-    "gtins": ["4660028388359"],
-    "supplier_skus": ["28188"]
+    "gtins": [{
+      "value": "4660028388359",
+      "status": "valid",
+      "exactIndexEligible": true,
+      "source": { "kind": "structured_import", "source_item_id": "01-main:Лист1:5", "column": "Штрихкод" }
+    }],
+    "supplier_skus": [{
+      "value": "28188",
+      "source": { "kind": "structured_import", "source_item_id": "01-main:Лист1:5", "column": "КОД" }
+    }]
   },
   "attributes": {
     "body_material": "PP-R",
@@ -2075,5 +2083,23 @@ app.html
 Annotation validity (faithful extraction) is distinct from matching sufficiency (enough data for a future deterministic matcher). A missing, unstated request characteristic is not an annotation error. In particular, no implicit `G` thread-standard default is permitted: omission is represented as omission, while ambiguous source text requires `needs_review` and a blocking RFC 6901 ambiguity pointer.
 
 The only annotation statuses are `validated`, `needs_review`, and `invalid`; `deprecated` belongs exclusively to product lifecycle. Production annotations pass base structural validation, mandatory registry-driven class validation, and deterministic semantic validation. Every AI-derived technical leaf MUST carry evidence. Structured SKU and GTIN columns bypass AI and are imported deterministically.
+
+## Barcode and GTIN scope
+
+The application does not decode barcode images and does not use a camera, scanner,
+OCR, ZXing, or any other graphical barcode-recognition library.
+
+Catalog GTIN values and supplier SKUs are imported deterministically, as text, from
+configured spreadsheet columns. The importer creates `source_item_id` and
+`structured_identifiers`; AI catalog annotation cannot change them. A request GTIN may
+be extracted only when its complete digits are explicitly present in textual document
+content. AI does not reconstruct damaged digits. An invalid printed request GTIN requires
+`needs_review`; an absent GTIN is normal and does not affect request validity.
+
+GTIN is an optional exact-identity identifier. It is not a technical attribute and does
+not participate in class selection, `technical_key`, equivalent, or alternative matching.
+Invalid-format, invalid-checksum, and conflicting GTIN values are identifier-scoped data
+quality warnings and are excluded from `productsByGtin`; they do not invalidate or remove
+the product or offer, disable technical matching, or affect other identity indexes.
 
 Every required path in future matching rules MUST declare a missing-value policy: `fixed_by_class`, `request_required`, `optional_if_not_requested`, or another explicitly named policy. Optional quantity does not block technical matching, although it may block later commercial calculation. Constraint operators, sparse requested identity, conditional catalog completeness, and the incompatible `1.0.0 → 1.1.0` migration are normative in `docs/ANNOTATION_SCHEMA_SPEC.md`.

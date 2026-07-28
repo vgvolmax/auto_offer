@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { getCanonicalValueIds, isValidGtin, validateAnnotation } from '../scripts/lib/annotation-contract-validator.mjs';
+import { getCanonicalValueIds, validateAnnotation } from '../scripts/lib/annotation-contract-validator.mjs';
 import { loadAnnotationSchemas } from '../scripts/lib/annotation-schema-loader.mjs';
 
 const fixtureRoot = 'tests/fixtures/annotation';
@@ -14,11 +14,6 @@ const entryPoints = {
   request_document: 'https://example.local/schemas/annotation/request-document.base.schema.json',
   catalog_item: 'https://example.local/schemas/annotation/generated/catalog-item.dispatch.schema.json'
 };
-
-test('GTIN-8/12/13/14 checksum vectors use right-to-left weights', () => {
-  for (const value of ['96385074', '036000291452', '4006381333931', '10012345000017']) assert.equal(isValidGtin(value), true, value);
-  for (const value of ['96385075', '036000291453', '4006381333932', '10012345000018']) assert.equal(isValidGtin(value), false, value);
-});
 
 test('taxonomy accepts only normative object-based value sets', () => {
   assert.deepEqual([...getCanonicalValueIds(taxonomy, 'brands')], ['valtec', 'rtp']);

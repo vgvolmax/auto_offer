@@ -14,10 +14,7 @@
       "models": [
         "Adapter"
       ],
-      "gtins": [],
-      "supplier_skus": [
-        "SKU-1"
-      ]
+      "series": null
     },
     "attributes": {
       "body_material": "PP-R",
@@ -100,5 +97,6 @@
       ]
     }
   },
-  "expected_schema_valid": false
+  "expected_schema_valid": false,
+  "expected_semantic_codes": []
 }
