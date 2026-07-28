@@ -3,8 +3,4 @@ node_modules/
 /data/work/*
 /data/generated/*
 /reports/local/*
-/reports/catalog-source-inspection.json
-/taxonomy/generated/*
-/taxonomy/class-map.proposed.json
-/taxonomy/unresolved-cases.json
 .DS_Store
