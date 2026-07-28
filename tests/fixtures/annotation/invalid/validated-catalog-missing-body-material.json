@@ -14,10 +14,7 @@
       "models": [
         "Adapter"
       ],
-      "gtins": [],
-      "supplier_skus": [
-        "SKU-1"
-      ]
+      "series": null
     },
     "attributes": {
       "construction": "one_piece",
@@ -99,5 +96,6 @@
       ]
     }
   },
-  "expected_schema_valid": false
+  "expected_schema_valid": false,
+  "expected_semantic_codes": []
 }

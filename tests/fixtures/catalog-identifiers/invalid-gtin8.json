@@ -1,0 +1,4 @@
+{
+  "value": "01234566",
+  "expected_status": "invalid_checksum"
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/catalog/catalog-offer.schema.json",
+  "title": "Catalog builder commercial offer",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "offer_id", "product_id", "price_pool", "source_price_version", "supplier_sku", "price", "availability"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" }, "offer_id": { "type": "string", "minLength": 1 }, "product_id": { "type": "string", "minLength": 1 },
+    "price_pool": { "type": "string", "minLength": 1 }, "source_price_version": { "type": "string", "minLength": 1 }, "supplier_sku": { "type": ["string", "null"] },
+    "price": { "type": "object", "additionalProperties": false, "required": ["amount", "currency", "per"], "properties": { "amount": { "type": "number", "minimum": 0 }, "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }, "per": { "type": "string", "minLength": 1 } } },
+    "availability": { "type": "string", "minLength": 1 }, "package": { "type": "object" }, "commercial_attributes": { "type": "object" }
+  }
+}

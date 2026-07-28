@@ -117,7 +117,7 @@ JSON Schema дополняется детерминированным validator:
 - каждый unknown path допустим для класса и отсутствует среди известных значений;
 - ambiguity path допустим для класса;
 - `validated` запрещен при непустом списке blocking ambiguities;
-- supplier SKU, GTIN и manufacturer article не выводятся из технических параметров;
+- supplier SKU и manufacturer article не выводятся из технических параметров; catalog GTIN вообще не входит в AI-аннотацию;
 - denominator рационального размера резьбы больше нуля;
 - дробь резьбы приводится к несократимому виду catalog-builder/normalizer;
 - роли ports уникальны, если class schema не объявляет повторяемую роль;
@@ -154,6 +154,26 @@ Constraint shape is selected by its operator: `eq`/`neq` use `value`; `in` uses 
 Production validation MUST enter through the generated registry dispatcher; base schemas are building blocks only. Every class has catalog and request schemas with a matching `class_id` constant. Catalog critical fields are required conditionally for `validated`; `needs_review` may be partial when every gap is diagnosed, and `invalid` requires a blocking issue.
 
 Evidence is MUST for every AI-derived technical leaf; fixed-by-class values are exempt. Canonical brand/manufacturer IDs are taxonomy values, while original spelling belongs in evidence. Identifier normalization is deterministic and configured by `normalizer_id`, never invented by AI. Structured GTIN and supplier SKU columns are imported directly by the catalog builder; GTIN shape and checksum are validated.
+
+## Barcode and GTIN scope
+
+The application does not decode barcode images and does not use a camera, scanner,
+OCR, ZXing, or any other graphical barcode-recognition library.
+
+Catalog GTIN values and supplier SKUs are imported deterministically from configured
+spreadsheet columns into `structured_identifiers`; they are not fields of an AI catalog
+annotation and AI MUST NOT copy, normalize, repair, or assess them. Spreadsheet cells
+MUST be read as text without floating-point conversion, so leading zeroes are retained.
+A request GTIN may be extracted only when all digits are explicitly present in textual
+document content. AI MUST NOT reconstruct damaged digits. An invalid printed request
+GTIN requires `needs_review`; GTIN is optional and its absence does not affect validity.
+
+GTIN is an optional exact-identity identifier. It is not a technical attribute and does
+not participate in `technical_key`, class selection, equivalent, or alternative matching.
+An invalid or conflicting catalog GTIN produces an identifier-scoped data-quality warning
+and is excluded only from the exact GTIN index; the product, offer, other identity indexes,
+and validated technical annotation remain eligible. A valid unique GTIN yields `exact`,
+while multiple products yield `catalog_data_conflict` rather than an automatic choice.
 
 Quantity is optional for technical matching. If present, its unit is a canonical taxonomy value (`piece`, `meter`, `set`, `package`, or `coil`); source spellings belong in evidence. Segmentation parent and context references allow inherited heading/table facts, whose evidence points to the originating segment.
 

@@ -1,14 +1,8 @@
+import { classifyGtin } from './catalog-identifiers.mjs';
+
 const issue = (code, path, message, details) => ({ code, path, message, ...(details === undefined ? {} : { details }) });
 const escapeToken = value => String(value).replaceAll('~', '~0').replaceAll('/', '~1');
 const decodeToken = value => value.replaceAll('~1', '/').replaceAll('~0', '~');
-
-export function isValidGtin(value) {
-  if (!/^(?:\d{8}|\d{12}|\d{13}|\d{14})$/.test(value)) return false;
-  const digits = [...value].map(Number);
-  const expected = digits.pop();
-  const sum = digits.reverse().reduce((total, digit, index) => total + digit * (index % 2 === 0 ? 3 : 1), 0);
-  return (10 - (sum % 10)) % 10 === expected;
-}
 
 export function getCanonicalValueIds(taxonomy, valueSetId) {
   const valueSet = taxonomy?.value_sets?.[valueSetId];
@@ -109,12 +103,13 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
       });
     }
     if (kind === 'catalog_item') {
-      for (const [i, gtin] of (item.identity?.gtins ?? []).entries()) if (!isValidGtin(gtin)) add('INVALID_GTIN_CHECKSUM', `/identity/gtins/${i}`, 'GTIN check digit is invalid');
       for (const pointer of registration.critical_catalog_paths ?? []) if (!pointerAt(item, pointer).exists) {
         const explained = (annotation.unknown_fields ?? []).includes(pointer) || (annotation.ambiguities ?? []).some(x => x.json_pointer === pointer) || annotation.issues?.some(x => x.blocking !== false && x.json_pointer === pointer);
         if (annotation.status === 'validated' || !explained) add('MISSING_CRITICAL_FIELD', pointer, 'Catalog annotation lacks an unexplained critical field');
       }
     } else {
+      const requestedValues = constraintValues(item.requested_identity?.gtin);
+      if (requestedValues.some(value => classifyGtin(value) !== 'valid') && annotation.status !== 'needs_review') add('INVALID_REQUEST_GTIN_REQUIRES_REVIEW', `${prefix}/requested_identity/gtin`, 'An invalid explicitly printed GTIN requires needs_review');
       const unit = item.quantity?.unit;
       if (unit && !getCanonicalValueIds(taxonomy, 'quantity_units').has(unit)) add('UNKNOWN_QUANTITY_UNIT', `${prefix}/quantity/unit`, 'Quantity unit is absent from taxonomy');
     }
