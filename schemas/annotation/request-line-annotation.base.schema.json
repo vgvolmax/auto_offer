@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/annotation/request-line-annotation.base.schema.json",
+  "title": "Base AI request line annotation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["line_id", "raw_text", "quantity", "class_id", "requested_identity", "constraints", "substitution_statement", "annotation"],
+  "properties": {
+    "line_id": {"type": "string", "minLength": 1},
+    "source_position": {"type": "object"},
+    "raw_text": {"type": "string"},
+    "quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {"type": "number", "exclusiveMinimum": 0},
+        "unit": {"type": "string", "minLength": 1}
+      }
+    },
+    "class_id": {"type": "string", "minLength": 1},
+    "requested_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["brand", "manufacturer", "manufacturer_article", "model", "gtin", "supplier_sku"],
+      "properties": {
+        "brand": {"type": ["string", "null"]},
+        "manufacturer": {"type": ["string", "null"]},
+        "manufacturer_article": {"type": ["string", "null"]},
+        "model": {"type": ["string", "null"]},
+        "gtin": {"type": ["string", "null"]},
+        "supplier_sku": {"type": ["string", "null"]}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attributes", "ports"],
+      "properties": {
+        "attributes": {"type": "object"},
+        "ports": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "substitution_statement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "explicit", "raw_text"],
+      "properties": {
+        "policy": {"enum": ["exact_only", "equivalent_allowed", "alternative_allowed", "unspecified"]},
+        "explicit": {"type": "boolean"},
+        "raw_text": {"type": ["string", "null"]}
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "unknown_fields", "warnings", "ambiguities", "evidence"],
+      "properties": {
+        "status": {"enum": ["validated", "needs_review", "invalid"]},
+        "class_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "unknown_fields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "ambiguities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["json_path", "reason_code", "source_text"],
+            "properties": {
+              "json_path": {"type": "string"},
+              "reason_code": {"type": "string"},
+              "source_text": {"type": "string"},
+              "possible_values": {"type": "array", "minItems": 2, "items": {}}
+            }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["json_path", "source_text"],
+            "properties": {
+              "json_path": {"type": "string", "minLength": 1},
+              "source_text": {"type": "string"},
+              "raw_value": {},
+              "page": {"type": "integer", "minimum": 1},
+              "row": {"type": "integer", "minimum": 1},
+              "sheet": {"type": "string"},
+              "cell": {"type": "string"},
+              "bounding_box": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}}
+            }
+          }
+        }
+      }
+    }
+  }
+}
