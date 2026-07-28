@@ -9,6 +9,7 @@ const fixtureRoot = 'tests/fixtures/annotation';
 const taxonomy = JSON.parse(await readFile(`${fixtureRoot}/taxonomy.fixture.json`, 'utf8'));
 const registry = JSON.parse(await readFile('schemas/annotation/class-schema-registry.json', 'utf8'));
 const { ajv, classSchemas } = await loadAnnotationSchemas();
+const sparseRequest = JSON.parse(await readFile(`${fixtureRoot}/valid/request-sparse-identity.json`, 'utf8'));
 const entryPoints = {
   document_segmentation: 'https://example.local/schemas/annotation/document-segmentation.schema.json',
   request_document: 'https://example.local/schemas/annotation/request-document.base.schema.json',
@@ -18,6 +19,54 @@ const entryPoints = {
 test('taxonomy accepts only normative object-based value sets', () => {
   assert.deepEqual([...getCanonicalValueIds(taxonomy, 'brands')], ['valtec', 'rtp']);
   assert.throws(() => getCanonicalValueIds({ value_sets: { brands: ['valtec'] } }, 'brands'), /normative object-based format/);
+});
+
+function validateRequestGtin(gtin, status = 'validated') {
+  const data = structuredClone(sparseRequest.data);
+  const line = data.lines[0];
+  line.annotation.evidence.push({ json_pointer: '/substitution_statement', source_text: 'source' });
+  if (gtin !== undefined) {
+    line.requested_identity.gtin = gtin;
+    line.annotation.evidence.push({ json_pointer: '/requested_identity/gtin', source_text: 'source' });
+  }
+  line.annotation.status = status;
+  if (status === 'needs_review') {
+    line.annotation.issues.push({ code: 'INVALID_REQUEST_GTIN', json_pointer: '/requested_identity/gtin' });
+  }
+  return validateAnnotation({ kind: 'request_document', data, taxonomy, registry, schemas: classSchemas });
+}
+
+test('absent request GTIN is not treated as invalid', () => {
+  const result = validateRequestGtin(undefined);
+  assert.equal(result.valid, true);
+  assert.ok(!result.issues.some(({ code }) => code === 'INVALID_REQUEST_GTIN_REQUIRES_REVIEW'));
+});
+
+test('valid explicit request GTIN constraints are accepted', () => {
+  for (const gtin of [
+    { operator: 'eq', value: '4006381333931' },
+    { operator: 'in', values: ['4006381333931', '036000291452'] }
+  ]) {
+    const result = validateRequestGtin(gtin);
+    assert.equal(result.valid, true);
+    assert.ok(!result.issues.some(({ code }) => code === 'INVALID_REQUEST_GTIN_REQUIRES_REVIEW'));
+  }
+});
+
+test('an invalid explicit request GTIN requires review', () => {
+  for (const gtin of [
+    { operator: 'eq', value: '4006381333932' },
+    { operator: 'in', values: ['4006381333931', '4006381333932'] }
+  ]) {
+    const result = validateRequestGtin(gtin);
+    assert.ok(result.issues.some(({ code }) => code === 'INVALID_REQUEST_GTIN_REQUIRES_REVIEW'));
+  }
+});
+
+test('an invalid request GTIN already marked for review does not add a semantic issue', () => {
+  const result = validateRequestGtin({ operator: 'eq', value: '4006381333932' }, 'needs_review');
+  assert.equal(result.valid, true);
+  assert.ok(!result.issues.some(({ code }) => code === 'INVALID_REQUEST_GTIN_REQUIRES_REVIEW'));
 });
 
 for (const group of ['valid', 'needs-review', 'invalid']) {
