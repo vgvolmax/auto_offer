@@ -1,7 +1,8 @@
-import { readFile, mkdir, readdir, rm } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { gunzipSync } from 'node:zlib';
 import { loadJson } from './lib/source-config.mjs';
 import { sha256Canonical, sha256Text } from './lib/canonical-json.mjs';
-import { writeCanonicalJson, writeText } from './lib/output.mjs';
+import { writeCanonicalGzip, writeCanonicalJson, writeText } from './lib/output.mjs';
 
 const inventoryPath = 'data/generated/catalog-source-inventory.jsonl';
 const inventoryText = await readFile(inventoryPath, 'utf8');
@@ -9,7 +10,8 @@ const inventoryFileSha256 = sha256Text(inventoryText);
 const records = inventoryText.trim() ? inventoryText.trimEnd().split('\n').map(line => JSON.parse(line)) : [];
 const rulesProposal = await loadJson('taxonomy/classification-rules.proposed.json');
 const sourceConfig = await loadJson('config/catalog-sources.json');
-const inspection = await loadJson('reports/catalog-source-inspection.json');
+const inspectionIndex = await loadJson('reports/catalog-source-inspection.json');
+const inspection = JSON.parse(gunzipSync(await readFile(inspectionIndex.payload_file)).toString('utf8'));
 
 function sortedUnique(values) {
   return [...new Set(values.filter(value => value !== undefined && value !== null))].sort((a, b) => String(a).localeCompare(String(b), 'ru'));
@@ -160,44 +162,20 @@ const taxonomyProposal = {
   open_questions: unresolvedCases.map(item => item.case_id)
 };
 
-const generatedPartsDir = 'taxonomy/generated';
-await mkdir(generatedPartsDir, {recursive: true});
-for (const filename of await readdir(generatedPartsDir)) {
-  if (/^(class-map|unresolved-cases)\.part-\d+\.json$/.test(filename)) await rm(`${generatedPartsDir}/${filename}`);
-}
-
-function chunks(values, size) {
-  const result = [];
-  for (let index = 0; index < values.length; index += size) result.push(values.slice(index, index + size));
-  return result;
-}
-
-const classMapPartFiles = [];
-for (const [index, entries] of chunks(Object.entries(classMap), 250).entries()) {
-  const filename = `taxonomy/generated/class-map.part-${String(index + 1).padStart(3, '0')}.json`;
-  await writeCanonicalJson(filename, Object.fromEntries(entries));
-  classMapPartFiles.push(filename);
-}
 const classMapProposal = {
   proposal_schema_version: '1.0.0',
   proposal_version: '0.1.0',
   source_inventory_sha256: sourceInventorySha256,
   cluster_count: Object.keys(classMap).length,
-  part_files: classMapPartFiles
+  clusters: classMap
 };
 
-const unresolvedPartFiles = [];
-for (const [index, items] of chunks(unresolvedCases, 50).entries()) {
-  const filename = `taxonomy/generated/unresolved-cases.part-${String(index + 1).padStart(3, '0')}.json`;
-  await writeCanonicalJson(filename, items);
-  unresolvedPartFiles.push(filename);
-}
 const unresolvedProposal = {
   proposal_schema_version: '1.0.0',
   proposal_version: '0.1.0',
   source_inventory_sha256: sourceInventorySha256,
   case_count: unresolvedCases.length,
-  part_files: unresolvedPartFiles
+  cases: unresolvedCases
 };
 
 const rowStatuses = counter(records.map(record => record.row_status));
@@ -228,9 +206,43 @@ const report = {
   unresolved_case_count: unresolvedCases.length
 };
 
-await writeCanonicalJson('taxonomy/taxonomy.proposed.json', taxonomyProposal);
-await writeCanonicalJson('taxonomy/class-map.proposed.json', classMapProposal);
-await writeCanonicalJson('taxonomy/unresolved-cases.json', unresolvedProposal);
+const taxonomyPayload = 'taxonomy/generated/taxonomy.proposed.full.json.gz';
+const classMapPayload = 'taxonomy/generated/class-map.proposed.full.json.gz';
+const unresolvedPayload = 'taxonomy/generated/unresolved-cases.full.json.gz';
+const taxonomyHashes = await writeCanonicalGzip(taxonomyPayload, taxonomyProposal);
+const classMapHashes = await writeCanonicalGzip(classMapPayload, classMapProposal);
+const unresolvedHashes = await writeCanonicalGzip(unresolvedPayload, unresolvedProposal);
+await writeCanonicalJson('taxonomy/taxonomy.proposed.json', {
+  proposal_schema_version: '1.0.0',
+  proposal_version: '0.1.0',
+  status: 'proposed',
+  mass_annotation_allowed: false,
+  source_inventory_sha256: sourceInventorySha256,
+  source_file_hashes: fileHashes,
+  class_count: Object.keys(classes).length,
+  open_question_count: unresolvedCases.length,
+  payload_file: taxonomyPayload,
+  payload_sha256: taxonomyHashes.compressed_sha256,
+  payload_uncompressed_sha256: taxonomyHashes.uncompressed_sha256
+});
+await writeCanonicalJson('taxonomy/class-map.proposed.json', {
+  proposal_schema_version: '1.0.0',
+  proposal_version: '0.1.0',
+  source_inventory_sha256: sourceInventorySha256,
+  cluster_count: Object.keys(classMap).length,
+  payload_file: classMapPayload,
+  payload_sha256: classMapHashes.compressed_sha256,
+  payload_uncompressed_sha256: classMapHashes.uncompressed_sha256
+});
+await writeCanonicalJson('taxonomy/unresolved-cases.json', {
+  proposal_schema_version: '1.0.0',
+  proposal_version: '0.1.0',
+  source_inventory_sha256: sourceInventorySha256,
+  case_count: unresolvedCases.length,
+  payload_file: unresolvedPayload,
+  payload_sha256: unresolvedHashes.compressed_sha256,
+  payload_uncompressed_sha256: unresolvedHashes.uncompressed_sha256
+});
 await writeCanonicalJson('reports/catalog-source-inventory.json', report);
 await writeCanonicalJson('reports/catalog-source-inventory-manifest.json', {
   manifest_schema_version: '1.0.0',
@@ -240,7 +252,7 @@ await writeCanonicalJson('reports/catalog-source-inventory-manifest.json', {
   inventory_sha256: inventoryFileSha256,
   proposal_input_sha256: sourceInventorySha256,
   regeneration_command: 'npm run catalog:inventory',
-  reason_not_committed: 'Full row-level inventory is reproducibly generated from private source workbooks and excluded from Git. Committed reports, class-map parts, unresolved cases, and this manifest anchor the audited result.',
+  reason_not_committed: 'Full row-level inventory is reproducibly generated from private source workbooks and excluded from Git. Committed reports and deterministic compressed proposal payloads, together with this manifest, anchor the audited result.',
   physical_nonempty_rows_all_sheets: physicalNonemptyRowsAllSheets,
   configured_nonempty_rows: configuredNonemptyRows,
   configured_sheet_count: configuredSheetCount,
