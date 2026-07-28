@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { gunzipSync } from 'node:zlib';
 import { loadJson } from './lib/source-config.mjs';
 import { canonicalStringify, sha256Canonical, sha256Text } from './lib/canonical-json.mjs';
 
@@ -19,11 +20,13 @@ const inventory = inventoryText.trim() ? inventoryText.trimEnd().split('\n').map
 }) : [];
 const sourceConfig = await loadJson('config/catalog-sources.json');
 const rules = await loadJson('taxonomy/classification-rules.proposed.json');
-const taxonomy = await loadJson('taxonomy/taxonomy.proposed.json');
+const taxonomyIndex = await loadJson('taxonomy/taxonomy.proposed.json');
 const classMapIndex = await loadJson('taxonomy/class-map.proposed.json');
-const classMap = {clusters: Object.assign({}, ...await Promise.all(classMapIndex.part_files.map(loadJson)))};
 const unresolvedIndex = await loadJson('taxonomy/unresolved-cases.json');
-const unresolved = {cases: (await Promise.all(unresolvedIndex.part_files.map(loadJson))).flat()};
+async function loadGzipJson(file) { return JSON.parse(gunzipSync(await readFile(file)).toString('utf8')); }
+const taxonomy = await loadGzipJson(taxonomyIndex.payload_file);
+const classMap = await loadGzipJson(classMapIndex.payload_file);
+const unresolved = await loadGzipJson(unresolvedIndex.payload_file);
 const report = await loadJson('reports/catalog-source-inventory.json');
 const manifest = await loadJson('reports/catalog-source-inventory-manifest.json');
 
@@ -72,8 +75,8 @@ for (const [classId, definition] of Object.entries(taxonomy.classes)) {
 check(taxonomy.status === 'proposed', 'TAXONOMY_STATUS_NOT_PROPOSED');
 check(taxonomy.mass_annotation_allowed === false, 'MASS_ANNOTATION_MUST_BE_FALSE');
 check(unresolved.cases.every(item => item.owner_decision === null), 'OWNER_DECISION_AUTO_FILLED');
-check(classMapIndex.cluster_count === Object.keys(classMap.clusters).length, 'CLASS_MAP_PART_COUNT_MISMATCH');
-check(unresolvedIndex.case_count === unresolved.cases.length, 'UNRESOLVED_PART_COUNT_MISMATCH');
+check(classMapIndex.cluster_count === Object.keys(classMap.clusters).length, 'CLASS_MAP_COUNT_MISMATCH');
+check(unresolvedIndex.case_count === unresolved.cases.length, 'UNRESOLVED_COUNT_MISMATCH');
 check(report.total_inventory_records === inventory.length, 'REPORT_TOTAL_MISMATCH');
 check(report.configured_nonempty_rows >= inventory.length, 'REPORT_CONFIGURED_ROW_COUNT_INVALID');
 check(report.physical_nonempty_rows_all_sheets >= report.configured_nonempty_rows, 'REPORT_PHYSICAL_ROW_COUNT_INVALID');
