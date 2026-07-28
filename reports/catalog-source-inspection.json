@@ -1,0 +1,15 @@
+{
+  "configured_sheet_count": 9,
+  "ignored_sheet_count": 26,
+  "inspection_schema_version": "1.0.0",
+  "payload_file": "reports/generated/catalog-source-inspection.full.json.gz",
+  "payload_sha256": "3b97dbecb99164edd9533a8e056b1070d7d12849c6ab89604d5d6eab9850f5c4",
+  "payload_uncompressed_sha256": "4c8bd91de548475e3e6262a64df42eaaf5feff8e006d546a2e218641123a280b",
+  "source_count": 4,
+  "source_file_hashes": {
+    "rtp-clearance": "a4a092a94b19251b7bf954d9918b1f1ea36b2cd46274e4f199d2618e392486aa",
+    "rtp-distribution": "d546f898d4fc8bed9ba540ab6ca5f92aaaba3fc42b81a69541324da47a34605a",
+    "rtp-main": "b772906f3937491e0012cbd33ef86b7b88a0d3a1b8404f7d4acabddef79c9626",
+    "rtp-new": "a4b71a3caf1a5de26d5c4261991f32806be6fbdc5936ee676471818ccbcc70e9"
+  }
+}
