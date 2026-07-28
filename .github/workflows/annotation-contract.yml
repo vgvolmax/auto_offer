@@ -1,0 +1,24 @@
+name: Annotation contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  annotation-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run generate:annotation-schemas
+      - name: Ensure generated schemas are committed
+        run: git diff --exit-code
+      - name: Check formatting
+        run: git diff --check
