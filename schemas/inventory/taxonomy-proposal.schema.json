@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/inventory/taxonomy-proposal.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "proposal_schema_version",
+    "proposal_version",
+    "status",
+    "mass_annotation_allowed",
+    "source_inventory_sha256",
+    "source_file_hashes",
+    "classes",
+    "candidate_value_sets",
+    "open_questions"
+  ],
+  "properties": {
+    "proposal_schema_version": {"const": "1.0.0"},
+    "proposal_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "status": {"const": "proposed"},
+    "mass_annotation_allowed": {"const": false},
+    "source_inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_file_hashes": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    },
+    "classes": {"type": "object", "additionalProperties": {"$ref": "#/$defs/classProposal"}},
+    "candidate_value_sets": {"type": "object"},
+    "open_questions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^case:[0-9a-f]{16}$"}}
+  },
+  "$defs": {
+    "example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_item_id", "raw_name"],
+      "properties": {
+        "source_item_id": {"type": "string", "minLength": 1},
+        "raw_name": {"type": "string", "minLength": 1}
+      }
+    },
+    "classProposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_id",
+        "name_ru",
+        "family_id",
+        "review_status",
+        "source_row_count",
+        "cluster_ids",
+        "source_examples",
+        "distinguishing_patterns",
+        "candidate_attributes",
+        "candidate_ports",
+        "candidate_value_set_refs",
+        "overlaps_with",
+        "open_question_ids"
+      ],
+      "properties": {
+        "class_id": {"type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"},
+        "name_ru": {"type": "string", "minLength": 1},
+        "family_id": {"type": "string", "minLength": 1},
+        "review_status": {"const": "needs_owner_approval"},
+        "source_row_count": {"type": "integer", "minimum": 1},
+        "cluster_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^cluster:[0-9a-f]{16}$"}},
+        "source_examples": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"$ref": "#/$defs/example"}},
+        "distinguishing_patterns": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "candidate_attributes": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "candidate_ports": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "candidate_value_set_refs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "overlaps_with": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "open_question_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^case:[0-9a-f]{16}$"}}
+      }
+    }
+  }
+}
