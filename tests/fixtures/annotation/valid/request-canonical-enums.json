@@ -11,7 +11,7 @@
     "lines": [
       {
         "line_id": "1",
-        "raw_text": "Муфта 32×1/2",
+        "raw_text": "Муфта PP-R или PP-RCT, цельная, не серая, PN20, резьба G или R",
         "class_id": "fitting.adapter.ppr.male_thread",
         "requested_identity": {},
         "constraints": {
@@ -62,27 +62,27 @@
           "evidence": [
             {
               "json_pointer": "/class_id",
-              "source_text": "source"
+              "source_text": "Муфта PP-R или PP-RCT"
             },
             {
               "json_pointer": "/constraints/attributes/body_material",
-              "source_text": "source"
+              "source_text": "PP-R или PP-RCT"
             },
             {
               "json_pointer": "/constraints/attributes/construction",
-              "source_text": "source"
+              "source_text": "цельная"
             },
             {
               "json_pointer": "/constraints/attributes/color",
-              "source_text": "source"
+              "source_text": "не серая"
             },
             {
               "json_pointer": "/constraints/attributes/pressure_class",
-              "source_text": "source"
+              "source_text": "PN20"
             },
             {
               "json_pointer": "/constraints/ports/0/thread_standard",
-              "source_text": "source"
+              "source_text": "резьба G или R"
             }
           ]
         }

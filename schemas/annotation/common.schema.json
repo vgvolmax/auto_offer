@@ -165,7 +165,8 @@
           "$ref": "#/$defs/jsonPointer"
         },
         "source_text": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "raw_value": {},
         "segment_id": {

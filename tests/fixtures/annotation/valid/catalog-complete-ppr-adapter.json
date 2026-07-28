@@ -48,23 +48,23 @@
       "evidence": [
         {
           "json_pointer": "/class_id",
-          "source_text": "source"
+          "source_text": "PPR adapter with male thread"
         },
         {
           "json_pointer": "/identity/brand",
-          "source_text": "source"
+          "source_text": "VALTEC"
         },
         {
           "json_pointer": "/identity/manufacturer",
-          "source_text": "source"
+          "source_text": "VALTEC"
         },
         {
           "json_pointer": "/identity/manufacturer_articles/0",
-          "source_text": "source"
+          "source_text": "VT.123"
         },
         {
           "json_pointer": "/identity/models/0",
-          "source_text": "source"
+          "source_text": "Adapter"
         },
         {
           "json_pointer": "/identity/series",
@@ -72,31 +72,31 @@
         },
         {
           "json_pointer": "/attributes/body_material",
-          "source_text": "source"
+          "source_text": "PP-R"
         },
         {
           "json_pointer": "/attributes/construction",
-          "source_text": "source"
+          "source_text": "one-piece"
         },
         {
           "json_pointer": "/attributes/color",
-          "source_text": "source"
+          "source_text": "white"
         },
         {
           "json_pointer": "/attributes/pressure_class",
-          "source_text": "source"
+          "source_text": "PN20"
         },
         {
           "json_pointer": "/ports/0/pipe_outer_diameter_mm",
-          "source_text": "source"
+          "source_text": "32 mm"
         },
         {
           "json_pointer": "/ports/1/thread_standard",
-          "source_text": "source"
+          "source_text": "G 1/2"
         },
         {
           "json_pointer": "/ports/1/thread_size",
-          "source_text": "source"
+          "source_text": "G 1/2"
         }
       ]
     }

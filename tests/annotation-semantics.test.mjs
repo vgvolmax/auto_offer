@@ -42,6 +42,34 @@ test('implicit unspecified substitution policy does not require fabricated evide
   assert.ok(!result.issues.some(({ code }) => code === 'MISSING_EVIDENCE'));
 });
 
+test('request port role does not require separate evidence', () => {
+  const data = structuredClone(sparseRequest.data);
+  const line = data.lines[0];
+  line.constraints.ports = [{
+    role: 'pipe',
+    pipe_outer_diameter_mm: { operator: 'between', min: 25, max: 40 }
+  }];
+  line.annotation.evidence.push({
+    json_pointer: '/constraints/ports/0/pipe_outer_diameter_mm',
+    source_text: '25–40 мм'
+  });
+  const result = validateAnnotation({ kind: 'request_document', data, taxonomy, registry, schemas: classSchemas });
+  assert.equal(result.valid, true);
+  assert.ok(!result.issues.some(({ code, path }) => code === 'MISSING_EVIDENCE' && path.endsWith('/role')));
+});
+
+test('request port technical field still requires evidence', () => {
+  const data = structuredClone(sparseRequest.data);
+  data.lines[0].constraints.ports = [{
+    role: 'pipe',
+    pipe_outer_diameter_mm: { operator: 'between', min: 25, max: 40 }
+  }];
+  const result = validateAnnotation({ kind: 'request_document', data, taxonomy, registry, schemas: classSchemas });
+  assert.ok(result.issues.some(({ code, path }) =>
+    code === 'MISSING_EVIDENCE' && path === '/lines/0/constraints/ports/0/pipe_outer_diameter_mm'));
+  assert.ok(!result.issues.some(({ code, path }) => code === 'MISSING_EVIDENCE' && path.endsWith('/role')));
+});
+
 test('warnings are nonblocking while issues are always blocking', () => {
   const data = structuredClone(sparseRequest.data);
   const annotation = data.lines[0].annotation;
