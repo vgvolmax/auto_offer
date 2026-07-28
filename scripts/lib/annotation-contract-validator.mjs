@@ -23,6 +23,10 @@ function pointerAt(root, pointer) {
   return { exists: true, value };
 }
 
+function hasConfirmedValue(target) {
+  return target.exists && target.value !== null;
+}
+
 function matches(pattern, pointer) {
   const a = pattern.split('/'); const b = pointer.split('/');
   return a.length === b.length && a.every((part, index) => part === '*' || part === b[index]);
@@ -74,7 +78,7 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
       const target = pointerAt(item, pointer);
       if (target.invalid) add('INVALID_JSON_POINTER', `${prefix}/annotation/unknown_fields`, 'Unknown field pointer is not RFC 6901');
       else if (!allowed.some(pattern => matches(pattern, pointer))) add('UNKNOWN_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Unknown pointer is not allowed for this class');
-      if (target.exists) add('UNKNOWN_POINTS_TO_VALUE', `${prefix}${pointer}`, 'Unknown pointer already has a value');
+      if (hasConfirmedValue(target)) add('UNKNOWN_POINTS_TO_VALUE', `${prefix}${pointer}`, 'Unknown pointer already has a value');
     }
     for (const ambiguity of annotation.ambiguities ?? []) {
       const pointer = ambiguity.json_pointer;
@@ -82,9 +86,14 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
       else if (!allowed.some(pattern => matches(pattern, pointer))) add('AMBIGUITY_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Ambiguity pointer is not allowed for this class');
       const values = ambiguity.possible_values;
       if (values && new Set(values.map(JSON.stringify)).size < 2) add('AMBIGUITY_VALUES_REQUIRED', `${prefix}${pointer}`, 'Ambiguity requires at least two unique possible values');
-      if (pointerAt(item, pointer).exists && !annotation.issues?.some(x => x.json_pointer === pointer)) add('AMBIGUITY_POINTS_TO_CONFIRMED_VALUE', `${prefix}${pointer}`, 'Ambiguity points to a confirmed value');
+      const target = pointerAt(item, pointer);
+      if (hasConfirmedValue(target) && !annotation.issues?.some(x => x.json_pointer === pointer)) add('AMBIGUITY_POINTS_TO_CONFIRMED_VALUE', `${prefix}${pointer}`, 'Ambiguity points to a confirmed value');
     }
-    for (const evidence of annotation.evidence ?? []) if (!pointerAt(item, evidence.json_pointer).exists) add('EVIDENCE_POINTER_NOT_FOUND', `${prefix}${evidence.json_pointer}`, 'Evidence pointer does not exist');
+    for (const evidence of annotation.evidence ?? []) {
+      const target = pointerAt(item, evidence.json_pointer);
+      if (!target.exists) add('EVIDENCE_POINTER_NOT_FOUND', `${prefix}${evidence.json_pointer}`, 'Evidence pointer does not exist');
+      else if (target.value === null) add('EVIDENCE_POINTS_TO_EMPTY_VALUE', `${prefix}${evidence.json_pointer}`, 'Evidence cannot point to a null value');
+    }
 
     const evidencePointers = new Set((annotation.evidence ?? []).map(x => x.json_pointer));
     const policy = registration.evidence_policy ?? {};

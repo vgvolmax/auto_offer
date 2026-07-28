@@ -86,6 +86,65 @@ test('a present catalog series requires evidence', () => {
   assert.ok(result.issues.some(({ code, path }) => code === 'MISSING_EVIDENCE' && path === '/identity/series'));
 });
 
+function validateCatalog(data) {
+  return validateAnnotation({ kind: 'catalog_item', data, taxonomy, registry, schemas: classSchemas });
+}
+
+for (const pointer of ['/identity/brand', '/identity/manufacturer', '/identity/series']) {
+  test(`nullable catalog identity ${pointer} can be marked unknown`, () => {
+    const data = structuredClone(completeCatalog.data);
+    const field = pointer.split('/').at(-1);
+    data.identity[field] = null;
+    data.annotation.status = 'needs_review';
+    data.annotation.unknown_fields = [pointer];
+    data.annotation.evidence = data.annotation.evidence.filter(evidence => evidence.json_pointer !== pointer);
+    const result = validateCatalog(data);
+    assert.ok(!result.issues.some(issue =>
+      ['UNKNOWN_PATH_NOT_ALLOWED', 'UNKNOWN_POINTS_TO_VALUE'].includes(issue.code)));
+  });
+}
+
+test('nullable catalog series can be marked ambiguous', () => {
+  const data = structuredClone(completeCatalog.data);
+  data.identity.series = null;
+  data.annotation.status = 'needs_review';
+  data.annotation.evidence = data.annotation.evidence.filter(evidence => evidence.json_pointer !== '/identity/series');
+  data.annotation.ambiguities = [{
+    json_pointer: '/identity/series',
+    code: 'AMBIGUOUS_SERIES',
+    source_text: 'VTp / VTp Pro',
+    possible_values: ['VTp', 'VTp Pro']
+  }];
+  const result = validateCatalog(data);
+  assert.ok(!result.issues.some(issue =>
+    ['AMBIGUITY_PATH_NOT_ALLOWED', 'AMBIGUITY_POINTS_TO_CONFIRMED_VALUE'].includes(issue.code)));
+});
+
+test('confirmed catalog series cannot be marked unknown', () => {
+  const data = structuredClone(completeCatalog.data);
+  data.annotation.status = 'needs_review';
+  data.annotation.unknown_fields = ['/identity/series'];
+  assert.ok(validateCatalog(data).issues.some(issue => issue.code === 'UNKNOWN_POINTS_TO_VALUE'));
+});
+
+test('confirmed catalog series cannot silently remain ambiguous', () => {
+  const data = structuredClone(completeCatalog.data);
+  data.annotation.status = 'needs_review';
+  data.annotation.ambiguities = [{
+    json_pointer: '/identity/series',
+    code: 'AMBIGUOUS_SERIES',
+    source_text: 'VTp / VTp Pro',
+    possible_values: ['VTp', 'VTp Pro']
+  }];
+  assert.ok(validateCatalog(data).issues.some(issue => issue.code === 'AMBIGUITY_POINTS_TO_CONFIRMED_VALUE'));
+});
+
+test('evidence cannot point to a null catalog value', () => {
+  const data = structuredClone(completeCatalog.data);
+  data.identity.series = null;
+  assert.ok(validateCatalog(data).issues.some(issue => issue.code === 'EVIDENCE_POINTS_TO_EMPTY_VALUE'));
+});
+
 test('absent request GTIN is not treated as invalid', () => {
   const result = validateRequestGtin(undefined);
   assert.equal(result.valid, true);

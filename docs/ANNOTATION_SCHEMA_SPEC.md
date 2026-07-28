@@ -69,6 +69,11 @@ Class-specific контракт задает:
 5. В `constraints` запрещены `null`-ограничения. Неизвлеченное ограничение отсутствует.
 6. Значение со status `needs_review` не участвует в автоматическом matching.
 
+For nullable catalog identity fields, `null` means that no canonical or textual
+value has been confirmed. An unknown field or ambiguity MAY reference a nullable
+identity path whose current value is `null`. A non-null value is confirmed and
+cannot simultaneously be marked unknown.
+
 ## 6. Статусы разметки
 
 Для каталога и заявки используется единый набор:
@@ -95,6 +100,7 @@ ambiguities; `needs_review` требует unknown field, issue или blocking 
 - `raw_value`, когда normalization меняет представление.
 
 Evidence является трассировкой и не участвует в matching.
+Evidence cannot point to `null` because `null` is not an extracted value.
 
 ## 8. Class-specific schemas
 

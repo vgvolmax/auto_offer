@@ -27,6 +27,7 @@
         "/class_id",
         "/identity/brand",
         "/identity/manufacturer",
+        "/identity/series",
         "/identity/manufacturer_articles/*",
         "/identity/models/*",
         "/attributes/body_material",
