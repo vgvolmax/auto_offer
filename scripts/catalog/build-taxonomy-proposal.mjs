@@ -221,27 +221,21 @@ await writeCanonicalJson('taxonomy/taxonomy.proposed.json', {
   source_file_hashes: fileHashes,
   class_count: Object.keys(classes).length,
   open_question_count: unresolvedCases.length,
-  payload_file: taxonomyPayload,
-  payload_sha256: taxonomyHashes.compressed_sha256,
-  payload_uncompressed_sha256: taxonomyHashes.uncompressed_sha256
+  private_payload: {committed: false, artifact_kind: 'taxonomy_proposal_full', sha256: taxonomyHashes.compressed_sha256, uncompressed_sha256: taxonomyHashes.uncompressed_sha256, regeneration_command: 'npm run catalog:inventory'}
 });
 await writeCanonicalJson('taxonomy/class-map.proposed.json', {
   proposal_schema_version: '1.0.0',
   proposal_version: '0.1.0',
   source_inventory_sha256: sourceInventorySha256,
   cluster_count: Object.keys(classMap).length,
-  payload_file: classMapPayload,
-  payload_sha256: classMapHashes.compressed_sha256,
-  payload_uncompressed_sha256: classMapHashes.uncompressed_sha256
+  private_payload: {committed: false, artifact_kind: 'class_map_full', sha256: classMapHashes.compressed_sha256, uncompressed_sha256: classMapHashes.uncompressed_sha256, regeneration_command: 'npm run catalog:inventory'}
 });
 await writeCanonicalJson('taxonomy/unresolved-cases.json', {
   proposal_schema_version: '1.0.0',
   proposal_version: '0.1.0',
   source_inventory_sha256: sourceInventorySha256,
   case_count: unresolvedCases.length,
-  payload_file: unresolvedPayload,
-  payload_sha256: unresolvedHashes.compressed_sha256,
-  payload_uncompressed_sha256: unresolvedHashes.uncompressed_sha256
+  private_payload: {committed: false, artifact_kind: 'unresolved_cases_full', sha256: unresolvedHashes.compressed_sha256, uncompressed_sha256: unresolvedHashes.uncompressed_sha256, regeneration_command: 'npm run catalog:inventory'}
 });
 await writeCanonicalJson('reports/catalog-source-inventory.json', report);
 await writeCanonicalJson('reports/catalog-source-inventory-manifest.json', {

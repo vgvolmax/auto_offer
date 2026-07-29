@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/taxonomy/taxonomy-review-pack.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "review_pack_schema_version",
+    "status",
+    "source_inventory_sha256",
+    "proposal_version",
+    "proposal_sha256",
+    "classes",
+    "unresolved_cases",
+    "summary"
+  ],
+  "properties": {
+    "review_pack_schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "const": "draft"
+    },
+    "source_inventory_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "proposal_version": {
+      "type": "string"
+    },
+    "proposal_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/class"
+      }
+    },
+    "unresolved_cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/case"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_count",
+        "unresolved_case_count",
+        "example_count"
+      ],
+      "properties": {
+        "class_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unresolved_case_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "example_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_item_id",
+        "source_id",
+        "sheet",
+        "row",
+        "raw_name",
+        "normalized_name",
+        "category_context",
+        "cluster_id",
+        "proposed_class_ids",
+        "matched_rule_ids",
+        "diagnostic_codes"
+      ],
+      "properties": {
+        "source_item_id": {
+          "type": "string"
+        },
+        "source_id": {
+          "type": "string"
+        },
+        "sheet": {
+          "type": "string"
+        },
+        "row": {
+          "type": "integer"
+        },
+        "raw_name": {
+          "type": "string"
+        },
+        "normalized_name": {
+          "type": "string"
+        },
+        "category_context": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cluster_id": {
+          "type": "string"
+        },
+        "proposed_class_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "matched_rule_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "diagnostic_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "class": {
+      "type": "object",
+      "required": [
+        "class_id",
+        "name_ru",
+        "family_id",
+        "source_row_count",
+        "candidate_attributes",
+        "candidate_ports",
+        "overlaps_with",
+        "matched_rule_ids",
+        "source_distribution",
+        "representative_examples",
+        "boundary_examples",
+        "ambiguous_examples",
+        "additional_examples",
+        "identifier_conflict_count",
+        "open_question_ids"
+      ],
+      "properties": {
+        "class_id": {
+          "type": "string"
+        },
+        "name_ru": {
+          "type": "string"
+        },
+        "family_id": {
+          "type": "string"
+        },
+        "representative_examples": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/example"
+          }
+        },
+        "boundary_examples": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/example"
+          }
+        },
+        "ambiguous_examples": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/example"
+          }
+        },
+        "source_row_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "candidate_attributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "candidate_ports": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "overlaps_with": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "matched_rule_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "source_distribution": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additional_examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/example"
+          },
+          "maxItems": 30
+        },
+        "identifier_conflict_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "open_question_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "type",
+        "question_ru",
+        "candidate_options",
+        "recommended_option",
+        "rationale",
+        "examples"
+      ],
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "question_ru": {
+          "type": "string"
+        },
+        "candidate_options": {
+          "type": "array",
+          "uniqueItems": true
+        },
+        "recommended_option": {
+          "const": null
+        },
+        "rationale": {
+          "const": null
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/example"
+          },
+          "maxItems": 10
+        }
+      }
+    }
+  }
+}

@@ -1,8 +1,12 @@
 {
   "cluster_count": 1515,
-  "payload_file": "taxonomy/generated/class-map.proposed.full.json.gz",
-  "payload_sha256": "b26c138e80c889cb59d4d8c78cfe4d236cb5c3a554b1154bb0f2f56c05df732a",
-  "payload_uncompressed_sha256": "fd37b0c5b13f07648610ce046987e24832b75a0d68575e5708e3eeda6431a930",
+  "private_payload": {
+    "artifact_kind": "class_map_full",
+    "committed": false,
+    "regeneration_command": "npm run catalog:inventory",
+    "sha256": "b26c138e80c889cb59d4d8c78cfe4d236cb5c3a554b1154bb0f2f56c05df732a",
+    "uncompressed_sha256": "fd37b0c5b13f07648610ce046987e24832b75a0d68575e5708e3eeda6431a930"
+  },
   "proposal_schema_version": "1.0.0",
   "proposal_version": "0.1.0",
   "source_inventory_sha256": "ca598a7ed338eadf49cc0f89edc8fdf42841929c1a5c712fac671b6998f47be8"
