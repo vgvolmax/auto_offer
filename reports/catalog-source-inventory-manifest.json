@@ -1,0 +1,47 @@
+{
+  "committed": false,
+  "configured_nonempty_rows": 4552,
+  "configured_sheet_count": 9,
+  "contains_prices": false,
+  "generated_file": "data/generated/catalog-source-inventory.jsonl",
+  "ignored_sheet_count": 26,
+  "inventory_sha256": "ce22807e0c3dc986c4351a9e974b57a591fc8d784ad8c81d801081fddaedba81",
+  "manifest_schema_version": "1.0.0",
+  "physical_nonempty_rows_all_sheets": 26813,
+  "proposal_input_sha256": "ca598a7ed338eadf49cc0f89edc8fdf42841929c1a5c712fac671b6998f47be8",
+  "reason_not_committed": "Private source workbooks, full row-level inventory, and full audit payloads are generated locally and excluded from Git. Committed summaries, hashes, rules, schemas, and review reports anchor the result.",
+  "regeneration_command": "npm run catalog:inventory",
+  "row_status_counts": {
+    "non_product": 339,
+    "product_candidate": 4113
+  },
+  "source_files": [
+    {
+      "filename": "01 ПРАЙС-ЛИСТ ООО РТП 30.06.2026.xlsm",
+      "sha256": "b772906f3937491e0012cbd33ef86b7b88a0d3a1b8404f7d4acabddef79c9626",
+      "source_id": "rtp-main"
+    },
+    {
+      "filename": "02 Новинки ПРАЙСА 2026.xlsx",
+      "sha256": "a4b71a3caf1a5de26d5c4261991f32806be6fbdc5936ee676471818ccbcc70e9",
+      "source_id": "rtp-new"
+    },
+    {
+      "filename": "03 ПРАЙС РАСПРОДАЖА (30.06.2026).xlsx",
+      "sha256": "a4a092a94b19251b7bf954d9918b1f1ea36b2cd46274e4f199d2618e392486aa",
+      "source_id": "rtp-clearance"
+    },
+    {
+      "filename": "04 ПРАЙС ДИСТРИБЬЮЦИЯ 30.06.2026.xlsx",
+      "sha256": "d546f898d4fc8bed9ba540ab6ca5f92aaaba3fc42b81a69541324da47a34605a",
+      "source_id": "rtp-distribution"
+    }
+  ],
+  "taxonomy_status_counts": {
+    "ambiguous": 300,
+    "not_applicable": 339,
+    "proposed_mapped": 3333,
+    "unsupported": 480
+  },
+  "total_inventory_records": 4452
+}

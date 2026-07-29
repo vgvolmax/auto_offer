@@ -1,0 +1,61 @@
+{
+  "config_schema_version": "1.0.0",
+  "source_root": "data/source",
+  "sources": [
+    {
+      "source_id": "rtp-main",
+      "filename": "01 ПРАЙС-ЛИСТ ООО РТП 30.06.2026.xlsm",
+      "price_pool": "main",
+      "sheets": [{"name":"Лист1","header_row":1,"columns":{"supplier_sku":"B","name":"C","gtin":"I"},"context_columns":["A","D","E","J"],"row_predicate":"sku_and_name"}],
+      "ignored_sheets": [
+        {"name":"Оглавление","reason":"navigation and commercial controls"},
+        {"name":"РАСПРОДАЖА!!!","reason":"commercial presentation; represented by the dedicated clearance workbook"},
+        {"name":"α) PPR Белый ⌀ 20-63 ","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"α) PPR Белый ⌀ 75-160 ","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"α) PPR Серый ⌀ 20-63","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"η) Трубы + Ω) Трубы","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"δ) PEX-A и Акс. фитинги","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"μ) PEX-A б.EVOH и рад. фитинги","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"σ) Коллекторы и комплектующие","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"σ) Краны шаровые","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"σ) Запорная арматура","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"σ) Латунные фитинги никель","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"Штучная латунь в упаковке","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"γ) ПНД","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"β) Малошумная канализация","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"β) Внутренняя канализация","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"β) ТРАПЫ РТП","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"β)  Наружная канализация","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"Оборудование для монтажа","reason":"formatted presentation; flat catalog rows are in Лист1"},
+        {"name":"ЗАКАЗ","reason":"order form, not source catalog rows"},
+        {"name":"Прайс списком","reason":"formula-driven commercial list; flat source rows are in Лист1"},
+        {"name":"Для заказа","reason":"order helper, not source catalog rows"}
+      ]
+    },
+    {
+      "source_id":"rtp-new","filename":"02 Новинки ПРАЙСА 2026.xlsx","price_pool":"new",
+      "sheets":[{"name":"НОВИНКИ","header_row":12,"columns":{"supplier_sku":"C","name":"A","gtin":"D","unit":"E"},"carry_forward_context_columns":["A"],"row_predicate":"sku_and_name"}],
+      "ignored_sheets":[{"name":"Лист1","reason":"complete lookup mirror; not the new-products subset"}]
+    },
+    {
+      "source_id":"rtp-clearance","filename":"03 ПРАЙС РАСПРОДАЖА (30.06.2026).xlsx","price_pool":"clearance",
+      "sheets":[{"name":"РАСПРОДАЖА!!!","header_row":11,"columns":{"supplier_sku":"A","name":"I","gtin":"E"},"row_predicate":"sku_and_name"}],
+      "ignored_sheets":[{"name":"Лист1","reason":"complete lookup mirror; not the clearance subset"}]
+    },
+    {
+      "source_id":"rtp-distribution","filename":"04 ПРАЙС ДИСТРИБЬЮЦИЯ 30.06.2026.xlsx","price_pool":"distribution",
+      "sheets":[
+        {"name":"SANFIX","header_row":10,"columns":{"supplier_sku":"A","name":"D","gtin":"E","description":"F"},"carry_forward_context_columns":["A"],"row_predicate":"sku_and_name"},
+        {"name":"BAREON","header_row":10,"columns":{"supplier_sku":"A","name":"D","gtin":"E","description":"F"},"carry_forward_context_columns":["A"],"row_predicate":"sku_and_name"},
+        {"name":"ROTORICA","header_row":10,"columns":{"supplier_sku":"A","name":"D","gtin":"E","description":"F"},"carry_forward_context_columns":["A"],"row_predicate":"sku_and_name"},
+        {"name":"ARROWHEAD","header_row":10,"columns":{"supplier_sku":"A","name":"D","gtin":"E","description":"F"},"carry_forward_context_columns":["A"],"row_predicate":"sku_and_name"},
+        {"name":"АНИ пласт","header_row":10,"columns":{"supplier_sku":"A","name":"D","gtin":"E","description":"F"},"carry_forward_context_columns":["A"],"row_predicate":"sku_and_name"},
+        {"name":"ENERGOFLEX","header_row":10,"columns":{"supplier_sku":"A","name":"D","gtin":"E","description":"F"},"carry_forward_context_columns":["A"],"row_predicate":"sku_and_name"}
+      ],
+      "ignored_sheets":[
+        {"name":"Описание","reason":"supplemental descriptions without an independent complete product-row contract"},
+        {"name":"Лист1","reason":"complete lookup mirror; distribution subsets are represented by brand sheets"}
+      ]
+    }
+  ]
+}

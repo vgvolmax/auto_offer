@@ -1,0 +1,9 @@
+{
+  "case_count": 192,
+  "payload_file": "taxonomy/generated/unresolved-cases.full.json.gz",
+  "payload_sha256": "9af2b71c8aa7b483b0ecea4f01b420ffc4c205d9dd00f6be2ed6083c9834675d",
+  "payload_uncompressed_sha256": "b5f102d3b95397821e09062df0371de64298b3924eadec7a56489387855fa898",
+  "proposal_schema_version": "1.0.0",
+  "proposal_version": "0.1.0",
+  "source_inventory_sha256": "ca598a7ed338eadf49cc0f89edc8fdf42841929c1a5c712fac671b6998f47be8"
+}
