@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
-import { gunzipSync } from 'node:zlib';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { canonicalStringify } from '../scripts/catalog/lib/canonical-json.mjs';
@@ -21,19 +19,12 @@ const taxonomySchema = await json('schemas/inventory/taxonomy-proposal.schema.js
 const validateSources = ajv.compile(sourceSchema);
 const validateInventory = ajv.compile(inventorySchema);
 const validateRules = ajv.compile(rulesSchema);
-const validateTaxonomy = ajv.compile(taxonomySchema);
+ajv.compile(taxonomySchema);
 
 const taxonomyIndex = await json('taxonomy/taxonomy.proposed.json');
 const classMapIndex = await json('taxonomy/class-map.proposed.json');
 const unresolvedIndex = await json('taxonomy/unresolved-cases.json');
 const inspectionIndex = await json('reports/catalog-source-inspection.json');
-async function gzipJson(file) { return JSON.parse(gunzipSync(await readFile(file)).toString('utf8')); }
-const taxonomy = await gzipJson(taxonomyIndex.payload_file);
-const classMapDocument = await gzipJson(classMapIndex.payload_file);
-const classMap = classMapDocument.clusters;
-const unresolvedDocument = await gzipJson(unresolvedIndex.payload_file);
-const unresolvedCases = unresolvedDocument.cases;
-const inspection = await gzipJson(inspectionIndex.payload_file);
 const report = await json('reports/catalog-source-inventory.json');
 const manifest = await json('reports/catalog-source-inventory-manifest.json');
 
@@ -41,10 +32,14 @@ function assertValid(validate, value, context) {
   assert.equal(validate(value), true, `${context}: ${JSON.stringify(validate.errors, null, 2)}`);
 }
 
-test('inventory source config and proposals pass production schemas', async () => {
+test('inventory source config and classification rules pass production schemas', async () => {
   assertValid(validateSources, await json('config/catalog-sources.json'), 'source config');
   assertValid(validateRules, await json('taxonomy/classification-rules.proposed.json'), 'classification rules');
-  assertValid(validateTaxonomy, taxonomy, 'taxonomy proposal');
+});
+
+test('taxonomy proposal schema compiles without loading private audit payloads', () => {
+  assert.equal(typeof taxonomySchema, 'object');
+  assert.equal(taxonomySchema.$schema, 'https://json-schema.org/draft/2020-12/schema');
 });
 
 test('representative inventory record passes its schema', () => {
@@ -67,11 +62,11 @@ test('representative inventory record passes its schema', () => {
   assertValid(validateInventory, value, 'representative inventory record');
 });
 
-test('committed proposal indexes, reports, and manifest are internally consistent', () => {
-  assert.equal(classMapDocument.cluster_count, Object.keys(classMap).length);
-  assert.equal(unresolvedDocument.case_count, unresolvedCases.length);
-  assert.equal(classMapDocument.cluster_count, 1515);
-  assert.equal(unresolvedDocument.case_count, 192);
+test('committed indexes, reports, and manifest are internally consistent', () => {
+  assert.equal(taxonomyIndex.class_count, 27);
+  assert.equal(taxonomyIndex.open_question_count, unresolvedIndex.case_count);
+  assert.equal(classMapIndex.cluster_count, 1515);
+  assert.equal(unresolvedIndex.case_count, 192);
   assert.equal(report.total_inventory_records, 4452);
   assert.deepEqual(report.row_status_counts, {non_product: 339, product_candidate: 4113});
   assert.deepEqual(report.taxonomy_status_counts, {ambiguous: 300, not_applicable: 339, proposed_mapped: 3333, unsupported: 480});
@@ -79,31 +74,27 @@ test('committed proposal indexes, reports, and manifest are internally consisten
   assert.equal(report.ignored_sheet_count, 26);
   assert.equal(manifest.total_inventory_records, report.total_inventory_records);
   assert.equal(manifest.inventory_sha256, report.inventory_file_sha256);
-  assert.equal(manifest.proposal_input_sha256, taxonomy.source_inventory_sha256);
-  assert.equal(taxonomyIndex.class_count, Object.keys(taxonomy.classes).length);
-  assert.equal(taxonomyIndex.open_question_count, taxonomy.open_questions.length);
+  assert.equal(manifest.proposal_input_sha256, taxonomyIndex.source_inventory_sha256);
   assert.equal(manifest.committed, false);
   assert.equal(manifest.contains_prices, false);
   assert.equal(manifest.source_files.length, 4);
-  assert.equal(inspection.sources.length, 4);
+  assert.equal(inspectionIndex.source_count, 4);
+  assert.equal(taxonomyIndex.status, 'proposed');
+  assert.equal(taxonomyIndex.mass_annotation_allowed, false);
 });
 
-test('every unresolved and class reference is auditable', () => {
-  const caseIds = new Set(unresolvedCases.map(item => item.case_id));
-  assert.equal(caseIds.size, unresolvedCases.length);
-  assert.deepEqual(new Set(taxonomy.open_questions), caseIds);
-  assert.ok(unresolvedCases.every(item => item.owner_decision === null));
-  for (const [classId, definition] of Object.entries(taxonomy.classes)) {
-    assert.equal(definition.review_status, 'needs_owner_approval', classId);
-    assert.ok(definition.source_examples.length >= 1, classId);
-    for (const clusterId of definition.cluster_ids) assert.ok(Object.hasOwn(classMap, clusterId), `${classId}:${clusterId}`);
-    for (const caseId of definition.open_question_ids) assert.ok(caseIds.has(caseId), `${classId}:${caseId}`);
+test('private full audit payloads are referenced by hash but excluded from Git', async () => {
+  const indexes = [taxonomyIndex, classMapIndex, unresolvedIndex, inspectionIndex];
+  for (const index of indexes) {
+    assert.match(index.payload_file, /^(?:taxonomy|reports)\/generated\/.+\.json\.gz$/);
+    assert.match(index.payload_sha256, /^[0-9a-f]{64}$/);
+    assert.match(index.payload_uncompressed_sha256, /^[0-9a-f]{64}$/);
   }
-  for (const item of unresolvedCases) {
-    for (const clusterId of item.cluster_ids) assert.ok(Object.hasOwn(classMap, clusterId), `${item.case_id}:${clusterId}`);
-  }
-  assert.equal(taxonomy.status, 'proposed');
-  assert.equal(taxonomy.mass_annotation_allowed, false);
+  const ignore = await text('.gitignore');
+  assert.match(ignore, /\/data\/source\/\*/);
+  assert.match(ignore, /\/data\/generated\/\*/);
+  assert.match(ignore, /\/reports\/generated\/\*/);
+  assert.match(ignore, /\/taxonomy\/generated\/\*/);
 });
 
 test('committed generated JSON is canonical and deterministic', async () => {
@@ -121,17 +112,7 @@ test('committed generated JSON is canonical and deterministic', async () => {
   }
 });
 
-test('compressed proposal payloads are deterministic and hash-anchored', async () => {
-  for (const index of [taxonomyIndex, classMapIndex, unresolvedIndex, inspectionIndex]) {
-    const compressed = await readFile(index.payload_file);
-    const raw = gunzipSync(compressed).toString('utf8');
-    assert.equal(createHash('sha256').update(compressed).digest('hex'), index.payload_sha256);
-    assert.equal(createHash('sha256').update(raw).digest('hex'), index.payload_uncompressed_sha256);
-    assert.equal(raw, `${canonicalStringify(JSON.parse(raw), 2)}\n`);
-  }
-});
-
-test('committed audit outputs contain no price fields or machine-local paths', () => {
+test('committed summaries contain no price fields or machine-local paths', () => {
   const forbiddenKey = /^(price|cost|amount|цена|стоимость)$/iu;
   const localPath = /(?:\/mnt\/data|[A-Z]:\\)/u;
   function scan(value, path = '') {
@@ -145,10 +126,10 @@ test('committed audit outputs contain no price fields or machine-local paths', (
     }
     if (typeof value === 'string') assert.equal(localPath.test(value), false, `${path}: ${value}`);
   }
-  scan(taxonomy);
-  scan(classMap);
-  scan(unresolvedCases);
-  scan(inspection);
+  scan(taxonomyIndex);
+  scan(classMapIndex);
+  scan(unresolvedIndex);
+  scan(inspectionIndex);
   scan(report);
   scan(manifest);
 });
