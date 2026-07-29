@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://example.local/schemas/bundles/request-bundle.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "kind", "taxonomy_version", "annotation_kit_version", "source", "request_document"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" }, "kind": { "const": "request_bundle" },
+    "taxonomy_version": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/semver" }, "annotation_kit_version": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/semver" },
+    "source": { "type": "object", "additionalProperties": false, "required": ["source_file_name", "line_count"], "properties": { "source_file_name": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/sourceFileName" }, "source_sha256": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/sha256" }, "annotated_at": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/annotatedAt" }, "line_count": { "type": "integer", "minimum": 1 } } },
+    "request_document": { "$ref": "https://example.local/schemas/annotation/request-document.base.schema.json" }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/bundles/annotation-bundle-manifest.schema.json",
+  "$defs": {
+    "semver": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "annotatedAt": { "type": "string", "format": "date-time" },
+    "sourceFileName": { "type": "string", "minLength": 1 },
+    "rawScalar": { "type": ["string", "number", "boolean", "null"] }
+  }
+}
