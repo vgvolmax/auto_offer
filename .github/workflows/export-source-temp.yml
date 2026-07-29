@@ -1,0 +1,19 @@
+name: Temporary source export
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  export-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build source archive
+        run: tar --exclude=.git --exclude='data/source/*' --exclude='data/generated/*' --exclude='reports/local/*' --exclude='reports/generated/*' --exclude='taxonomy/local/*' --exclude='taxonomy/generated/*' -czf /tmp/auto_offer-source.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: auto-offer-source
+          path: /tmp/auto_offer-source.tar.gz
+          if-no-files-found: error
+          retention-days: 1
