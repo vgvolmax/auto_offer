@@ -23,7 +23,7 @@
     "taxonomy:review-status": "node scripts/taxonomy/build-review-status.mjs",
     "test:taxonomy-review": "node --test tests/taxonomy-review-*.test.mjs",
     "test": "npm run check:annotation-schemas && npm run test:production-taxonomy && npm run test:annotation && npm run test:bundles && npm run test:catalog && npm run test:inventory && npm run test:taxonomy-review",
-    "test:bundles": "node --test tests/catalog-bundle.test.mjs tests/request-bundle.test.mjs",
+    "test:bundles": "node --test tests/catalog-bundle.test.mjs tests/request-bundle.test.mjs tests/bundle-cli.test.mjs",
     "validate:catalog-bundle": "node scripts/bundles/validate-catalog-bundle.mjs",
     "validate:request-bundle": "node scripts/bundles/validate-request-bundle.mjs",
     "taxonomy:validate-production": "node scripts/taxonomy/validate-production-taxonomy.mjs",
