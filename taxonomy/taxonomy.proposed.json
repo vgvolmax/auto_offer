@@ -2,9 +2,13 @@
   "class_count": 27,
   "mass_annotation_allowed": false,
   "open_question_count": 192,
-  "payload_file": "taxonomy/generated/taxonomy.proposed.full.json.gz",
-  "payload_sha256": "99ce9c4a97cf40d0f50da86a4deba0440c793ff3d39c6c136aff1a1d5cec6fee",
-  "payload_uncompressed_sha256": "338453e1dfc06950d11108606dd5730dc2c490e38d707dc4aa4288c986a0c3b4",
+  "private_payload": {
+    "artifact_kind": "taxonomy_proposal_full",
+    "committed": false,
+    "regeneration_command": "npm run catalog:inventory",
+    "sha256": "99ce9c4a97cf40d0f50da86a4deba0440c793ff3d39c6c136aff1a1d5cec6fee",
+    "uncompressed_sha256": "338453e1dfc06950d11108606dd5730dc2c490e38d707dc4aa4288c986a0c3b4"
+  },
   "proposal_schema_version": "1.0.0",
   "proposal_version": "0.1.0",
   "source_file_hashes": {

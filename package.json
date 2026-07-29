@@ -15,7 +15,12 @@
     "catalog:propose-taxonomy": "node scripts/catalog/build-taxonomy-proposal.mjs",
     "catalog:validate": "node scripts/catalog/validate-catalog-inventory.mjs",
     "catalog:inventory": "npm run catalog:inspect && npm run catalog:extract && npm run catalog:propose-taxonomy && npm run catalog:validate",
-    "test": "npm run check:annotation-schemas && npm run test:annotation && npm run test:catalog && npm run test:inventory"
+    "taxonomy:review-pack": "node scripts/taxonomy/build-review-pack.mjs",
+    "taxonomy:create-approval-draft": "node scripts/taxonomy/create-approval-draft.mjs",
+    "taxonomy:validate-approval": "node scripts/taxonomy/validate-taxonomy-approval.mjs",
+    "taxonomy:review-status": "node scripts/taxonomy/build-review-status.mjs",
+    "test:taxonomy-review": "node --test tests/taxonomy-review-*.test.mjs",
+    "test": "npm run check:annotation-schemas && npm run test:annotation && npm run test:catalog && npm run test:inventory && npm run test:taxonomy-review"
   },
   "dependencies": {"ajv": "^8.17.1", "ajv-formats": "^3.0.1"}
 }

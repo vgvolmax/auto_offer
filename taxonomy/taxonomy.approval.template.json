@@ -1,0 +1,1435 @@
+{
+  "approval_schema_version": "1.0.0",
+  "case_decisions": [
+    {
+      "case_id": "case:0000000000000001",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000002",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000003",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000004",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000005",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000006",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000007",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000008",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000009",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000000a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000000b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000000c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000000d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000000e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000000f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000010",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000011",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000012",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000013",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000014",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000015",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000016",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000017",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000018",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000019",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000001a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000001b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000001c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000001d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000001e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000001f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000020",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000021",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000022",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000023",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000024",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000025",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000026",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000027",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000028",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000029",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000002a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000002b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000002c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000002d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000002e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000002f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000030",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000031",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000032",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000033",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000034",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000035",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000036",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000037",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000038",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000039",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000003a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000003b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000003c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000003d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000003e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000003f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000040",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000041",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000042",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000043",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000044",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000045",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000046",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000047",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000048",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000049",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000004a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000004b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000004c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000004d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000004e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000004f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000050",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000051",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000052",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000053",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000054",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000055",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000056",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000057",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000058",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000059",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000005a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000005b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000005c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000005d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000005e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000005f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000060",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000061",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000062",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000063",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000064",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000065",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000066",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000067",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000068",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000069",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000006a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000006b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000006c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000006d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000006e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000006f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000070",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000071",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000072",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000073",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000074",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000075",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000076",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000077",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000078",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000079",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000007a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000007b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000007c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000007d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000007e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000007f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000080",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000081",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000082",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000083",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000084",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000085",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000086",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000087",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000088",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000089",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000008a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000008b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000008c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000008d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000008e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000008f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000090",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000091",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000092",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000093",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000094",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000095",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000096",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000097",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000098",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:0000000000000099",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000009a",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000009b",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000009c",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000009d",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000009e",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:000000000000009f",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a0",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a1",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a2",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a3",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a4",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a5",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a6",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a7",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a8",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000a9",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000aa",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000ab",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000ac",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000ad",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000ae",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000af",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b0",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b1",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b2",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b3",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b4",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b5",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b6",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b7",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b8",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000b9",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000ba",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000bb",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000bc",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000bd",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000be",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000bf",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    },
+    {
+      "case_id": "case:00000000000000c0",
+      "decision": null,
+      "notes": null,
+      "selected_option_ids": []
+    }
+  ],
+  "class_decisions": [
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "accessory.floor_heating",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "conduit.corrugated",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "drain.floor",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "fitting.axial",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "fitting.brass.threaded",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "fitting.compression",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "fitting.ppr",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "fitting.radial",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "fitting.sewer.external",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "fitting.sewer.internal",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "fitting.sewer.low_noise",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "insulation.pipe",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "manifold",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "pipe.hdpe",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "pipe.multilayer",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "pipe.pert",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "pipe.pex_a",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "pipe.ppr",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "pipe.sewer.external",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "pipe.sewer.internal",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "pipe.sewer.low_noise",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "sanitary.connector",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "sealant.plumbing",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "support.pipe",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "tool.mounting",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "valve.ball",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    },
+    {
+      "approved_attributes": [],
+      "approved_ports": [],
+      "approved_value_set_refs": [],
+      "class_id": "valve.shutoff",
+      "decision": null,
+      "final_class_ids": [],
+      "matching_critical_fields": [],
+      "notes": null
+    }
+  ],
+  "mass_annotation_allowed": false,
+  "owner_signoff": null,
+  "proposal_sha256": "48c4927c2793b7ef2ac572191e59690e38684aa83e49e1d7f35bd41343fae1a1",
+  "proposal_version": "0.1.0",
+  "source_inventory_sha256": "ca598a7ed338eadf49cc0f89edc8fdf42841929c1a5c712fac671b6998f47be8",
+  "status": "draft"
+}

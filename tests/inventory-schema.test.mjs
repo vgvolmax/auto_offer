@@ -83,9 +83,15 @@ test('committed indexes, reports, and manifest are internally consistent', () =>
   assert.equal(taxonomyIndex.mass_annotation_allowed, false);
 });
 
-test('private full audit payloads are referenced by hash but excluded from Git', async () => {
-  const indexes = [taxonomyIndex, classMapIndex, unresolvedIndex, inspectionIndex];
-  for (const index of indexes) {
+test('private full taxonomy payloads have explicit local-only manifests', async () => {
+  for (const index of [taxonomyIndex, classMapIndex, unresolvedIndex]) {
+    assert.equal(index.private_payload.committed, false);
+    assert.equal(index.private_payload.regeneration_command, 'npm run catalog:inventory');
+    assert.equal('payload_file' in index, false);
+    assert.match(index.private_payload.sha256, /^[0-9a-f]{64}$/);
+    assert.match(index.private_payload.uncompressed_sha256, /^[0-9a-f]{64}$/);
+  }
+  for (const index of [inspectionIndex]) {
     assert.match(index.payload_file, /^(?:taxonomy|reports)\/generated\/.+\.json\.gz$/);
     assert.match(index.payload_sha256, /^[0-9a-f]{64}$/);
     assert.match(index.payload_uncompressed_sha256, /^[0-9a-f]{64}$/);

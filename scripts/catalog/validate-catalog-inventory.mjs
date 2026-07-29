@@ -24,9 +24,9 @@ const taxonomyIndex = await loadJson('taxonomy/taxonomy.proposed.json');
 const classMapIndex = await loadJson('taxonomy/class-map.proposed.json');
 const unresolvedIndex = await loadJson('taxonomy/unresolved-cases.json');
 async function loadGzipJson(file) { return JSON.parse(gunzipSync(await readFile(file)).toString('utf8')); }
-const taxonomy = await loadGzipJson(taxonomyIndex.payload_file);
-const classMap = await loadGzipJson(classMapIndex.payload_file);
-const unresolved = await loadGzipJson(unresolvedIndex.payload_file);
+const taxonomy = await loadGzipJson('taxonomy/generated/taxonomy.proposed.full.json.gz');
+const classMap = await loadGzipJson('taxonomy/generated/class-map.proposed.full.json.gz');
+const unresolved = await loadGzipJson('taxonomy/generated/unresolved-cases.full.json.gz');
 const report = await loadJson('reports/catalog-source-inventory.json');
 const manifest = await loadJson('reports/catalog-source-inventory-manifest.json');
 
