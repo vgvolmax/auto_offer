@@ -80,15 +80,40 @@ await writeCanonicalJson('reports/catalog-source-inspection.json', {
   payload_sha256: inspectionHashes.compressed_sha256,
   payload_uncompressed_sha256: inspectionHashes.uncompressed_sha256
 });
-const lines = ['# Catalog source inspection', '', 'NOT APPROVED FOR MASS ANNOTATION', ''];
+const lines = [
+  '# Catalog source inspection',
+  '',
+  'NOT APPROVED FOR MASS ANNOTATION',
+  '',
+  'The complete workbook inspection is generated locally from private Excel files and excluded from Git. This report contains aggregate sheet-level metadata only.',
+  ''
+];
 for (const source of sources) {
-  lines.push(`## ${source.source_id}`, '', `- File: \`${source.filename}\``, `- SHA-256: \`${source.sha256}\``, `- Price pool: \`${source.price_pool}\``, '');
-  lines.push('| Sheet | State | Rows | Formulas | Missing cached formulas | Disposition |', '|---|---:|---:|---:|---:|---|');
-  for (const sheet of source.sheets) lines.push(`| ${sheet.name.replaceAll('|', '\\|')} | ${sheet.state} | ${sheet.nonempty_row_count} | ${sheet.formula_count} | ${sheet.formula_without_cached_value_count} | ${sheet.disposition}${sheet.ignored_reason ? ` — ${sheet.ignored_reason}` : ''} |`);
-  lines.push('');
-  for (const sheet of source.sheets.filter(item => item.disposition === 'configured')) {
-    lines.push(`### ${sheet.name}`, '', `- Header row: ${sheet.configured_header?.row ?? 'missing'}`, `- Columns: \`${JSON.stringify(sheet.configured_columns)}\``, `- Row predicate: \`${sheet.row_predicate}\``, `- Context columns: ${sheet.context_columns.join(', ') || 'none'}`, `- Carry-forward context columns: ${sheet.carry_forward_context_columns.join(', ') || 'none'}`, '');
-  }
+  const configuredCount = source.sheets.filter(sheet => sheet.disposition === 'configured').length;
+  const ignoredCount = source.sheets.filter(sheet => sheet.disposition === 'ignored').length;
+  const nonemptyRows = source.sheets.reduce((sum, sheet) => sum + sheet.nonempty_row_count, 0);
+  lines.push(
+    `## ${source.source_id}`,
+    '',
+    `- File: \`${source.filename}\``,
+    `- SHA-256: \`${source.sha256}\``,
+    `- Price pool: \`${source.price_pool}\``,
+    `- Physical non-empty rows: ${nonemptyRows}`,
+    `- Configured sheets: ${configuredCount}`,
+    `- Explicitly ignored sheets: ${ignoredCount}`,
+    ''
+  );
 }
+const allSheets = sources.flatMap(source => source.sheets);
+lines.push(
+  '## Coverage',
+  '',
+  `- Source workbooks: ${sources.length}`,
+  `- Configured non-empty sheets: ${allSheets.filter(sheet => sheet.disposition === 'configured').length}`,
+  `- Explicitly ignored non-empty sheets: ${allSheets.filter(sheet => sheet.disposition === 'ignored').length}`,
+  `- Physical non-empty rows across all sheets: ${allSheets.reduce((sum, sheet) => sum + sheet.nonempty_row_count, 0)}`,
+  '',
+  'Every non-empty sheet is either configured or explicitly ignored with a non-empty reason. Regenerate the detailed local inspection with `npm run catalog:inspect`.'
+);
 await writeText('reports/catalog-source-inspection.md', lines.join('\n'));
 console.log(`Inspected ${sources.length} workbooks.`);
