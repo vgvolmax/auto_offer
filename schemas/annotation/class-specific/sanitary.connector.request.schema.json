@@ -34,7 +34,54 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "flexible_connector",
+                                      "sanitary_fixture"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "flexible_connector",
+                                        "sanitary_fixture"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "nominal_diameter_dn": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -64,7 +111,56 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "flexible_connector",
+                                      "sewer_socket",
+                                      "sewer_spigot"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "flexible_connector",
+                                        "sewer_socket",
+                                        "sewer_spigot"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "nominal_diameter_dn": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -79,7 +175,54 @@
                         "const": "sewer_port"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_external",
+                                      "sewer_internal"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_external",
+                                        "sewer_internal"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "thread_size": {
                         "$ref": "../common.schema.json#/$defs/rationalConstraint"

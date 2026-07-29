@@ -34,7 +34,51 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_socket"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_socket"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "pipe_outer_diameter_mm": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -43,7 +87,51 @@
                         "const": "socket"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_internal"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_internal"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -55,7 +143,51 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_spigot"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_spigot"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "pipe_outer_diameter_mm": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -64,7 +196,51 @@
                         "const": "spigot"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_internal"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_internal"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       }
                     },
                     "required": [

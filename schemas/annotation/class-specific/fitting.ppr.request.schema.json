@@ -37,7 +37,58 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "female_thread",
+                                      "male_thread",
+                                      "socket_fusion",
+                                      "union"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "female_thread",
+                                        "male_thread",
+                                        "socket_fusion",
+                                        "union"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "nominal_diameter_dn": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -52,7 +103,54 @@
                         "const": "end_1"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "ppr",
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "ppr",
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "thread_size": {
                         "$ref": "../common.schema.json#/$defs/rationalConstraint"
@@ -70,7 +168,58 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "female_thread",
+                                      "male_thread",
+                                      "socket_fusion",
+                                      "union"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "female_thread",
+                                        "male_thread",
+                                        "socket_fusion",
+                                        "union"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "nominal_diameter_dn": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -85,7 +234,54 @@
                         "const": "end_2"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "ppr",
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "ppr",
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "thread_size": {
                         "$ref": "../common.schema.json#/$defs/rationalConstraint"
@@ -103,7 +299,58 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "female_thread",
+                                      "male_thread",
+                                      "socket_fusion",
+                                      "union"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "female_thread",
+                                        "male_thread",
+                                        "socket_fusion",
+                                        "union"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "nominal_diameter_dn": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -118,7 +365,54 @@
                         "const": "branch_1"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "ppr",
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "ppr",
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "thread_size": {
                         "$ref": "../common.schema.json#/$defs/rationalConstraint"
@@ -136,7 +430,58 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "female_thread",
+                                      "male_thread",
+                                      "socket_fusion",
+                                      "union"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "female_thread",
+                                        "male_thread",
+                                        "socket_fusion",
+                                        "union"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "nominal_diameter_dn": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -151,7 +496,54 @@
                         "const": "branch_2"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "ppr",
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "ppr",
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "thread_size": {
                         "$ref": "../common.schema.json#/$defs/rationalConstraint"

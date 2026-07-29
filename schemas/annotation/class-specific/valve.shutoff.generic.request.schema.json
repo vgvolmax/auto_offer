@@ -37,7 +37,62 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "compression",
+                                      "female_thread",
+                                      "flange",
+                                      "male_thread",
+                                      "socket_fusion",
+                                      "union"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "compression",
+                                        "female_thread",
+                                        "flange",
+                                        "male_thread",
+                                        "socket_fusion",
+                                        "union"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "nominal_diameter_dn": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -52,7 +107,62 @@
                         "const": "inlet"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "hdpe",
+                                      "multilayer",
+                                      "pe_rt",
+                                      "pe_xa",
+                                      "ppr",
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "hdpe",
+                                        "multilayer",
+                                        "pe_rt",
+                                        "pe_xa",
+                                        "ppr",
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "thread_size": {
                         "$ref": "../common.schema.json#/$defs/rationalConstraint"
@@ -70,7 +180,62 @@
                     "additionalProperties": false,
                     "properties": {
                       "connection_kind": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "compression",
+                                      "female_thread",
+                                      "flange",
+                                      "male_thread",
+                                      "socket_fusion",
+                                      "union"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "compression",
+                                        "female_thread",
+                                        "flange",
+                                        "male_thread",
+                                        "socket_fusion",
+                                        "union"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "nominal_diameter_dn": {
                         "$ref": "../common.schema.json#/$defs/numberConstraint"
@@ -85,7 +250,62 @@
                         "const": "outlet"
                       },
                       "system": {
-                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "hdpe",
+                                      "multilayer",
+                                      "pe_rt",
+                                      "pe_xa",
+                                      "ppr",
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "hdpe",
+                                        "multilayer",
+                                        "pe_rt",
+                                        "pe_xa",
+                                        "ppr",
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       "thread_size": {
                         "$ref": "../common.schema.json#/$defs/rationalConstraint"

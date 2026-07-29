@@ -40,6 +40,61 @@ function valveItem() {
   };
 }
 
+function requestLine(classId, port, pointerKind, pointer) {
+  return {
+    line_id: 'synthetic-line', raw_text: 'synthetic request line', class_id: classId,
+    requested_identity: {}, constraints: { attributes: {}, ports: [port] }, quantity: { value: 1, unit: 'piece' },
+    substitution_statement: { explicit: false, policy: 'unspecified', raw_text: null },
+    annotation: { status: 'needs_review', unknown_fields: pointerKind === 'unknown' ? [pointer] : [], issues: [],
+      ambiguities: pointerKind === 'ambiguity' ? [{ json_pointer: pointer, code: 'SYNTHETIC', source_text: 'synthetic', possible_values: ['a', 'b'] }] : [], evidence: [] }
+  };
+}
+
+function validateRequestLine(line) {
+  const data = { schema_version: '1.1.0', taxonomy_version: '1.0.0', request_id: 'synthetic', document: { source_file: 'synthetic', document_type: 'product_request' }, lines: [line] };
+  return validateAnnotation({ kind: 'request_document', data, taxonomy, registry, schemas: classSchemas });
+}
+
+test('class-specific request schemas reject selectors outside their port contracts', () => {
+  const invalid = [
+    requestLine('valve.ball', { role: 'inlet', connection_kind: { operator: 'eq', value: 'sewer_socket' } }),
+    requestLine('valve.ball', { role: 'inlet', connection_kind: { operator: 'in', values: ['female_thread', 'sewer_socket'] } }),
+    requestLine('pipe.pert', { role: 'pipe_end', system: { operator: 'eq', value: 'sewer_internal' } }),
+    requestLine('pipe.pert', { role: 'pipe_end', connection_kind: { operator: 'eq', value: 'compression' } }),
+    requestLine('pipe.pert', { role: 'pipe_end', connection_kind: { operator: 'neq', value: 'plain_end' } })
+  ];
+  for (const line of invalid) {
+    const validator = classSchemas[registry.classes[line.class_id].request_schema].validator;
+    assert.equal(validator(line), false, JSON.stringify(line.constraints.ports[0]));
+    assert.ok(validateRequestLine(line).issues.some(item => item.code === 'CLASS_SPECIFIC_VALIDATION_FAILED'));
+  }
+});
+
+test('class-specific request schemas accept selectors declared by their port contracts', () => {
+  const valid = [
+    requestLine('valve.ball', { role: 'inlet', connection_kind: { operator: 'eq', value: 'female_thread' }, system: { operator: 'eq', value: 'threaded_generic' } }),
+    requestLine('pipe.pert', { role: 'pipe_end', connection_kind: { operator: 'eq', value: 'plain_end' }, system: { operator: 'eq', value: 'pe_rt' }, pipe_outer_diameter_mm: { operator: 'eq', value: 20 } })
+  ];
+  for (const line of valid) {
+    const validator = classSchemas[registry.classes[line.class_id].request_schema].validator;
+    assert.equal(validator(line), true, JSON.stringify(validator.errors, null, 2));
+  }
+});
+
+test('request pointer validation is class- and role-aware', () => {
+  for (const kind of ['unknown', 'ambiguity']) {
+    const code = kind === 'unknown' ? 'UNKNOWN_PATH_NOT_ALLOWED' : 'AMBIGUITY_PATH_NOT_ALLOWED';
+    const rejected = validateRequestLine(requestLine('pipe.pert', { role: 'pipe_end' }, kind, '/constraints/ports/0/thread_size'));
+    assert.ok(rejected.issues.some(item => item.code === code));
+  }
+  const allowed = validateRequestLine(requestLine('pipe.pert', { role: 'pipe_end' }, 'unknown', '/constraints/ports/0/pipe_outer_diameter_mm'));
+  assert.equal(allowed.issues.some(item => item.code === 'UNKNOWN_PATH_NOT_ALLOWED'), false);
+  const fixture = validateRequestLine(requestLine('sanitary.connector', { role: 'fixture_port' }, 'unknown', '/constraints/ports/0/system'));
+  assert.ok(fixture.issues.some(item => item.code === 'UNKNOWN_PATH_NOT_ALLOWED'));
+  const sewer = validateRequestLine(requestLine('sanitary.connector', { role: 'sewer_port' }, 'unknown', '/constraints/ports/0/system'));
+  assert.equal(sewer.issues.some(item => item.code === 'UNKNOWN_PATH_NOT_ALLOWED'), false);
+});
+
 test('repeatable pipe_end roles are accepted for pressure pipes', () => {
   const result = validateAnnotation({ kind: 'catalog_item', data: pipeItem(), taxonomy, registry, schemas: classSchemas });
   assert.equal(result.valid, true, JSON.stringify(result.issues, null, 2));
