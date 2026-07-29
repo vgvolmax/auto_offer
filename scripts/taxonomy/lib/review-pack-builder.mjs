@@ -2,77 +2,35 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
 export const PRIVATE_INVENTORY_ERROR = 'PRIVATE_INVENTORY_NOT_FOUND:\nrun npm run catalog:inventory with the configured source workbooks first';
-const stable = value => JSON.stringify(value, Object.keys(value ?? {}).sort());
 export const canonical = value => JSON.stringify(sortDeep(value), null, 2) + '\n';
 function sortDeep(value) { if (Array.isArray(value)) return value.map(sortDeep); if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(k => [k, sortDeep(value[k])])); return value; }
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
 const uniq = xs => [...new Set((xs ?? []).filter(x => x != null))].sort();
-
-export async function readInventory(path) {
-  let text;
-  try { text = await readFile(path, 'utf8'); } catch (error) { if (error.code === 'ENOENT') throw new Error(PRIVATE_INVENTORY_ERROR); throw error; }
-  return { text, records: text.trim() ? text.trimEnd().split('\n').map(line => JSON.parse(line)) : [] };
+export async function readInventory(path) { let text; try { text=await readFile(path,'utf8'); } catch(e) { if(e.code==='ENOENT') throw new Error(PRIVATE_INVENTORY_ERROR); throw e; } return {text,records:text.trim()?text.trimEnd().split('\n').map(JSON.parse):[]}; }
+function example(r) { return {source_item_id:String(r.source_item_id),source_id:String(r.source_id??r.source_file?.source_id??''),sheet:String(r.sheet??r.source?.sheet??r.source_location?.sheet??''),row:Number(r.row??r.source?.row??r.source_location?.row??0),raw_name:String(r.raw_name??r.raw?.name??''),normalized_name:String(r.normalized_name??r.normalized?.name??''),category_context:uniq(r.category_context??r.raw?.category_context??[]),cluster_id:String(r.cluster_id??''),proposed_class_ids:uniq(r.proposed_class_ids),matched_rule_ids:uniq(r.matched_rule_ids),diagnostic_codes:uniq(r.diagnostic_codes??r.duplicate_flags??[])}; }
+function ordering(config) { const sources=new Map((config.sources??[]).map((x,i)=>[x.source_id,i])),sheets=new Map(); for(const s of config.sources??[]) for(const [i,x] of (s.sheets??[]).entries()) sheets.set(`${s.source_id}\0${x.name??x.sheet}`,i); return (a,b)=>(sources.get(a.source_id)??1e9)-(sources.get(b.source_id)??1e9)||(sheets.get(`${a.source_id}\0${a.sheet}`)??1e9)-(sheets.get(`${b.source_id}\0${b.sheet}`)??1e9)||a.row-b.row||a.source_item_id.localeCompare(b.source_item_id); }
+export function assertPrivateMetadata({taxonomyIndex,taxonomyFull,classMapIndex,classMapFull,unresolvedIndex,unresolvedFull}) {
+ const indexes=[taxonomyIndex,classMapIndex,unresolvedIndex], keys=['proposal_schema_version','proposal_version','source_inventory_sha256'];
+ if(keys.some(k=>new Set(indexes.map(x=>x[k])).size!==1)) throw new Error('PRIVATE_PAYLOAD_METADATA_MISMATCH: compact index metadata differs');
+ for (const full of [taxonomyFull,classMapFull,unresolvedFull]) if (keys.some(k=>full?.[k]!==taxonomyIndex[k])) throw new Error('PRIVATE_PAYLOAD_METADATA_MISMATCH: full payload metadata differs from compact indexes');
+ const classes=taxonomyFull?.classes, clusters=classMapFull?.clusters, cases=unresolvedFull?.cases;
+ const checks=[[classes,taxonomyIndex.class_count,'class_id','classes'],[clusters,classMapIndex.cluster_count,null,'clusters'],[cases,unresolvedIndex.case_count,'case_id','cases']];
+ for(const [value,count,id,label] of checks) { const items=Array.isArray(value)?value:Object.entries(value??{}).map(([key,v])=>({...v,[id??'__key']:key})); const ids=items.map((x,i)=>id?x[id]:Object.keys(value??{})[i]); if(items.length!==count||new Set(ids).size!==items.length||ids.some(x=>!x)) throw new Error(`PRIVATE_PAYLOAD_METADATA_MISMATCH: ${label} count or IDs do not match compact index`); }
 }
-function example(r) {
-  return {
-    source_item_id: String(r.source_item_id),
-    source_id: String(r.source_id ?? r.source_file?.source_id ?? ''),
-    sheet: String(r.sheet ?? r.source?.sheet ?? r.source_location?.sheet ?? ''),
-    row: Number(r.row ?? r.source?.row ?? r.source_location?.row ?? 0),
-    raw_name: String(r.raw_name ?? r.raw?.name ?? ''),
-    normalized_name: String(r.normalized_name ?? r.normalized?.name ?? ''),
-    category_context: uniq(r.category_context ?? r.raw?.category_context ?? []),
-    cluster_id: String(r.cluster_id ?? ''),
-    proposed_class_ids: uniq(r.proposed_class_ids),
-    matched_rule_ids: uniq(r.matched_rule_ids),
-    diagnostic_codes: uniq(r.diagnostic_codes ?? r.duplicate_flags ?? [])
-  };
+export function buildReviewPack({inventoryText,records,taxonomyIndex,taxonomyFull,classMapIndex,classMapFull,unresolvedIndex,unresolvedFull,sourceConfig={sources:[]}}) {
+ assertPrivateMetadata({taxonomyIndex,taxonomyFull,classMapIndex,classMapFull,unresolvedIndex,unresolvedFull});
+ const order=ordering(sourceConfig), all=records.map(example).sort(order), definitions=taxonomyFull.classes??{}, clusters=classMapFull.clusters??{}, cases=[...unresolvedFull.cases].sort((a,b)=>a.case_id.localeCompare(b.case_id));
+ const questions=new Map(Object.keys(definitions).map(id=>[id,new Set()]));
+ for(const c of cases) { const explicit=uniq([...(c.class_ids??[]),...(c.proposed_class_ids??[])]); const linked=uniq((c.cluster_ids??[]).flatMap(id=>clusters[id]?.proposed_class_ids??[])); for(const id of [...explicit,...linked]) if(questions.has(id)) questions.get(id).add(c.case_id); }
+ const classes=Object.entries(definitions).sort(([a],[b])=>a.localeCompare(b)).map(([classId,def])=>{
+  const related=all.filter(x=>x.proposed_class_ids.includes(classId)), used=new Set(), take=(items,n)=>{const out=[];for(const x of items)if(!used.has(x.source_item_id)&&out.length<n){used.add(x.source_item_id);out.push(x)}return out};
+  const sizes=new Map(); for(const x of related)sizes.set(x.cluster_id,(sizes.get(x.cluster_id)??0)+1);
+  const pool=[...related].sort((a,b)=>(sizes.get(b.cluster_id)-sizes.get(a.cluster_id))||order(a,b)), reps=[], seen=new Set(); for(const x of pool)if(!seen.has(x.cluster_id)){seen.add(x.cluster_id);reps.push(x)}
+  const representative_examples=take(reps,10), boundary_examples=take(related.filter(x=>x.proposed_class_ids.length>1||x.matched_rule_ids.length>1),10), ambiguous_examples=take(related.filter(x=>x.diagnostic_codes.length||x.proposed_class_ids.length!==1),10), additional_examples=take(related,30-used.size);
+  return {class_id:classId,name_ru:def.name_ru,family_id:def.family_id,source_row_count:related.length||def.source_row_count||0,candidate_attributes:uniq(def.candidate_attributes),candidate_ports:uniq(def.candidate_ports),overlaps_with:uniq(related.flatMap(x=>x.proposed_class_ids).filter(x=>x!==classId)),matched_rule_ids:uniq(related.flatMap(x=>x.matched_rule_ids)),source_distribution:Object.fromEntries(uniq(related.map(x=>x.source_id)).map(id=>[id,related.filter(x=>x.source_id===id).length])),representative_examples,boundary_examples,ambiguous_examples,additional_examples,identifier_conflict_count:related.filter(x=>x.diagnostic_codes.some(c=>/CONFLICT/.test(c))).length,open_question_ids:[...questions.get(classId)].sort()};
+ });
+ const unresolved_cases=cases.map(c=>({case_id:c.case_id,type:c.type,question_ru:c.question_ru,candidate_options:[...(c.candidate_options??[])],recommended_option:null,rationale:null,examples:all.filter(x=>(c.source_references??[]).includes(x.source_item_id)||(c.cluster_ids??[]).includes(x.cluster_id)).slice(0,10)}));
+ const ids=unresolved_cases.map(x=>x.case_id); if(JSON.stringify(ids)!==JSON.stringify(cases.map(x=>x.case_id))) throw new Error('PRIVATE_PAYLOAD_METADATA_MISMATCH: unresolved case IDs changed');
+ return {review_pack_schema_version:'1.0.0',status:'draft',source_inventory_sha256:taxonomyIndex.source_inventory_sha256,proposal_version:taxonomyIndex.proposal_version,proposal_sha256:taxonomyIndex.private_payload.uncompressed_sha256,classes,unresolved_cases,summary:{class_count:classes.length,unresolved_case_count:unresolved_cases.length,example_count:classes.reduce((n,c)=>n+c.representative_examples.length+c.boundary_examples.length+c.ambiguous_examples.length+c.additional_examples.length,0)}};
 }
-function ordering(config) {
-  const sources = new Map((config.sources ?? []).map((x, i) => [x.source_id, i]));
-  const sheets = new Map();
-  for (const source of config.sources ?? []) for (const [i, sheet] of (source.sheets ?? []).entries()) sheets.set(`${source.source_id}\0${sheet.name ?? sheet.sheet}`, i);
-  return (a, b) => (sources.get(a.source_id) ?? 1e9) - (sources.get(b.source_id) ?? 1e9) || (sheets.get(`${a.source_id}\0${a.sheet}`) ?? 1e9) - (sheets.get(`${b.source_id}\0${b.sheet}`) ?? 1e9) || a.row - b.row || a.source_item_id.localeCompare(b.source_item_id);
-}
-export function buildReviewPack({inventoryText, records, taxonomy, classMap, unresolvedIndex, rules, sourceConfig = {sources: []}}) {
-  const proposalSha = sha256(canonical(taxonomy));
-  const all = records.map(example).sort(ordering(sourceConfig));
-  const definitions = rules.classes ?? {};
-  const counts = taxonomy.proposed_class_counts ?? {};
-  const classes = Object.entries(definitions).sort(([a],[b]) => a.localeCompare(b)).map(([classId, def]) => {
-    const related = all.filter(x => x.proposed_class_ids.includes(classId));
-    const used = new Set();
-    const take = (items, limit) => items.filter(x => !used.has(x.source_item_id)).filter(x => (used.add(x.source_item_id), true)).slice(0, limit);
-    const clusterSizes = new Map(); for (const x of related) clusterSizes.set(x.cluster_id, (clusterSizes.get(x.cluster_id) ?? 0) + 1);
-    const representativePool = [...related].sort((a,b) => (clusterSizes.get(b.cluster_id)-clusterSizes.get(a.cluster_id)) || ordering(sourceConfig)(a,b));
-    const representatives = []; const seenClusters = new Set();
-    for (const x of representativePool) if (!seenClusters.has(x.cluster_id)) { seenClusters.add(x.cluster_id); representatives.push(x); }
-    const boundary = related.filter(x => x.proposed_class_ids.length > 1 || x.matched_rule_ids.length > 1);
-    const ambiguous = related.filter(x => x.diagnostic_codes.length || x.proposed_class_ids.length !== 1);
-    return {class_id:classId,name_ru:def.name_ru,family_id:def.family_id,source_row_count:related.length || counts[classId] || 0,candidate_attributes:uniq(def.candidate_attributes),candidate_ports:uniq(def.candidate_ports),overlaps_with:uniq(related.flatMap(x=>x.proposed_class_ids).filter(x=>x!==classId)),matched_rule_ids:uniq(related.flatMap(x=>x.matched_rule_ids)),source_distribution:Object.fromEntries(uniq(related.map(x=>x.source_id)).map(id=>[id,related.filter(x=>x.source_id===id).length])),representative_examples:take(representatives,10),boundary_examples:take(boundary,10),ambiguous_examples:take(ambiguous,10),identifier_conflict_count:related.filter(x=>x.diagnostic_codes.some(c=>/CONFLICT/.test(c))).length,open_question_ids:uniq(related.flatMap(x=>x.unresolved_case_ids ?? []))};
-  });
-  let cases = unresolvedIndex.cases ?? [];
-  if (!cases.length) {
-    const groups = new Map();
-    for (const r of records.filter(x => ['ambiguous','unsupported'].includes(x.taxonomy_status))) { const a=groups.get(r.cluster_id)??[]; a.push(r); groups.set(r.cluster_id,a); }
-    cases = [...groups].map(([cluster_id, rows]) => ({case_id:`case:${sha256(stable({type:rows[0].taxonomy_status,cluster_id})).slice(0,16)}`,type:rows[0].taxonomy_status,question_ru:`Как обработать кластер ${cluster_id}?`,candidate_options:uniq(rows.flatMap(x=>x.proposed_class_ids)),examples:rows}));
-    for (const [code, field] of [['SUPPLIER_SKU_CONFLICT','supplier_sku'], ['GTIN_CONFLICT','gtin']]) {
-      const conflicts = new Map();
-      for (const row of records.filter(x => (x.duplicate_flags ?? []).includes(code))) {
-        for (const value of [row.raw?.[field]].flat().filter(Boolean)) {
-          const bucket = conflicts.get(String(value)) ?? [];
-          bucket.push(row); conflicts.set(String(value), bucket);
-        }
-      }
-      for (const [value, rows] of [...conflicts].sort(([a],[b]) => a.localeCompare(b))) {
-        if (uniq(rows.map(x => x.normalized?.name ?? x.normalized_name)).length < 2) continue;
-        cases.push({case_id:`case:${sha256(stable({type:'identifier_conflict',code,field,value})).slice(0,16)}`,type:'identifier_conflict',question_ru:`Как обработать конфликт ${field}?`,candidate_options:['keep_separate_and_disable_exact_identifier','confirm_same_product','correct_source_data'],examples:rows});
-      }
-    }
-  }
-  const unresolved_cases = cases.sort((a,b)=>a.case_id.localeCompare(b.case_id)).map(c=>({case_id:c.case_id,type:c.type,question_ru:c.question_ru,candidate_options:c.candidate_options ?? [],recommended_option:null,rationale:null,examples:(c.examples ?? records.filter(r=>(c.cluster_ids??[]).includes(r.cluster_id))).map(example).sort(ordering(sourceConfig)).slice(0,10)}));
-  return {review_pack_schema_version:'1.0.0',status:'draft',source_inventory_sha256:taxonomy.source_inventory_sha256,proposal_version:taxonomy.proposal_version,proposal_sha256:proposalSha,classes,unresolved_cases,summary:{class_count:classes.length,unresolved_case_count:unresolved_cases.length,example_count:classes.reduce((n,c)=>n+c.representative_examples.length+c.boundary_examples.length+c.ambiguous_examples.length,0)}};
-}
-export function renderReviewPack(pack) {
-  return ['# Private taxonomy review pack','','**DRAFT — NOT APPROVED FOR MASS ANNOTATION**','',`- Proposal: ${pack.proposal_version} (${pack.proposal_sha256})`,`- Source inventory: ${pack.source_inventory_sha256}`,`- Classes: ${pack.classes.length}`,`- Unresolved cases: ${pack.unresolved_cases.length}`,'',...pack.classes.flatMap(c=>[`## ${c.class_id} — ${c.name_ru}`,'',`Rows: ${c.source_row_count}; examples: ${c.representative_examples.length+c.boundary_examples.length+c.ambiguous_examples.length}`,''])].join('\n')+'\n';
-}
+export function renderReviewPack(pack) { return ['# Private taxonomy review pack','','**DRAFT — NOT APPROVED FOR MASS ANNOTATION**','',`- Proposal: ${pack.proposal_version} (${pack.proposal_sha256})`,`- Source inventory: ${pack.source_inventory_sha256}`,`- Classes: ${pack.classes.length}`,`- Unresolved cases: ${pack.unresolved_cases.length}`,'',...pack.classes.flatMap(c=>[`## ${c.class_id} — ${c.name_ru}`,'',`Rows: ${c.source_row_count}; representative: ${c.representative_examples.length}; boundary: ${c.boundary_examples.length}; ambiguous: ${c.ambiguous_examples.length}; additional: ${c.additional_examples.length}`,''])].join('\n')+'\n'; }
