@@ -1,0 +1,388 @@
+{
+  "class_id": "accessory.pipe.protection",
+  "golden": {
+    "expected_output": {
+      "annotation": {
+        "ambiguities": [],
+        "evidence": [
+          {
+            "json_pointer": "/class_id",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/compatible_pipe_outer_diameter_mm",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/protection_kind",
+            "source_text": "synthetic evidence"
+          }
+        ],
+        "issues": [],
+        "status": "validated",
+        "unknown_fields": []
+      },
+      "attributes": {
+        "compatible_pipe_outer_diameter_mm": 1,
+        "protection_kind": "cover"
+      },
+      "class_id": "accessory.pipe.protection",
+      "identity": {
+        "brand": null,
+        "manufacturer": null,
+        "manufacturer_articles": [],
+        "models": [],
+        "series": null
+      },
+      "ports": [],
+      "schema_version": "1.1.0",
+      "source_item_id": "synthetic-accessory.pipe.protection-1",
+      "taxonomy_version": "1.0.0"
+    },
+    "input_text_ru": "Синтетический пример: Защитное комплектующее для труб",
+    "kind": "catalog_item"
+  },
+  "invalid": {
+    "additional_attribute": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/compatible_pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/protection_kind",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "compatible_pipe_outer_diameter_mm": 1,
+          "protection_kind": "cover",
+          "unexpected_attribute": "forbidden"
+        },
+        "class_id": "accessory.pipe.protection",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.pipe.protection-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_port_role": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/compatible_pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/protection_kind",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "compatible_pipe_outer_diameter_mm": 1,
+          "protection_kind": "cover"
+        },
+        "class_id": "accessory.pipe.protection",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "plain_end",
+            "role": "unknown_role"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.pipe.protection-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_type": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/compatible_pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/protection_kind",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "compatible_pipe_outer_diameter_mm": {
+            "invalid": true
+          },
+          "protection_kind": "cover"
+        },
+        "class_id": "accessory.pipe.protection",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.pipe.protection-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "needs_review": {
+    "ambiguity": {
+      "data": {
+        "annotation": {
+          "ambiguities": [
+            {
+              "blocking": true,
+              "code": "AMBIGUOUS_SYNTHETIC_VALUE",
+              "json_pointer": "/attributes/compatible_pipe_outer_diameter_mm",
+              "possible_values": [
+                20,
+                25
+              ],
+              "source_text": "synthetic ambiguous source"
+            }
+          ],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/protection_kind",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "protection_kind": "cover"
+        },
+        "class_id": "accessory.pipe.protection",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.pipe.protection-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "unknown": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/protection_kind",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": [
+            "/attributes/compatible_pipe_outer_diameter_mm"
+          ]
+        },
+        "attributes": {
+          "protection_kind": "cover"
+        },
+        "class_id": "accessory.pipe.protection",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.pipe.protection-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "valid": [
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/compatible_pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/protection_kind",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "compatible_pipe_outer_diameter_mm": 1,
+          "protection_kind": "cover"
+        },
+        "class_id": "accessory.pipe.protection",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.pipe.protection-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/constraints/attributes/compatible_pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "class_id": "accessory.pipe.protection",
+        "constraints": {
+          "attributes": {
+            "compatible_pipe_outer_diameter_mm": {
+              "operator": "eq",
+              "value": 1
+            }
+          },
+          "ports": []
+        },
+        "line_id": "request-accessory.pipe.protection",
+        "raw_text": "Синтетическая заявка: Защитное комплектующее для труб",
+        "requested_identity": {},
+        "substitution_statement": {
+          "explicit": false,
+          "policy": "unspecified",
+          "raw_text": null
+        }
+      },
+      "kind": "request_line"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/compatible_pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/protection_kind",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "compatible_pipe_outer_diameter_mm": 1,
+          "protection_kind": "decorative_plate"
+        },
+        "class_id": "accessory.pipe.protection",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.pipe.protection-2",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  ]
+}

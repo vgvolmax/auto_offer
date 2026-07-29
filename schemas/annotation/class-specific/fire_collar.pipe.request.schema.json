@@ -1,0 +1,46 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/fire_collar.pipe.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "fire_collar.pipe"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "body_material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "compatible_pipe_material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "fire_resistance_minutes": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "inner_diameter_mm": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": false,
+              "maxItems": 0,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Противопожарная муфта для труб"
+}

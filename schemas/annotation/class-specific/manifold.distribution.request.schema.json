@@ -1,0 +1,145 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/manifold.distribution.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "manifold.distribution"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "body_material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "control_equipment": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "outlet_count": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "nominal_diameter_dn": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_wall_thickness_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "main_inlet"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "thread_size": {
+                        "$ref": "../common.schema.json#/$defs/rationalConstraint"
+                      },
+                      "thread_standard": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "nominal_diameter_dn": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_wall_thickness_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "main_outlet"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "thread_size": {
+                        "$ref": "../common.schema.json#/$defs/rationalConstraint"
+                      },
+                      "thread_standard": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "nominal_diameter_dn": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_wall_thickness_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "branch"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "thread_size": {
+                        "$ref": "../common.schema.json#/$defs/rationalConstraint"
+                      },
+                      "thread_standard": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "maxItems": 3,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Распределительный коллектор"
+}

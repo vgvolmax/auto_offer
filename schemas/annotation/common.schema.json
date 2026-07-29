@@ -404,6 +404,74 @@
           }
         }
       }
+    },
+    "booleanConstraint": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "operator",
+            "value"
+          ],
+          "properties": {
+            "operator": {
+              "enum": [
+                "eq",
+                "neq"
+              ]
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "operator",
+            "values"
+          ],
+          "properties": {
+            "operator": {
+              "const": "in"
+            },
+            "values": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "numberSetConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operator",
+        "values"
+      ],
+      "properties": {
+        "operator": {
+          "enum": [
+            "contains_all",
+            "contains_any"
+          ]
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "number"
+          }
+        }
+      }
     }
   }
 }

@@ -3,9 +3,11 @@
   "private": true,
   "version": "1.1.0",
   "type": "module",
-  "engines": {"node": ">=20"},
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "generate:annotation-schemas": "node scripts/generate-annotation-dispatchers.mjs",
+    "generate:annotation-schemas": "node scripts/annotation/generate-class-contracts.mjs",
     "check:annotation-schemas": "node scripts/check-annotation-contracts.mjs",
     "test:annotation": "node --test tests/annotation-*.test.mjs",
     "test:catalog": "node --test tests/catalog-*.test.mjs",
@@ -20,7 +22,15 @@
     "taxonomy:validate-approval": "node scripts/taxonomy/validate-taxonomy-approval.mjs",
     "taxonomy:review-status": "node scripts/taxonomy/build-review-status.mjs",
     "test:taxonomy-review": "node --test tests/taxonomy-review-*.test.mjs",
-    "test": "npm run check:annotation-schemas && npm run test:annotation && npm run test:catalog && npm run test:inventory && npm run test:taxonomy-review"
+    "test": "npm run check:annotation-schemas && npm run test:production-taxonomy && npm run test:annotation && npm run test:catalog && npm run test:inventory && npm run test:taxonomy-review",
+    "taxonomy:validate-production": "node scripts/taxonomy/validate-production-taxonomy.mjs",
+    "generate:annotation-fixtures": "node scripts/annotation/generate-class-fixtures.mjs",
+    "test:production-taxonomy": "node --test tests/production-taxonomy.test.mjs",
+    "test:annotation-classes": "node --test tests/annotation-class-generation.test.mjs tests/annotation-class-fixtures.test.mjs tests/annotation-production-semantics.test.mjs",
+    "test:annotation-golden": "node --test tests/annotation-class-golden.test.mjs"
   },
-  "dependencies": {"ajv": "^8.17.1", "ajv-formats": "^3.0.1"}
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
 }

@@ -1,0 +1,46 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/accessory.sanitary.pipe_rosette.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "accessory.sanitary.pipe_rosette"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "nominal_diameter_mm": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "rosette_kind": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": false,
+              "maxItems": 0,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Сантехническая трубная розетка"
+}

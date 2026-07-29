@@ -1,0 +1,743 @@
+{
+  "class_id": "manifold.group",
+  "golden": {
+    "expected_output": {
+      "annotation": {
+        "ambiguities": [],
+        "evidence": [
+          {
+            "json_pointer": "/class_id",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/body_material",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/control_equipment",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/outlet_count",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/0/connection_kind",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/0/system",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/1/connection_kind",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/1/system",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/2/connection_kind",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/2/system",
+            "source_text": "synthetic evidence"
+          }
+        ],
+        "issues": [],
+        "status": "validated",
+        "unknown_fields": []
+      },
+      "attributes": {
+        "body_material": "aluminum",
+        "control_equipment": "flowmeters",
+        "outlet_count": 1
+      },
+      "class_id": "manifold.group",
+      "identity": {
+        "brand": null,
+        "manufacturer": null,
+        "manufacturer_articles": [],
+        "models": [],
+        "series": null
+      },
+      "ports": [
+        {
+          "connection_kind": "compression",
+          "role": "main_inlet",
+          "system": "hdpe"
+        },
+        {
+          "connection_kind": "compression",
+          "role": "main_outlet",
+          "system": "hdpe"
+        },
+        {
+          "connection_kind": "compression",
+          "role": "branch",
+          "system": "hdpe"
+        }
+      ],
+      "schema_version": "1.1.0",
+      "source_item_id": "synthetic-manifold.group-1",
+      "taxonomy_version": "1.0.0"
+    },
+    "input_text_ru": "Синтетический пример: Коллекторная группа",
+    "kind": "catalog_item"
+  },
+  "invalid": {
+    "additional_attribute": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/control_equipment",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/outlet_count",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "aluminum",
+          "control_equipment": "flowmeters",
+          "outlet_count": 1,
+          "unexpected_attribute": "forbidden"
+        },
+        "class_id": "manifold.group",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "compression",
+            "role": "main_inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "main_outlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "branch",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-manifold.group-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_port_role": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/control_equipment",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/outlet_count",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "aluminum",
+          "control_equipment": "flowmeters",
+          "outlet_count": 1
+        },
+        "class_id": "manifold.group",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "compression",
+            "role": "unknown_role",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "main_outlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "branch",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-manifold.group-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_type": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/control_equipment",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/outlet_count",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": {
+            "invalid": true
+          },
+          "control_equipment": "flowmeters",
+          "outlet_count": 1
+        },
+        "class_id": "manifold.group",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "compression",
+            "role": "main_inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "main_outlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "branch",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-manifold.group-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "needs_review": {
+    "ambiguity": {
+      "data": {
+        "annotation": {
+          "ambiguities": [
+            {
+              "blocking": true,
+              "code": "AMBIGUOUS_SYNTHETIC_VALUE",
+              "json_pointer": "/attributes/control_equipment",
+              "possible_values": [
+                "flowmeters",
+                "manual_valves"
+              ],
+              "source_text": "synthetic ambiguous source"
+            }
+          ],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/outlet_count",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "aluminum",
+          "outlet_count": 1
+        },
+        "class_id": "manifold.group",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "compression",
+            "role": "main_inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "main_outlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "branch",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-manifold.group-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "unknown": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/outlet_count",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": [
+            "/attributes/control_equipment"
+          ]
+        },
+        "attributes": {
+          "body_material": "aluminum",
+          "outlet_count": 1
+        },
+        "class_id": "manifold.group",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "compression",
+            "role": "main_inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "main_outlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "branch",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-manifold.group-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "valid": [
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/control_equipment",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/outlet_count",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "aluminum",
+          "control_equipment": "flowmeters",
+          "outlet_count": 1
+        },
+        "class_id": "manifold.group",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "compression",
+            "role": "main_inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "main_outlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "branch",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-manifold.group-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/constraints/attributes/body_material",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "class_id": "manifold.group",
+        "constraints": {
+          "attributes": {
+            "body_material": {
+              "operator": "eq",
+              "value": "aluminum"
+            }
+          },
+          "ports": []
+        },
+        "line_id": "request-manifold.group",
+        "raw_text": "Синтетическая заявка: Коллекторная группа",
+        "requested_identity": {},
+        "substitution_statement": {
+          "explicit": false,
+          "policy": "unspecified",
+          "raw_text": null
+        }
+      },
+      "kind": "request_line"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/control_equipment",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/outlet_count",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/2/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "brass",
+          "control_equipment": "manual_valves",
+          "outlet_count": 1
+        },
+        "class_id": "manifold.group",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "compression",
+            "role": "main_inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "main_outlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "compression",
+            "role": "branch",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-manifold.group-2",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  ]
+}

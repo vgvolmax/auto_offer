@@ -104,22 +104,16 @@ Evidence cannot point to `null` because `null` is not an extracted value.
 
 ## 8. Class-specific schemas
 
-Базовые схемы намеренно не разрешают считать произвольный объект attributes достаточной разметкой. Для каждого активного product class MUST существовать две сгенерированные схемы:
+Базовые схемы намеренно не разрешают считать произвольный объект attributes достаточной разметкой. Production registry содержит 41 активный класс. Для каждого класса из `taxonomy/taxonomy.json` детерминированно генерируются две схемы:
 
 ```text
 schemas/annotation/class-specific/<class_id>.catalog.schema.json
 schemas/annotation/class-specific/<class_id>.request.schema.json
 ```
 
-Первая проверяет каталог, вторая — ограничения заявки. Источником генерации служит `taxonomy.json`; ручное расхождение taxonomy и class-specific schema запрещено.
+Первая проверяет каталог, вторая — ограничения заявки. Ручное изменение generated class schemas запрещено. Production entry points — generated catalog/request dispatchers; базовые схемы используются только как строительные блоки. Старый эталонный класс `fitting.adapter.ppr.male_thread` не входит в production taxonomy.
 
-В репозитории зафиксирован первый эталонный класс:
-
-```text
-fitting.adapter.ppr.male_thread
-```
-
-Он служит шаблоном генератора, но не означает, что остальные классы могут использовать его поля.
+Каждый active class имеет synthetic valid, unknown, ambiguity и invalid fixtures, а также golden prompt/output test. Следующий gate после контрактов — ограниченный annotation pilot с обязательным human review; массовая разметка пока запрещена.
 
 ## 9. Дополнительные семантические проверки
 

@@ -1,0 +1,70 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/drain.floor.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "drain.floor"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "adjustable": {
+                  "$ref": "../common.schema.json#/$defs/booleanConstraint"
+                },
+                "grate_material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "outlet_orientation": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "seal_type": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "sewer_outlet"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "maxItems": 1,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Сливной трап"
+}

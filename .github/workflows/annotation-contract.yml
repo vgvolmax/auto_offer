@@ -17,15 +17,21 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Check annotation schemas
-        run: npm run check:annotation-schemas
-      - name: Test annotation contracts
-        run: npm run test:annotation
-      - name: Test catalog contracts
-        run: npm run test:catalog
+      - name: Validate production taxonomy
+        run: npm run taxonomy:validate-production
       - name: Generate annotation schemas
         run: npm run generate:annotation-schemas
-      - name: Ensure generated schemas are committed
-        run: git diff --exit-code -- schemas/annotation/generated
+      - name: Check annotation schemas
+        run: npm run check:annotation-schemas
+      - name: Test production taxonomy
+        run: npm run test:production-taxonomy
+      - name: Test class contracts
+        run: npm run test:annotation-classes
+      - name: Test golden prompts
+        run: npm run test:annotation-golden
+      - name: Run full test suite
+        run: npm test
+      - name: Ensure generated contracts are committed
+        run: git diff --exit-code -- schemas/annotation/class-specific schemas/annotation/generated schemas/annotation/class-schema-registry.json
       - name: Check formatting
         run: git diff --check

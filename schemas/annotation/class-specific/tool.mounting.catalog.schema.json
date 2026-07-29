@@ -1,0 +1,106 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/tool.mounting.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "drive_type": {
+              "enum": [
+                "battery",
+                "electric",
+                "hydraulic",
+                "manual"
+              ]
+            },
+            "supported_diameters": {
+              "items": {
+                "type": "number"
+              },
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "supported_systems": {
+              "items": {
+                "enum": [
+                  "hdpe",
+                  "multilayer",
+                  "pe_rt",
+                  "pe_xa",
+                  "ppr",
+                  "sewer_external",
+                  "sewer_internal",
+                  "sewer_low_noise",
+                  "threaded_generic"
+                ]
+              },
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "tool_kind": {
+              "enum": [
+                "calibrator",
+                "cutter",
+                "deburrer",
+                "expander",
+                "press_tool",
+                "tooling_accessory",
+                "welding_machine",
+                "wrench"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "tool.mounting"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 0,
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "supported_diameters",
+              "supported_systems",
+              "tool_kind"
+            ]
+          },
+          "ports": {
+            "maxItems": 0
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Инструмент для монтажа труб"
+}

@@ -1,0 +1,111 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/accessory.floor_heating.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "accessory_kind": {
+              "enum": [
+                "clip",
+                "connector_kit",
+                "edge_strip",
+                "foil",
+                "mat",
+                "mounting_rail",
+                "panel",
+                "staple"
+              ]
+            },
+            "dimensions": {
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "height_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "length_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "width_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                }
+              },
+              "type": "object"
+            },
+            "material": {
+              "enum": [
+                "aluminum",
+                "brass",
+                "cast_iron",
+                "epdm",
+                "hdpe",
+                "multilayer",
+                "nylon",
+                "pe_rt",
+                "pe_xa",
+                "polypropylene",
+                "ppr",
+                "pprct",
+                "ptfe",
+                "pvc",
+                "rubber",
+                "silicone",
+                "stainless_steel",
+                "steel"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "accessory.floor_heating"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 0,
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "accessory_kind"
+            ]
+          },
+          "ports": {
+            "maxItems": 0
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Комплектующее тёплого пола"
+}

@@ -1,0 +1,56 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/accessory.floor_heating.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "accessory.floor_heating"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "accessory_kind": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "dimensions": {
+                  "additionalProperties": false,
+                  "minProperties": 1,
+                  "properties": {
+                    "height_mm": {
+                      "$ref": "../common.schema.json#/$defs/numberConstraint"
+                    },
+                    "length_mm": {
+                      "$ref": "../common.schema.json#/$defs/numberConstraint"
+                    },
+                    "width_mm": {
+                      "$ref": "../common.schema.json#/$defs/numberConstraint"
+                    }
+                  },
+                  "type": "object"
+                },
+                "material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": false,
+              "maxItems": 0,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Комплектующее тёплого пола"
+}

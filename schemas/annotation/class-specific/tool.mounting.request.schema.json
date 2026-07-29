@@ -1,0 +1,46 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/tool.mounting.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "tool.mounting"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "drive_type": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "supported_diameters": {
+                  "$ref": "../common.schema.json#/$defs/numberSetConstraint"
+                },
+                "supported_systems": {
+                  "$ref": "../common.schema.json#/$defs/setConstraint"
+                },
+                "tool_kind": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": false,
+              "maxItems": 0,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Инструмент для монтажа труб"
+}

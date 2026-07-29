@@ -1,0 +1,111 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/fire_collar.pipe.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "body_material": {
+              "enum": [
+                "aluminum",
+                "brass",
+                "cast_iron",
+                "epdm",
+                "hdpe",
+                "multilayer",
+                "nylon",
+                "pe_rt",
+                "pe_xa",
+                "polypropylene",
+                "ppr",
+                "pprct",
+                "ptfe",
+                "pvc",
+                "rubber",
+                "silicone",
+                "stainless_steel",
+                "steel"
+              ]
+            },
+            "compatible_pipe_material": {
+              "enum": [
+                "aluminum",
+                "brass",
+                "cast_iron",
+                "epdm",
+                "hdpe",
+                "multilayer",
+                "nylon",
+                "pe_rt",
+                "pe_xa",
+                "polypropylene",
+                "ppr",
+                "pprct",
+                "ptfe",
+                "pvc",
+                "rubber",
+                "silicone",
+                "stainless_steel",
+                "steel"
+              ]
+            },
+            "fire_resistance_minutes": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            "inner_diameter_mm": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "fire_collar.pipe"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 0,
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "fire_resistance_minutes",
+              "inner_diameter_mm"
+            ]
+          },
+          "ports": {
+            "maxItems": 0
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Противопожарная муфта для труб"
+}

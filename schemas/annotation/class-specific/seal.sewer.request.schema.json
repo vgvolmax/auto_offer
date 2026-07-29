@@ -1,0 +1,46 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/seal.sewer.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "seal.sewer"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "compatible_system": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "nominal_diameter_mm": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "seal_kind": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": false,
+              "maxItems": 0,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Уплотнение канализации"
+}

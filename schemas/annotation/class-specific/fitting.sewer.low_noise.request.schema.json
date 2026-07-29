@@ -1,0 +1,133 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/fitting.sewer.low_noise.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "fitting.sewer.low_noise"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "angle_deg": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "color": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "construction": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "sound_class": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "end_1"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "end_2"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "branch_1"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "branch_2"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "maxItems": 4,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Фитинг малошумной канализации"
+}

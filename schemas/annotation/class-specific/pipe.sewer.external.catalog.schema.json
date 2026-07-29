@@ -1,0 +1,150 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/pipe.sewer.external.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "color": {
+              "enum": [
+                "black",
+                "blue",
+                "gray",
+                "green",
+                "metallic",
+                "orange",
+                "red",
+                "transparent",
+                "white",
+                "yellow"
+              ]
+            },
+            "length_mm": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            "ring_stiffness": {
+              "enum": [
+                "sn16",
+                "sn2",
+                "sn4",
+                "sn8"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "pipe.sewer.external"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 2,
+          "minItems": 0,
+          "prefixItems": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "const": "sewer_socket"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "socket"
+                },
+                "system": {
+                  "const": "sewer_external"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "const": "sewer_spigot"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "spigot"
+                },
+                "system": {
+                  "const": "sewer_external"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            }
+          ],
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "length_mm",
+              "ring_stiffness"
+            ]
+          },
+          "ports": {
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "required": [
+                  "role",
+                  "connection_kind",
+                  "system",
+                  "pipe_outer_diameter_mm"
+                ]
+              },
+              {
+                "required": [
+                  "role",
+                  "connection_kind",
+                  "system",
+                  "pipe_outer_diameter_mm"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Труба наружной канализации"
+}

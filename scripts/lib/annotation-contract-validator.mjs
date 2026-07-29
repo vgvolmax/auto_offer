@@ -107,7 +107,18 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
     });
 
     const ports = item.ports ?? item.constraints?.ports ?? []; const roles = new Set();
-    for (const port of ports) { if (roles.has(port.role)) add('DUPLICATE_PORT_ROLE', `${prefix}${item.ports ? '/ports' : '/constraints/ports'}`, 'Port roles must be unique', { role: port.role }); roles.add(port.role); }
+    const repeatableRoles = new Set(registration.repeatable_port_roles ?? []);
+    for (const port of ports) {
+      if (roles.has(port.role) && !repeatableRoles.has(port.role)) add('DUPLICATE_PORT_ROLE', `${prefix}${item.ports ? '/ports' : '/constraints/ports'}`, 'Port role is not repeatable for this class', { role: port.role });
+      roles.add(port.role);
+    }
+    if (kind === 'catalog_item' && annotation.status === 'validated' && repeatableRoles.has('pipe_end')) {
+      const pipeEnds = ports.filter(port => port.role === 'pipe_end');
+      if (pipeEnds.length === 2) {
+        const fields = ['connection_kind', 'system', 'pipe_outer_diameter_mm'];
+        if (fields.some(field => pipeEnds[0][field] !== pipeEnds[1][field])) add('PIPE_END_MISMATCH', `${prefix}/ports`, 'Validated pressure-pipe ends must describe the same pipe', { fields });
+      }
+    }
     for (const [pattern, valueSetId] of Object.entries(registration.canonical_value_paths ?? {})) {
       walk(item, '', (value, pointer) => {
         if (!matches(pattern, pointer)) return;

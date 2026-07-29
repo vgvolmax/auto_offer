@@ -1,0 +1,88 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/pipe.sewer.internal.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "pipe.sewer.internal"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "body_material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "color": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "length_mm": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "socket"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "spigot"
+                      },
+                      "system": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "maxItems": 2,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Труба внутренней канализации"
+}

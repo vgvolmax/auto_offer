@@ -1,0 +1,49 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/fluid.heat_transfer.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "fluid.heat_transfer"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "base_fluid": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "fluid_kind": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "freezing_point_c": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "operating_temperature_max_c": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "volume_l": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": false,
+              "maxItems": 0,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Теплоноситель и антифриз"
+}

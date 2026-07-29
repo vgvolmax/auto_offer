@@ -1,0 +1,106 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/accessory.sanitary.pipe_rosette.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "color": {
+              "enum": [
+                "black",
+                "blue",
+                "gray",
+                "green",
+                "metallic",
+                "orange",
+                "red",
+                "transparent",
+                "white",
+                "yellow"
+              ]
+            },
+            "material": {
+              "enum": [
+                "aluminum",
+                "brass",
+                "cast_iron",
+                "epdm",
+                "hdpe",
+                "multilayer",
+                "nylon",
+                "pe_rt",
+                "pe_xa",
+                "polypropylene",
+                "ppr",
+                "pprct",
+                "ptfe",
+                "pvc",
+                "rubber",
+                "silicone",
+                "stainless_steel",
+                "steel"
+              ]
+            },
+            "nominal_diameter_mm": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            "rosette_kind": {
+              "enum": [
+                "generic_pipe",
+                "siphon_pipe",
+                "soil_pipe"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "accessory.sanitary.pipe_rosette"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 0,
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "nominal_diameter_mm",
+              "rosette_kind"
+            ]
+          },
+          "ports": {
+            "maxItems": 0
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Сантехническая трубная розетка"
+}

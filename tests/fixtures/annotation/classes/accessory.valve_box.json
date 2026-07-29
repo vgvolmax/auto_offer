@@ -1,0 +1,378 @@
+{
+  "class_id": "accessory.valve_box",
+  "golden": {
+    "expected_output": {
+      "annotation": {
+        "ambiguities": [],
+        "evidence": [
+          {
+            "json_pointer": "/class_id",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/box_size_inch",
+            "source_text": "synthetic evidence"
+          }
+        ],
+        "issues": [],
+        "status": "validated",
+        "unknown_fields": []
+      },
+      "attributes": {
+        "box_size_inch": {
+          "denominator": 2,
+          "numerator": 1,
+          "unit": "inch"
+        }
+      },
+      "class_id": "accessory.valve_box",
+      "identity": {
+        "brand": null,
+        "manufacturer": null,
+        "manufacturer_articles": [],
+        "models": [],
+        "series": null
+      },
+      "ports": [],
+      "schema_version": "1.1.0",
+      "source_item_id": "synthetic-accessory.valve_box-1",
+      "taxonomy_version": "1.0.0"
+    },
+    "input_text_ru": "Синтетический пример: Клапанный бокс",
+    "kind": "catalog_item"
+  },
+  "invalid": {
+    "additional_attribute": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/box_size_inch",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "box_size_inch": {
+            "denominator": 2,
+            "numerator": 1,
+            "unit": "inch"
+          },
+          "unexpected_attribute": "forbidden"
+        },
+        "class_id": "accessory.valve_box",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.valve_box-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_port_role": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/box_size_inch",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "box_size_inch": {
+            "denominator": 2,
+            "numerator": 1,
+            "unit": "inch"
+          }
+        },
+        "class_id": "accessory.valve_box",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "plain_end",
+            "role": "unknown_role"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.valve_box-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_type": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/box_size_inch",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "box_size_inch": {
+            "invalid": true
+          }
+        },
+        "class_id": "accessory.valve_box",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.valve_box-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "needs_review": {
+    "ambiguity": {
+      "data": {
+        "annotation": {
+          "ambiguities": [
+            {
+              "blocking": true,
+              "code": "AMBIGUOUS_SYNTHETIC_VALUE",
+              "json_pointer": "/attributes/box_size_inch",
+              "possible_values": [
+                {
+                  "denominator": 2,
+                  "numerator": 1,
+                  "unit": "inch"
+                },
+                {
+                  "denominator": 4,
+                  "numerator": 3,
+                  "unit": "inch"
+                }
+              ],
+              "source_text": "synthetic ambiguous source"
+            }
+          ],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": []
+        },
+        "attributes": {},
+        "class_id": "accessory.valve_box",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.valve_box-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "unknown": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": [
+            "/attributes/box_size_inch"
+          ]
+        },
+        "attributes": {},
+        "class_id": "accessory.valve_box",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.valve_box-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "valid": [
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/box_size_inch",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "box_size_inch": {
+            "denominator": 2,
+            "numerator": 1,
+            "unit": "inch"
+          }
+        },
+        "class_id": "accessory.valve_box",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.valve_box-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/constraints/attributes/box_size_inch",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "class_id": "accessory.valve_box",
+        "constraints": {
+          "attributes": {
+            "box_size_inch": {
+              "operator": "eq",
+              "value": {
+                "denominator": 2,
+                "numerator": 1,
+                "unit": "inch"
+              }
+            }
+          },
+          "ports": []
+        },
+        "line_id": "request-accessory.valve_box",
+        "raw_text": "Синтетическая заявка: Клапанный бокс",
+        "requested_identity": {},
+        "substitution_statement": {
+          "explicit": false,
+          "policy": "unspecified",
+          "raw_text": null
+        }
+      },
+      "kind": "request_line"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/box_size_inch",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "box_size_inch": {
+            "denominator": 4,
+            "numerator": 3,
+            "unit": "inch"
+          }
+        },
+        "class_id": "accessory.valve_box",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-accessory.valve_box-2",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  ]
+}
