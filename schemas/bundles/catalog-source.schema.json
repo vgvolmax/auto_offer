@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/bundles/catalog-source.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["source_position", "raw_name", "raw_fields"],
+  "properties": {
+    "source_position": { "type": "object", "additionalProperties": false, "required": ["sheet", "row"], "properties": { "sheet": { "type": "string", "minLength": 1 }, "row": { "type": "integer", "minimum": 1 } } },
+    "raw_name": { "type": "string", "minLength": 1 },
+    "supplier_sku": { "type": ["string", "null"] }, "gtin": { "type": ["string", "null"] },
+    "price": { "type": ["number", "null"], "minimum": 0 },
+    "currency": { "type": ["string", "null"], "pattern": "^[A-Z]{3}$" },
+    "stock_quantity": { "type": ["number", "null"] }, "unit": { "type": ["string", "null"] },
+    "context": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "raw_fields": { "type": "object", "propertyNames": { "minLength": 1 }, "additionalProperties": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/rawScalar" } }
+  }
+}

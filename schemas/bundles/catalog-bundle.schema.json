@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://example.local/schemas/bundles/catalog-bundle.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "kind", "taxonomy_version", "annotation_kit_version", "catalog", "items"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" }, "kind": { "const": "catalog_bundle" },
+    "taxonomy_version": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/semver" }, "annotation_kit_version": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/semver" },
+    "catalog": { "type": "object", "additionalProperties": false, "required": ["catalog_id", "source_file_name", "item_count"], "properties": {
+      "catalog_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" }, "source_file_name": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/sourceFileName" },
+      "source_sha256": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/sha256" }, "annotated_at": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/annotatedAt" }, "item_count": { "type": "integer", "minimum": 1 }
+    } },
+    "items": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["source", "catalog_item"], "properties": { "source": { "$ref": "catalog-source.schema.json" }, "catalog_item": { "$ref": "https://example.local/schemas/annotation/generated/catalog-item.dispatch.schema.json" } } } }
+  }
+}
