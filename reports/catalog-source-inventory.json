@@ -50,7 +50,7 @@
     "rtp-main": 3333,
     "rtp-new": 369
   },
-  "source_inventory_sha256": "ca598a7ed338eadf49cc0f89edc8fdf42841929c1a5c712fac671b6998f47be8",
+  "source_inventory_sha256": "dda007dba97121a73c793f0dab003242910e6454337be453a5aa2d7479f58fed",
   "status": "proposed",
   "taxonomy_status_counts": {
     "ambiguous": 300,

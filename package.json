@@ -9,7 +9,7 @@
     "check:annotation-schemas": "node scripts/check-annotation-contracts.mjs",
     "test:annotation": "node --test tests/annotation-*.test.mjs",
     "test:catalog": "node --test tests/catalog-*.test.mjs",
-    "test:inventory": "node --test tests/inventory-*.test.mjs",
+    "test:inventory": "node --test tests/inventory-*.test.mjs tests/public-taxonomy-reports.test.mjs",
     "catalog:inspect": "node scripts/catalog/inspect-price-workbooks.mjs",
     "catalog:extract": "node scripts/catalog/extract-price-lines.mjs",
     "catalog:propose-taxonomy": "node scripts/catalog/build-taxonomy-proposal.mjs",

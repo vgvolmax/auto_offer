@@ -81,6 +81,23 @@ test('committed indexes, reports, and manifest are internally consistent', () =>
   assert.equal(inspectionIndex.source_count, 4);
   assert.equal(taxonomyIndex.status, 'proposed');
   assert.equal(taxonomyIndex.mass_annotation_allowed, false);
+  assert.equal(manifest.inventory_sha256, 'ce22807e0c3dc986c4351a9e974b57a591fc8d784ad8c81d801081fddaedba81');
+  assert.equal(manifest.proposal_input_sha256, 'dda007dba97121a73c793f0dab003242910e6454337be453a5aa2d7479f58fed');
+  assert.equal(taxonomyIndex.private_payload.uncompressed_sha256, 'a8b3091004bb80a88c4be61ef471e0a9e02db7f7ed8620c0a1298820ab0e1d32');
+  assert.equal(classMapIndex.private_payload.uncompressed_sha256, 'dea970d2ad5f5d5a3518a2122d5806ab36bd7d9af85dce1d8d3549e08835b8d1');
+  assert.equal(unresolvedIndex.private_payload.uncompressed_sha256, '441fa69b5e4f729a692f03ce8859a0130bafb1eb199f1aee381b606f82a00e89');
+});
+
+test('committed public reports contain no row-level review payload', async () => {
+  const inventoryReport = await text('reports/catalog-source-inventory.md');
+  const checklist = await text('reports/taxonomy-approval-checklist.md');
+  const status = await text('reports/taxonomy-review-status.md');
+  const combined = `${inventoryReport}\n${checklist}\n${status}`;
+  for (const forbidden of ['source_item_id', 'raw_name', 'supplier_sku', 'taxonomy-review-pack.json', 'taxonomy.approval.draft.json', 'Как обработать конфликт gtin']) {
+    assert.equal(combined.includes(forbidden), false, forbidden);
+  }
+  assert.doesNotMatch(combined, /rtp-(?:main|new|clearance|distribution):[^:\n]+:\d+/u);
+  assert.equal((checklist.match(/^## [^#]/gmu) ?? []).length, 27);
 });
 
 test('private full taxonomy payloads have explicit local-only manifests', async () => {
