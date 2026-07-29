@@ -1,0 +1,21 @@
+{
+  "kit_version": "1.0.0",
+  "kits": {
+    "catalog": {
+      "bytes": 388293,
+      "class_count": 41,
+      "path": "annotation-kits/catalog-annotation-kit.json",
+      "schema_count": 47,
+      "sha256": "17b06ce989a58ec3d5f585c10dcea50541ce116f6de9b0b5c9115af41dcec1c3"
+    },
+    "request": {
+      "bytes": 601854,
+      "class_count": 41,
+      "path": "annotation-kits/request-annotation-kit.json",
+      "schema_count": 47,
+      "sha256": "4190d68610423266e45b8a56971d9446b7acd79283921035d1ede90245faa4be"
+    }
+  },
+  "manifest_schema_version": "1.0.0",
+  "taxonomy_version": "1.0.0"
+}
