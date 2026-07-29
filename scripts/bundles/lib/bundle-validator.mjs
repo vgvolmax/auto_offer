@@ -17,7 +17,7 @@ export function validateCatalogBundle(bundle, context) {
   items.forEach((entry, index) => { const item = entry?.catalog_item; if (!item || typeof item !== 'object') return;
     if (item.taxonomy_version !== root || item.taxonomy_version !== production) errors.push(mismatch(`/items/${index}/catalog_item/taxonomy_version`, 'Catalog item taxonomy version does not match bundle and production taxonomy'));
     if (typeof item.source_item_id === 'string') { if (seen.has(item.source_item_id)) errors.push({ code: 'DUPLICATE_SOURCE_ITEM_ID', path: `/items/${index}/catalog_item/source_item_id`, message: 'source_item_id must be unique', details: { value: item.source_item_id, first_index: seen.get(item.source_item_id), duplicate_index: index } }); else seen.set(item.source_item_id, index); }
-    if (isObject(item) && context.catalogItemValidator(item)) {
+    if (isObject(item) && context.catalogItemBaseValidator(item)) {
       const result = validateAnnotation({ kind: 'catalog_item', data: item, taxonomy: context.taxonomy, registry: context.registry, schemas: context.classSchemas });
       errors.push(...result.issues.map(issue => prefixed(`/items/${index}/catalog_item`, issue)));
     }
@@ -34,6 +34,7 @@ export function validateRequestBundle(bundle, context) {
   if (typeof bundle?.source?.line_count === 'number' && bundle.source.line_count !== lines.length) errors.push({ code: 'LINE_COUNT_MISMATCH', path: '/source/line_count', message: 'Declared line count does not match lines length', details: { declared: bundle.source.line_count, actual: lines.length } });
   if (typeof bundle?.source?.source_file_name === 'string' && typeof document?.document?.source_file === 'string' && bundle.source.source_file_name !== document.document.source_file) errors.push({ code: 'SOURCE_FILE_MISMATCH', path: '/request_document/document/source_file', message: 'Request source filenames do not match', details: { expected: bundle.source.source_file_name, actual: document.document.source_file } });
   const seen = new Map(); lines.forEach((line, index) => { if (typeof line?.line_id !== 'string') return; if (seen.has(line.line_id)) errors.push({ code: 'DUPLICATE_LINE_ID', path: `/request_document/lines/${index}/line_id`, message: 'line_id must be unique', details: { value: line.line_id, first_index: seen.get(line.line_id), duplicate_index: index } }); else seen.set(line.line_id, index); });
-  if (isObject(document) && context.requestDocumentValidator(document)) { const result = validateAnnotation({ kind: 'request_document', data: document, taxonomy: context.taxonomy, registry: context.registry, schemas: context.classSchemas }); errors.push(...result.issues.map(issue => prefixed('/request_document', issue))); }
+  const linesAreStructurallySafe = Array.isArray(document?.lines) && document.lines.every(line => isObject(line) && context.requestLineBaseValidator(line));
+  if (isObject(document) && linesAreStructurallySafe) { const result = validateAnnotation({ kind: 'request_document', data: document, taxonomy: context.taxonomy, registry: context.registry, schemas: context.classSchemas }); errors.push(...result.issues.map(issue => prefixed('/request_document', issue))); }
   return finish('request_bundle', errors, { records: lines.length, taxonomy_version: root });
 }
