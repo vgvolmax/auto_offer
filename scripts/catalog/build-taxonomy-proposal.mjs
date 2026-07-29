@@ -3,6 +3,7 @@ import { gunzipSync } from 'node:zlib';
 import { loadJson } from './lib/source-config.mjs';
 import { sha256Canonical, sha256Text } from './lib/canonical-json.mjs';
 import { writeCanonicalGzip, writeCanonicalJson, writeText } from './lib/output.mjs';
+import { renderCatalogInventoryReport, renderTaxonomyApprovalChecklist } from './lib/public-taxonomy-reports.mjs';
 
 const inventoryPath = 'data/generated/catalog-source-inventory.jsonl';
 const inventoryText = await readFile(inventoryPath, 'utf8');
@@ -261,86 +262,17 @@ await writeCanonicalJson('reports/catalog-source-inventory-manifest.json', {
   }))
 });
 
-const md = [
-  '# Catalog source inventory',
-  '',
-  '**NOT APPROVED FOR MASS ANNOTATION**',
-  '',
-  `- Inventory file SHA-256: \`${inventoryFileSha256}\``,
-  `- Proposal input SHA-256: \`${sourceInventorySha256}\``,
-  `- Physical non-empty rows across all sheets: ${physicalNonemptyRowsAllSheets}`,
-  `- Non-empty rows on configured sheets: ${configuredNonemptyRows}`,
-  `- Configured sheets: ${configuredSheetCount}`,
-  `- Explicitly ignored sheets: ${ignoredSheetCount}`,
-  `- Inventory records after configured headers: ${records.length}`,
-  '- Empty rows are excluded before inventory; every non-empty configured row after its header is accounted for.',
-  `- Product candidates: ${rowStatuses.product_candidate ?? 0}`,
-  `- Non-product rows: ${rowStatuses.non_product ?? 0}`,
-  `- Data errors: ${rowStatuses.data_error ?? 0}`,
-  `- Proposed mapped: ${taxonomyStatuses.proposed_mapped ?? 0}`,
-  `- Ambiguous: ${taxonomyStatuses.ambiguous ?? 0}`,
-  `- Unsupported: ${taxonomyStatuses.unsupported ?? 0}`,
-  '',
-  '## Sources',
-  '',
-  '| Source | Records | SHA-256 |',
-  '|---|---:|---|',
-  ...Object.keys(sourceCounts).sort().map(sourceId => `| ${sourceId} | ${sourceCounts[sourceId]} | \`${fileHashes[sourceId]}\` |`),
-  '',
-  '## Proposed classes',
-  '',
-  '| Class | Rows | Review status |',
-  '|---|---:|---|',
-  ...Object.entries(classes).sort(([a], [b]) => a.localeCompare(b)).map(([classId, value]) => `| ${classId} | ${value.source_row_count} | ${value.review_status} |`),
-  '',
-  '## Representative examples by proposed class',
-  '',
-  ...Object.entries(classes).sort(([a], [b]) => a.localeCompare(b)).flatMap(([classId, value]) => [
-    `### ${classId} — ${value.name_ru}`,
-    '',
-    ...value.source_examples.slice(0, 10).map(example => `- \`${example.source_item_id}\`: ${example.raw_name}`),
-    ''
-  ]),
-  '## Duplicate and conflict diagnostics',
-  '',
-  ...Object.entries(duplicateCounts).map(([code, count]) => `- ${code}: ${count}`),
-  '',
-  `## Unresolved cases (${unresolvedCases.length})`,
-  '',
-  ...unresolvedCases.slice(0, 100).map(item => `- \`${item.case_id}\` — ${item.question_ru}`),
-  unresolvedCases.length > 100 ? `- … and ${unresolvedCases.length - 100} more in the local generated audit payload referenced by \`taxonomy/unresolved-cases.json\`.` : ''
-].filter(Boolean);
-await writeText('reports/catalog-source-inventory.md', md.join('\n'));
+/* Public Markdown intentionally receives aggregate data only. */
+const md = renderCatalogInventoryReport({
+  inventoryFileSha256, proposalInputSha256: sourceInventorySha256,
+  physicalNonemptyRows: physicalNonemptyRowsAllSheets, configuredNonemptyRows,
+  configuredSheetCount, ignoredSheetCount, totalInventoryRecords: records.length,
+  rowStatusCounts: rowStatuses, taxonomyStatusCounts: taxonomyStatuses,
+  sourceCounts, sourceFileHashes: fileHashes, classCounts,
+  duplicateCounts, unresolvedCaseCount: unresolvedCases.length
+});
+await writeText('reports/catalog-source-inventory.md', md);
 
-const checklist = [
-  '# Taxonomy approval checklist',
-  '',
-  '**NOT APPROVED FOR MASS ANNOTATION**',
-  '',
-  'Owner decisions must be made manually. No checkbox is preselected.',
-  ''
-];
-for (const [classId, item] of Object.entries(classes)) {
-  checklist.push(
-    `## ${classId} — ${item.name_ru}`,
-    '',
-    `- Family: \`${item.family_id}\``,
-    `- Candidate rows: ${item.source_row_count}`,
-    `- Candidate attributes: ${item.candidate_attributes.join(', ') || 'none proposed'}`,
-    `- Candidate ports: ${item.candidate_ports.join(', ') || 'none proposed'}`,
-    `- Overlaps: ${item.overlaps_with.join(', ') || 'none detected'}`,
-    `- Open questions: ${item.open_question_ids.join(', ') || 'none linked'}`,
-    '',
-    'Representative examples:',
-    ...item.source_examples.map(example => `- \`${example.source_item_id}\`: ${example.raw_name}`),
-    '',
-    '- [ ] approve',
-    '- [ ] revise',
-    '- [ ] reject',
-    '- [ ] split',
-    '- [ ] merge with another class',
-    ''
-  );
-}
-await writeText('reports/taxonomy-approval-checklist.md', checklist.join('\n'));
+const checklist = renderTaxonomyApprovalChecklist({classes});
+await writeText('reports/taxonomy-approval-checklist.md', checklist);
 console.log(`Built proposed taxonomy with ${Object.keys(classes).length} classes and ${unresolvedCases.length} unresolved cases.`);

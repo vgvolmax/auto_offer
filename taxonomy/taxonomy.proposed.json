@@ -6,8 +6,8 @@
     "artifact_kind": "taxonomy_proposal_full",
     "committed": false,
     "regeneration_command": "npm run catalog:inventory",
-    "sha256": "99ce9c4a97cf40d0f50da86a4deba0440c793ff3d39c6c136aff1a1d5cec6fee",
-    "uncompressed_sha256": "338453e1dfc06950d11108606dd5730dc2c490e38d707dc4aa4288c986a0c3b4"
+    "sha256": "0067d0c2ad1052cbc1c50879bd2e48c3f080e5bafac8684cec4d04312c38de13",
+    "uncompressed_sha256": "a8b3091004bb80a88c4be61ef471e0a9e02db7f7ed8620c0a1298820ab0e1d32"
   },
   "proposal_schema_version": "1.0.0",
   "proposal_version": "0.1.0",
@@ -17,6 +17,6 @@
     "rtp-main": "b772906f3937491e0012cbd33ef86b7b88a0d3a1b8404f7d4acabddef79c9626",
     "rtp-new": "a4b71a3caf1a5de26d5c4261991f32806be6fbdc5936ee676471818ccbcc70e9"
   },
-  "source_inventory_sha256": "ca598a7ed338eadf49cc0f89edc8fdf42841929c1a5c712fac671b6998f47be8",
+  "source_inventory_sha256": "dda007dba97121a73c793f0dab003242910e6454337be453a5aa2d7479f58fed",
   "status": "proposed"
 }

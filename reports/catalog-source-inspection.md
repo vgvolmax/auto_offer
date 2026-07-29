@@ -5,6 +5,9 @@ NOT APPROVED FOR MASS ANNOTATION
 The complete workbook inspection is generated locally from private Excel files and excluded from Git. This committed report contains sheet-level aggregate metadata only; it contains no prices and no row-level catalog payload.
 
 ## rtp-main
+- Physical non-empty rows: 15232
+- Configured sheets: 1
+- Explicitly ignored sheets: 22
 
 - File: `01 ПРАЙС-ЛИСТ ООО РТП 30.06.2026.xlsm`
 - SHA-256: `b772906f3937491e0012cbd33ef86b7b88a0d3a1b8404f7d4acabddef79c9626`
@@ -13,6 +16,9 @@ The complete workbook inspection is generated locally from private Excel files a
 - Other non-empty sheets are explicitly ignored in `config/catalog-sources.json` with reasons because the flat catalog is represented by `Лист1` or a dedicated workbook.
 
 ## rtp-new
+- Physical non-empty rows: 3727
+- Configured sheets: 1
+- Explicitly ignored sheets: 1
 
 - File: `02 Новинки ПРАЙСА 2026.xlsx`
 - SHA-256: `a4b71a3caf1a5de26d5c4261991f32806be6fbdc5936ee676471818ccbcc70e9`
@@ -20,6 +26,9 @@ The complete workbook inspection is generated locally from private Excel files a
 - Configured sheets are declared explicitly in `config/catalog-sources.json`.
 
 ## rtp-clearance
+- Physical non-empty rows: 3684
+- Configured sheets: 1
+- Explicitly ignored sheets: 1
 
 - File: `03 ПРАЙС РАСПРОДАЖА (30.06.2026).xlsx`
 - SHA-256: `a4a092a94b19251b7bf954d9918b1f1ea36b2cd46274e4f199d2618e392486aa`
@@ -27,6 +36,9 @@ The complete workbook inspection is generated locally from private Excel files a
 - Configured sheets are declared explicitly in `config/catalog-sources.json`.
 
 ## rtp-distribution
+- Physical non-empty rows: 4170
+- Configured sheets: 6
+- Explicitly ignored sheets: 2
 
 - File: `04 ПРАЙС ДИСТРИБЬЮЦИЯ 30.06.2026.xlsx`
 - SHA-256: `d546f898d4fc8bed9ba540ab6ca5f92aaaba3fc42b81a69541324da47a34605a`
