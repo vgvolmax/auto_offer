@@ -252,7 +252,7 @@ await writeCanonicalJson('reports/catalog-source-inventory-manifest.json', {
   inventory_sha256: inventoryFileSha256,
   proposal_input_sha256: sourceInventorySha256,
   regeneration_command: 'npm run catalog:inventory',
-  reason_not_committed: 'Full row-level inventory is reproducibly generated from private source workbooks and excluded from Git. Committed reports and deterministic compressed proposal payloads, together with this manifest, anchor the audited result.',
+  reason_not_committed: 'Private source workbooks, full row-level inventory, and full audit payloads are generated locally and excluded from Git. Committed summaries, hashes, rules, schemas, and review reports anchor the result.',
   physical_nonempty_rows_all_sheets: physicalNonemptyRowsAllSheets,
   configured_nonempty_rows: configuredNonemptyRows,
   configured_sheet_count: configuredSheetCount,
@@ -314,7 +314,7 @@ const md = [
   `## Unresolved cases (${unresolvedCases.length})`,
   '',
   ...unresolvedCases.slice(0, 100).map(item => `- \`${item.case_id}\` — ${item.question_ru}`),
-  unresolvedCases.length > 100 ? `- … and ${unresolvedCases.length - 100} more in \`taxonomy/unresolved-cases.json\`.` : ''
+  unresolvedCases.length > 100 ? `- … and ${unresolvedCases.length - 100} more in the local generated audit payload referenced by \`taxonomy/unresolved-cases.json\`.` : ''
 ].filter(Boolean);
 await writeText('reports/catalog-source-inventory.md', md.join('\n'));
 
