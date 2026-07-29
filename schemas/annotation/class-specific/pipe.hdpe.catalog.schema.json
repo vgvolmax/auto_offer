@@ -1,0 +1,154 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/pipe.hdpe.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "coil_length_m": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            "pe_grade": {
+              "enum": [
+                "pe100",
+                "pe100_rc",
+                "pe80"
+              ]
+            },
+            "pressure_class": {
+              "enum": [
+                "pn10",
+                "pn12_5",
+                "pn16",
+                "pn20",
+                "pn25",
+                "pn40",
+                "pn6"
+              ]
+            },
+            "sdr": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            "wall_thickness_mm": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "pipe.hdpe"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 2,
+          "minItems": 0,
+          "prefixItems": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "const": "plain_end"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "pipe_end"
+                },
+                "system": {
+                  "const": "hdpe"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "const": "plain_end"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "pipe_end"
+                },
+                "system": {
+                  "const": "hdpe"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            }
+          ],
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "pe_grade",
+              "wall_thickness_mm"
+            ]
+          },
+          "ports": {
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "required": [
+                  "role",
+                  "connection_kind",
+                  "system",
+                  "pipe_outer_diameter_mm"
+                ]
+              },
+              {
+                "required": [
+                  "role",
+                  "connection_kind",
+                  "system",
+                  "pipe_outer_diameter_mm"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Труба ПНД"
+}

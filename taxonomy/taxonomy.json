@@ -1,0 +1,4772 @@
+{
+  "taxonomy_schema_version": "1.0.0",
+  "taxonomy_version": "1.0.0",
+  "status": "production",
+  "mass_annotation_allowed": false,
+  "approval_manifest": "production-approval-manifest.json",
+  "class_count": 41,
+  "classes": {
+    "accessory.floor_heating": {
+      "class_id": "accessory.floor_heating",
+      "name_ru": "Комплектующее тёплого пола",
+      "family_id": "floor_heating",
+      "definition_ru": "Комплектующие системы тёплого пола, не являющиеся трубами, коллекторами, арматурой или инструментом.",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Трубы",
+        "Коллекторы",
+        "Клапаны",
+        "Монтажный инструмент"
+      ],
+      "attributes": {
+        "accessory_kind": {
+          "type": "enum",
+          "value_set_ref": "floor_heating_accessory_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "dimensions": {
+          "type": "dimensions",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/accessory_kind"
+      ]
+    },
+    "accessory.pipe.protection": {
+      "class_id": "accessory.pipe.protection",
+      "name_ru": "Защитное комплектующее для труб",
+      "family_id": "pipe_protection",
+      "definition_ru": "Защитное комплектующее для труб",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "compatible_pipe_outer_diameter_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        },
+        "material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "protection_kind": {
+          "type": "enum",
+          "value_set_ref": "pipe_protection_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/protection_kind",
+        "/attributes/compatible_pipe_outer_diameter_mm"
+      ]
+    },
+    "accessory.sanitary.pipe_rosette": {
+      "class_id": "accessory.sanitary.pipe_rosette",
+      "name_ru": "Сантехническая трубная розетка",
+      "family_id": "sanitary_accessories",
+      "definition_ru": "Сантехническая трубная розетка",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "nominal_diameter_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        },
+        "rosette_kind": {
+          "type": "enum",
+          "value_set_ref": "sanitary_rosette_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/rosette_kind",
+        "/attributes/nominal_diameter_mm"
+      ]
+    },
+    "accessory.valve_box": {
+      "class_id": "accessory.valve_box",
+      "name_ru": "Клапанный бокс",
+      "family_id": "valve_accessories",
+      "definition_ru": "Клапанный бокс",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Функциональные клапаны и краны"
+      ],
+      "attributes": {
+        "box_size_inch": {
+          "type": "rational_inch",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "installation_type": {
+          "type": "enum",
+          "value_set_ref": "valve_box_installation_types",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/box_size_inch"
+      ]
+    },
+    "conduit.corrugated": {
+      "class_id": "conduit.corrugated",
+      "name_ru": "Защитная гофрированная оболочка",
+      "family_id": "protection",
+      "definition_ru": "Защитная гофрированная оболочка",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Напорные трубы ПНД"
+      ],
+      "attributes": {
+        "coil_length_m": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "m"
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "inner_diameter_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/inner_diameter_mm"
+      ]
+    },
+    "consumable.plumbing": {
+      "class_id": "consumable.plumbing",
+      "name_ru": "Сантехнический расходный материал",
+      "family_id": "consumables",
+      "definition_ru": "Сантехнический расходный материал",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Жидкие герметики",
+        "Теплоносители"
+      ],
+      "attributes": {
+        "consumable_kind": {
+          "type": "enum",
+          "value_set_ref": "plumbing_consumable_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "mass_g": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "g"
+        },
+        "material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "package_length_m": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "m"
+        },
+        "volume_ml": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "ml"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/consumable_kind"
+      ]
+    },
+    "drain.floor": {
+      "class_id": "drain.floor",
+      "name_ru": "Сливной трап",
+      "family_id": "drainage",
+      "definition_ru": "Сливной трап",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "adjustable": {
+          "type": "boolean",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "grate_material": {
+          "type": "enum",
+          "value_set_ref": "grate_materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "outlet_orientation": {
+          "type": "enum",
+          "value_set_ref": "outlet_orientations",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "seal_type": {
+          "type": "enum",
+          "value_set_ref": "drain_seal_types",
+          "required_for_validated": true,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "sewer_outlet",
+            "required": true,
+            "connection_kind": {
+              "fixed": "sewer_spigot"
+            },
+            "system": {
+              "allowed": [
+                "sewer_internal",
+                "sewer_external"
+              ]
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "sewer_outlet"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/outlet_orientation",
+        "/ports/0/pipe_outer_diameter_mm"
+      ]
+    },
+    "fire_collar.pipe": {
+      "class_id": "fire_collar.pipe",
+      "name_ru": "Противопожарная муфта для труб",
+      "family_id": "fire_protection",
+      "definition_ru": "Противопожарная муфта для труб",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "compatible_pipe_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "fire_resistance_minutes": {
+          "type": "integer",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "minute"
+        },
+        "inner_diameter_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/inner_diameter_mm",
+        "/attributes/fire_resistance_minutes"
+      ]
+    },
+    "fitting.axial": {
+      "class_id": "fitting.axial",
+      "name_ru": "Аксиальный фитинг",
+      "family_id": "pressure_fittings",
+      "definition_ru": "Аксиальный фитинг",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "construction": {
+          "type": "enum",
+          "value_set_ref": "fitting_constructions",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "axial_press",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "pe_xa",
+                "pe_rt",
+                "multilayer",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "axial_press",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "pe_xa",
+                "pe_rt",
+                "multilayer",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch_1",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "axial_press",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "pe_xa",
+                "pe_rt",
+                "multilayer",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2",
+          "branch_1"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/construction",
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/ports/2/connection_kind"
+      ]
+    },
+    "fitting.brass.threaded": {
+      "class_id": "fitting.brass.threaded",
+      "name_ru": "Резьбовой латунный фитинг",
+      "family_id": "threaded_fittings",
+      "definition_ru": "Резьбовой латунный фитинг",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Краны и клапаны"
+      ],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": true,
+          "matching_critical": false
+        },
+        "coating": {
+          "type": "enum",
+          "value_set_ref": "coatings",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "construction": {
+          "type": "enum",
+          "value_set_ref": "fitting_constructions",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch_1",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2",
+          "branch_1",
+          "branch_2"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/construction",
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/ports/2/connection_kind",
+        "/ports/3/connection_kind"
+      ]
+    },
+    "fitting.compression.hdpe": {
+      "class_id": "fitting.compression.hdpe",
+      "name_ru": "Компрессионный фитинг для ПНД",
+      "family_id": "pressure_fittings",
+      "definition_ru": "Компрессионный фитинг для ПНД",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Шаровые краны",
+        "Клапанные боксы"
+      ],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "construction": {
+          "type": "enum",
+          "value_set_ref": "fitting_constructions",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "compression",
+                "saddle_clamp",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "hdpe",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "compression",
+                "saddle_clamp",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "hdpe",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch_1",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "compression",
+                "saddle_clamp",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "hdpe",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2",
+          "branch_1"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/construction",
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/ports/2/connection_kind"
+      ]
+    },
+    "fitting.compression.multilayer": {
+      "class_id": "fitting.compression.multilayer",
+      "name_ru": "Обжимной фитинг для многослойной трубы",
+      "family_id": "pressure_fittings",
+      "definition_ru": "Обжимной фитинг для многослойной трубы",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "construction": {
+          "type": "enum",
+          "value_set_ref": "fitting_constructions",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "compression",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "multilayer",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "compression",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "multilayer",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/construction",
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind"
+      ]
+    },
+    "fitting.ppr": {
+      "class_id": "fitting.ppr",
+      "name_ru": "Фитинг PP-R",
+      "family_id": "pressure_fittings",
+      "definition_ru": "Фитинг PP-R",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Клапаны",
+        "Коллекторы",
+        "Опоры",
+        "Аксессуары"
+      ],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": true,
+          "matching_critical": false
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "construction": {
+          "type": "enum",
+          "value_set_ref": "fitting_constructions",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "pressure_class": {
+          "type": "enum",
+          "value_set_ref": "pressure_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "socket_fusion",
+                "male_thread",
+                "female_thread",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "ppr",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "socket_fusion",
+                "male_thread",
+                "female_thread",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "ppr",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch_1",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "socket_fusion",
+                "male_thread",
+                "female_thread",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "ppr",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "socket_fusion",
+                "male_thread",
+                "female_thread",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "ppr",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2",
+          "branch_1",
+          "branch_2"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/construction",
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/ports/2/connection_kind",
+        "/ports/3/connection_kind"
+      ]
+    },
+    "fitting.radial": {
+      "class_id": "fitting.radial",
+      "name_ru": "Радиальный пресс-фитинг",
+      "family_id": "pressure_fittings",
+      "definition_ru": "Радиальный пресс-фитинг",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "profile": {
+          "type": "enum",
+          "value_set_ref": "press_profiles",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "radial_press",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "multilayer",
+                "pe_rt",
+                "pe_xa",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "radial_press",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "multilayer",
+                "pe_rt",
+                "pe_xa",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch_1",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "radial_press",
+                "male_thread",
+                "female_thread"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "multilayer",
+                "pe_rt",
+                "pe_xa",
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2",
+          "branch_1"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/profile",
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/ports/2/connection_kind"
+      ]
+    },
+    "fitting.sewer.external": {
+      "class_id": "fitting.sewer.external",
+      "name_ru": "Фитинг наружной канализации",
+      "family_id": "sewer_fittings",
+      "definition_ru": "Фитинг наружной канализации",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "angle_deg": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "minimum": 0,
+          "maximum": 180
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "construction": {
+          "type": "enum",
+          "value_set_ref": "sewer_fitting_constructions",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "ring_stiffness": {
+          "type": "enum",
+          "value_set_ref": "ring_stiffness_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_external"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_external"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "branch_1",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_external"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "branch_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_external"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2",
+          "branch_1",
+          "branch_2"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/construction",
+        "/ports/0/pipe_outer_diameter_mm"
+      ]
+    },
+    "fitting.sewer.internal": {
+      "class_id": "fitting.sewer.internal",
+      "name_ru": "Фитинг внутренней канализации",
+      "family_id": "sewer_fittings",
+      "definition_ru": "Фитинг внутренней канализации",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "angle_deg": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "minimum": 0,
+          "maximum": 180
+        },
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "construction": {
+          "type": "enum",
+          "value_set_ref": "sewer_fitting_constructions",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_internal"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_internal"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "branch_1",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_internal"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "branch_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_internal"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2",
+          "branch_1",
+          "branch_2"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/construction",
+        "/ports/0/pipe_outer_diameter_mm"
+      ]
+    },
+    "fitting.sewer.low_noise": {
+      "class_id": "fitting.sewer.low_noise",
+      "name_ru": "Фитинг малошумной канализации",
+      "family_id": "sewer_fittings",
+      "definition_ru": "Фитинг малошумной канализации",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "angle_deg": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "minimum": 0,
+          "maximum": 180
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "construction": {
+          "type": "enum",
+          "value_set_ref": "sewer_fitting_constructions",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "sound_class": {
+          "type": "enum",
+          "value_set_ref": "sound_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "end_1",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_low_noise"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "end_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_low_noise"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "branch_1",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_low_noise"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "branch_2",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot"
+              ]
+            },
+            "system": {
+              "fixed": "sewer_low_noise"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "end_1",
+          "end_2",
+          "branch_1",
+          "branch_2"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/construction",
+        "/ports/0/pipe_outer_diameter_mm"
+      ]
+    },
+    "fluid.heat_transfer": {
+      "class_id": "fluid.heat_transfer",
+      "name_ru": "Теплоноситель и антифриз",
+      "family_id": "fluids",
+      "definition_ru": "Теплоноситель и антифриз",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "base_fluid": {
+          "type": "enum",
+          "value_set_ref": "base_fluids",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "fluid_kind": {
+          "type": "enum",
+          "value_set_ref": "heat_transfer_fluid_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "freezing_point_c": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": true,
+          "unit": "celsius"
+        },
+        "operating_temperature_max_c": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "unit": "celsius"
+        },
+        "volume_l": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "l"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/fluid_kind",
+        "/attributes/base_fluid",
+        "/attributes/freezing_point_c"
+      ]
+    },
+    "insulation.pipe": {
+      "class_id": "insulation.pipe",
+      "name_ru": "Теплоизоляция для труб",
+      "family_id": "insulation",
+      "definition_ru": "Теплоизоляция для труб",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "inner_diameter_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        },
+        "length_m": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "m"
+        },
+        "thickness_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/inner_diameter_mm",
+        "/attributes/thickness_mm"
+      ]
+    },
+    "manifold.accessory": {
+      "class_id": "manifold.accessory",
+      "name_ru": "Комплектующее коллектора",
+      "family_id": "manifolds",
+      "definition_ru": "Комплектующее коллектора",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "accessory_kind": {
+          "type": "enum",
+          "value_set_ref": "manifold_accessory_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "compatible_thread_size": {
+          "type": "rational_inch",
+          "required_for_validated": false,
+          "matching_critical": true
+        },
+        "control_equipment": {
+          "type": "enum",
+          "value_set_ref": "manifold_control_equipment",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "inlet",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "union"
+              ]
+            },
+            "system": {
+              "fixed": "threaded_generic"
+            },
+            "allowed_fields": [
+              "thread_standard",
+              "thread_size",
+              "nominal_diameter_dn"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "outlet",
+            "required": false,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "union"
+              ]
+            },
+            "system": {
+              "fixed": "threaded_generic"
+            },
+            "allowed_fields": [
+              "thread_standard",
+              "thread_size",
+              "nominal_diameter_dn"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "inlet",
+          "outlet"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/accessory_kind"
+      ]
+    },
+    "manifold.distribution": {
+      "class_id": "manifold.distribution",
+      "name_ru": "Распределительный коллектор",
+      "family_id": "manifolds",
+      "definition_ru": "Самостоятельный распределительный коллектор без обязательного полного комплекта управления контурами.",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": true,
+          "matching_critical": false
+        },
+        "control_equipment": {
+          "type": "enum",
+          "value_set_ref": "manifold_control_equipment",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "outlet_count": {
+          "type": "integer",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "main_inlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "main_outlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "main_inlet",
+          "main_outlet",
+          "branch"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/outlet_count",
+        "/ports/0/connection_kind",
+        "/ports/2/connection_kind"
+      ]
+    },
+    "manifold.group": {
+      "class_id": "manifold.group",
+      "name_ru": "Коллекторная группа",
+      "family_id": "manifolds",
+      "definition_ru": "Комплектная группа с регулирующей или измерительной оснасткой.",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": true,
+          "matching_critical": false
+        },
+        "control_equipment": {
+          "type": "enum",
+          "value_set_ref": "manifold_control_equipment",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "includes_air_vents": {
+          "type": "boolean",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "includes_drain_valves": {
+          "type": "boolean",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "includes_flowmeters": {
+          "type": "boolean",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "outlet_count": {
+          "type": "integer",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "main_inlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "main_outlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "branch",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "main_inlet",
+          "main_outlet",
+          "branch"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/outlet_count",
+        "/ports/0/connection_kind",
+        "/ports/2/connection_kind"
+      ]
+    },
+    "pipe.hdpe": {
+      "class_id": "pipe.hdpe",
+      "name_ru": "Труба ПНД",
+      "family_id": "pressure_pipes",
+      "definition_ru": "Труба ПНД",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "coil_length_m": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "m"
+        },
+        "pe_grade": {
+          "type": "enum",
+          "value_set_ref": "pe_grades",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "pressure_class": {
+          "type": "enum",
+          "value_set_ref": "pressure_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "sdr": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0
+        },
+        "wall_thickness_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "hdpe"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "hdpe"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "pipe_end"
+        ],
+        "repeatable_roles": [
+          "pipe_end"
+        ]
+      },
+      "matching_critical_paths": [
+        "/ports/0/pipe_outer_diameter_mm",
+        "/attributes/pe_grade",
+        "/attributes/wall_thickness_mm"
+      ]
+    },
+    "pipe.multilayer": {
+      "class_id": "pipe.multilayer",
+      "name_ru": "Многослойная труба",
+      "family_id": "pressure_pipes",
+      "definition_ru": "Многослойная труба",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "coil_length_m": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "m"
+        },
+        "layer_structure": {
+          "type": "enum",
+          "value_set_ref": "multilayer_structures",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "wall_thickness_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "multilayer"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "multilayer"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "pipe_end"
+        ],
+        "repeatable_roles": [
+          "pipe_end"
+        ]
+      },
+      "matching_critical_paths": [
+        "/ports/0/pipe_outer_diameter_mm",
+        "/attributes/layer_structure",
+        "/attributes/wall_thickness_mm"
+      ]
+    },
+    "pipe.pert": {
+      "class_id": "pipe.pert",
+      "name_ru": "Труба PE-RT",
+      "family_id": "pressure_pipes",
+      "definition_ru": "Труба PE-RT",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "barrier_layer": {
+          "type": "enum",
+          "value_set_ref": "barrier_layers",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "coil_length_m": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "m"
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "wall_thickness_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "pe_rt"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "pe_rt"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "pipe_end"
+        ],
+        "repeatable_roles": [
+          "pipe_end"
+        ]
+      },
+      "matching_critical_paths": [
+        "/ports/0/pipe_outer_diameter_mm",
+        "/attributes/wall_thickness_mm"
+      ]
+    },
+    "pipe.pex_a": {
+      "class_id": "pipe.pex_a",
+      "name_ru": "Труба PE-Xa",
+      "family_id": "pressure_pipes",
+      "definition_ru": "Труба PE-Xa",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "barrier_layer": {
+          "type": "enum",
+          "value_set_ref": "barrier_layers",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "coil_length_m": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "m"
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "wall_thickness_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "pe_xa"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "pe_xa"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "pipe_end"
+        ],
+        "repeatable_roles": [
+          "pipe_end"
+        ]
+      },
+      "matching_critical_paths": [
+        "/ports/0/pipe_outer_diameter_mm",
+        "/attributes/wall_thickness_mm"
+      ]
+    },
+    "pipe.ppr": {
+      "class_id": "pipe.ppr",
+      "name_ru": "Труба PP-R",
+      "family_id": "pressure_pipes",
+      "definition_ru": "Труба PP-R",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "length_m": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "m"
+        },
+        "pressure_class": {
+          "type": "enum",
+          "value_set_ref": "pressure_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "sdr": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0
+        },
+        "wall_thickness_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "ppr"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "pipe_end",
+            "required": true,
+            "connection_kind": {
+              "fixed": "plain_end"
+            },
+            "system": {
+              "fixed": "ppr"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "pipe_end"
+        ],
+        "repeatable_roles": [
+          "pipe_end"
+        ]
+      },
+      "matching_critical_paths": [
+        "/ports/0/pipe_outer_diameter_mm",
+        "/attributes/body_material",
+        "/attributes/wall_thickness_mm"
+      ]
+    },
+    "pipe.sewer.external": {
+      "class_id": "pipe.sewer.external",
+      "name_ru": "Труба наружной канализации",
+      "family_id": "sewer_pipes",
+      "definition_ru": "Труба наружной канализации",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "length_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        },
+        "ring_stiffness": {
+          "type": "enum",
+          "value_set_ref": "ring_stiffness_classes",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "socket",
+            "required": true,
+            "connection_kind": {
+              "fixed": "sewer_socket"
+            },
+            "system": {
+              "fixed": "sewer_external"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "spigot",
+            "required": true,
+            "connection_kind": {
+              "fixed": "sewer_spigot"
+            },
+            "system": {
+              "fixed": "sewer_external"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "socket",
+          "spigot"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/pipe_outer_diameter_mm",
+        "/attributes/length_mm",
+        "/attributes/ring_stiffness"
+      ]
+    },
+    "pipe.sewer.internal": {
+      "class_id": "pipe.sewer.internal",
+      "name_ru": "Труба внутренней канализации",
+      "family_id": "sewer_pipes",
+      "definition_ru": "Труба внутренней канализации",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": true,
+          "matching_critical": false
+        },
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "length_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "socket",
+            "required": true,
+            "connection_kind": {
+              "fixed": "sewer_socket"
+            },
+            "system": {
+              "fixed": "sewer_internal"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "spigot",
+            "required": true,
+            "connection_kind": {
+              "fixed": "sewer_spigot"
+            },
+            "system": {
+              "fixed": "sewer_internal"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "socket",
+          "spigot"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/pipe_outer_diameter_mm",
+        "/attributes/length_mm"
+      ]
+    },
+    "pipe.sewer.low_noise": {
+      "class_id": "pipe.sewer.low_noise",
+      "name_ru": "Малошумная канализационная труба",
+      "family_id": "sewer_pipes",
+      "definition_ru": "Малошумная канализационная труба",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "length_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        },
+        "sound_class": {
+          "type": "enum",
+          "value_set_ref": "sound_classes",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "socket",
+            "required": true,
+            "connection_kind": {
+              "fixed": "sewer_socket"
+            },
+            "system": {
+              "fixed": "sewer_low_noise"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          },
+          {
+            "role": "spigot",
+            "required": true,
+            "connection_kind": {
+              "fixed": "sewer_spigot"
+            },
+            "system": {
+              "fixed": "sewer_low_noise"
+            },
+            "allowed_fields": [
+              "pipe_outer_diameter_mm"
+            ],
+            "required_for_validated": [
+              "connection_kind",
+              "system",
+              "pipe_outer_diameter_mm"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "socket",
+          "spigot"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/pipe_outer_diameter_mm",
+        "/attributes/length_mm",
+        "/attributes/sound_class"
+      ]
+    },
+    "sanitary.connector": {
+      "class_id": "sanitary.connector",
+      "name_ru": "Санитарный соединитель и сифон",
+      "family_id": "sanitary_drainage",
+      "definition_ru": "Санитарный соединитель и сифон",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "connector_kind": {
+          "type": "enum",
+          "value_set_ref": "sanitary_connector_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "outlet_diameter_mm": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "fixture_port",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "sanitary_fixture",
+                "flexible_connector"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "sewer_port",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "sewer_socket",
+                "sewer_spigot",
+                "flexible_connector"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "sewer_internal",
+                "sewer_external"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "fixture_port",
+          "sewer_port"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/connector_kind",
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind"
+      ]
+    },
+    "seal.sewer": {
+      "class_id": "seal.sewer",
+      "name_ru": "Уплотнение канализации",
+      "family_id": "sewer_accessories",
+      "definition_ru": "Уплотнение канализации",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "compatible_system": {
+          "type": "enum",
+          "value_set_ref": "pipe_systems",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "nominal_diameter_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        },
+        "seal_kind": {
+          "type": "enum",
+          "value_set_ref": "sewer_seal_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/seal_kind",
+        "/attributes/nominal_diameter_mm"
+      ]
+    },
+    "sealant.plumbing": {
+      "class_id": "sealant.plumbing",
+      "name_ru": "Сантехнический герметик",
+      "family_id": "consumables",
+      "definition_ru": "Сантехнический герметик",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Лён",
+        "Нить",
+        "PTFE-лента",
+        "Смазка",
+        "Очиститель",
+        "Теплоноситель"
+      ],
+      "attributes": {
+        "sealant_kind": {
+          "type": "enum",
+          "value_set_ref": "plumbing_sealant_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "strength": {
+          "type": "enum",
+          "value_set_ref": "sealant_strengths",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "viscosity": {
+          "type": "enum",
+          "value_set_ref": "viscosity_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "volume_ml": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "ml"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/sealant_kind"
+      ]
+    },
+    "support.pipe": {
+      "class_id": "support.pipe",
+      "name_ru": "Крепление и опора для труб",
+      "family_id": "mounting_accessories",
+      "definition_ru": "Крепление и опора для труб",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Уплотнения канализации",
+        "Противопожарные муфты",
+        "Защитные втулки"
+      ],
+      "attributes": {
+        "color": {
+          "type": "enum",
+          "value_set_ref": "colors",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "diameter_mm": {
+          "type": "number",
+          "required_for_validated": true,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        },
+        "material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "support_kind": {
+          "type": "enum",
+          "value_set_ref": "pipe_support_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/support_kind",
+        "/attributes/diameter_mm"
+      ]
+    },
+    "tool.mounting": {
+      "class_id": "tool.mounting",
+      "name_ru": "Инструмент для монтажа труб",
+      "family_id": "tools",
+      "definition_ru": "Инструмент для монтажа труб",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "drive_type": {
+          "type": "enum",
+          "value_set_ref": "tool_drive_types",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "supported_diameters": {
+          "type": "number_set",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "supported_systems": {
+          "type": "string_set",
+          "value_set_ref": "pipe_systems",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "tool_kind": {
+          "type": "enum",
+          "value_set_ref": "mounting_tool_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [],
+        "request_allowed_roles": [],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/attributes/tool_kind",
+        "/attributes/supported_systems",
+        "/attributes/supported_diameters"
+      ]
+    },
+    "valve.ball": {
+      "class_id": "valve.ball",
+      "name_ru": "Кран шаровой",
+      "family_id": "valves",
+      "definition_ru": "Кран шаровой",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": true,
+          "matching_critical": false
+        },
+        "coating": {
+          "type": "enum",
+          "value_set_ref": "coatings",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "handle_type": {
+          "type": "enum",
+          "value_set_ref": "handle_types",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "pressure_class": {
+          "type": "enum",
+          "value_set_ref": "pressure_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "inlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union",
+                "flange",
+                "hose_barb"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "outlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union",
+                "flange",
+                "hose_barb"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "inlet",
+          "outlet"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/attributes/handle_type"
+      ]
+    },
+    "valve.check": {
+      "class_id": "valve.check",
+      "name_ru": "Обратный клапан",
+      "family_id": "valves",
+      "definition_ru": "Обратный клапан",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "installation_orientation": {
+          "type": "enum",
+          "value_set_ref": "installation_orientations",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "mechanism": {
+          "type": "enum",
+          "value_set_ref": "check_valve_mechanisms",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "pressure_class": {
+          "type": "enum",
+          "value_set_ref": "pressure_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "inlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "flange",
+                "socket_fusion",
+                "compression"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "outlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "flange",
+                "socket_fusion",
+                "compression"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "inlet",
+          "outlet"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/attributes/mechanism"
+      ]
+    },
+    "valve.outdoor_tap": {
+      "class_id": "valve.outdoor_tap",
+      "name_ru": "Уличный и поливочный кран",
+      "family_id": "valves",
+      "definition_ru": "Уличный и поливочный кран",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "anti_freeze": {
+          "type": "boolean",
+          "required_for_validated": false,
+          "matching_critical": true
+        },
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": true,
+          "matching_critical": false
+        },
+        "handle_type": {
+          "type": "enum",
+          "value_set_ref": "handle_types",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "wall_length_mm": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "mm"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "inlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "hose_barb",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "outlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "hose_barb",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "inlet",
+          "outlet"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/attributes/anti_freeze",
+        "/attributes/wall_length_mm"
+      ]
+    },
+    "valve.pressure_control": {
+      "class_id": "valve.pressure_control",
+      "name_ru": "Клапан регулирования давления",
+      "family_id": "valves",
+      "definition_ru": "Клапан регулирования давления",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "control_kind": {
+          "type": "enum",
+          "value_set_ref": "pressure_control_kinds",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "max_inlet_pressure_bar": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": false,
+          "exclusive_minimum": 0,
+          "unit": "bar"
+        },
+        "set_pressure_bar": {
+          "type": "number",
+          "required_for_validated": false,
+          "matching_critical": true,
+          "exclusive_minimum": 0,
+          "unit": "bar"
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "inlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "flange"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "outlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "flange"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "inlet",
+          "outlet"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/attributes/control_kind",
+        "/attributes/set_pressure_bar"
+      ]
+    },
+    "valve.radiator": {
+      "class_id": "valve.radiator",
+      "name_ru": "Радиаторный клапан",
+      "family_id": "valves",
+      "definition_ru": "Радиаторный клапан",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [],
+      "attributes": {
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "control_type": {
+          "type": "enum",
+          "value_set_ref": "radiator_control_types",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "pressure_class": {
+          "type": "enum",
+          "value_set_ref": "pressure_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "valve_form": {
+          "type": "enum",
+          "value_set_ref": "radiator_valve_forms",
+          "required_for_validated": true,
+          "matching_critical": true
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "pipe",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "radiator",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "pipe",
+          "radiator"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/attributes/valve_form",
+        "/attributes/control_type"
+      ]
+    },
+    "valve.shutoff.generic": {
+      "class_id": "valve.shutoff.generic",
+      "name_ru": "Запорный вентиль общего назначения",
+      "family_id": "valves",
+      "definition_ru": "Запорный вентиль общего назначения",
+      "include_rules_ru": [],
+      "exclude_rules_ru": [
+        "Шаровые краны",
+        "Обратные клапаны",
+        "Радиаторные клапаны",
+        "Редукторы давления",
+        "Уличные краны",
+        "Коллекторы",
+        "Фитинги"
+      ],
+      "attributes": {
+        "actuator_type": {
+          "type": "enum",
+          "value_set_ref": "valve_actuator_types",
+          "required_for_validated": true,
+          "matching_critical": true
+        },
+        "body_material": {
+          "type": "enum",
+          "value_set_ref": "materials",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "coating": {
+          "type": "enum",
+          "value_set_ref": "coatings",
+          "required_for_validated": false,
+          "matching_critical": false
+        },
+        "pressure_class": {
+          "type": "enum",
+          "value_set_ref": "pressure_classes",
+          "required_for_validated": false,
+          "matching_critical": false
+        }
+      },
+      "ports": {
+        "catalog_ordered_slots": [
+          {
+            "role": "inlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union",
+                "flange"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          },
+          {
+            "role": "outlet",
+            "required": true,
+            "connection_kind": {
+              "allowed": [
+                "male_thread",
+                "female_thread",
+                "socket_fusion",
+                "compression",
+                "union",
+                "flange"
+              ]
+            },
+            "system": {
+              "allowed": [
+                "threaded_generic",
+                "ppr",
+                "hdpe",
+                "multilayer",
+                "pe_rt",
+                "pe_xa"
+              ]
+            },
+            "allowed_fields": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ],
+            "required_for_validated": [
+              "connection_kind"
+            ]
+          }
+        ],
+        "request_allowed_roles": [
+          "inlet",
+          "outlet"
+        ],
+        "repeatable_roles": []
+      },
+      "matching_critical_paths": [
+        "/ports/0/connection_kind",
+        "/ports/1/connection_kind",
+        "/attributes/actuator_type"
+      ]
+    }
+  },
+  "value_sets": {
+    "barrier_layers": {
+      "values": {
+        "aluminum": {
+          "name_ru": "Aluminum",
+          "aliases_ru": []
+        },
+        "evoh": {
+          "name_ru": "Evoh",
+          "aliases_ru": []
+        },
+        "none": {
+          "name_ru": "None",
+          "aliases_ru": []
+        }
+      }
+    },
+    "base_fluids": {
+      "values": {
+        "ethylene_glycol": {
+          "name_ru": "Ethylene glycol",
+          "aliases_ru": []
+        },
+        "propylene_glycol": {
+          "name_ru": "Propylene glycol",
+          "aliases_ru": []
+        },
+        "water": {
+          "name_ru": "Water",
+          "aliases_ru": []
+        }
+      }
+    },
+    "check_valve_mechanisms": {
+      "values": {
+        "ball": {
+          "name_ru": "Ball",
+          "aliases_ru": []
+        },
+        "foot": {
+          "name_ru": "Foot",
+          "aliases_ru": []
+        },
+        "spring": {
+          "name_ru": "Spring",
+          "aliases_ru": []
+        },
+        "swing": {
+          "name_ru": "Swing",
+          "aliases_ru": []
+        }
+      }
+    },
+    "coatings": {
+      "values": {
+        "chrome": {
+          "name_ru": "Chrome",
+          "aliases_ru": []
+        },
+        "nickel": {
+          "name_ru": "Nickel",
+          "aliases_ru": []
+        },
+        "none": {
+          "name_ru": "None",
+          "aliases_ru": []
+        },
+        "zinc": {
+          "name_ru": "Zinc",
+          "aliases_ru": []
+        }
+      }
+    },
+    "colors": {
+      "values": {
+        "black": {
+          "name_ru": "Чёрный",
+          "aliases_ru": []
+        },
+        "blue": {
+          "name_ru": "Синий",
+          "aliases_ru": []
+        },
+        "gray": {
+          "name_ru": "Серый",
+          "aliases_ru": []
+        },
+        "green": {
+          "name_ru": "Зелёный",
+          "aliases_ru": []
+        },
+        "metallic": {
+          "name_ru": "Metallic",
+          "aliases_ru": []
+        },
+        "orange": {
+          "name_ru": "Оранжевый",
+          "aliases_ru": []
+        },
+        "red": {
+          "name_ru": "Красный",
+          "aliases_ru": []
+        },
+        "transparent": {
+          "name_ru": "Прозрачный",
+          "aliases_ru": []
+        },
+        "white": {
+          "name_ru": "Белый",
+          "aliases_ru": []
+        },
+        "yellow": {
+          "name_ru": "Жёлтый",
+          "aliases_ru": []
+        }
+      }
+    },
+    "connection_kinds": {
+      "values": {
+        "axial_press": {
+          "name_ru": "Axial press",
+          "aliases_ru": []
+        },
+        "clamp": {
+          "name_ru": "Clamp",
+          "aliases_ru": []
+        },
+        "compression": {
+          "name_ru": "Compression",
+          "aliases_ru": []
+        },
+        "female_thread": {
+          "name_ru": "Female thread",
+          "aliases_ru": []
+        },
+        "flange": {
+          "name_ru": "Flange",
+          "aliases_ru": []
+        },
+        "flexible_connector": {
+          "name_ru": "Flexible connector",
+          "aliases_ru": []
+        },
+        "hose_barb": {
+          "name_ru": "Hose barb",
+          "aliases_ru": []
+        },
+        "male_thread": {
+          "name_ru": "Male thread",
+          "aliases_ru": []
+        },
+        "plain_end": {
+          "name_ru": "Plain end",
+          "aliases_ru": []
+        },
+        "push_fit": {
+          "name_ru": "Push fit",
+          "aliases_ru": []
+        },
+        "radial_press": {
+          "name_ru": "Radial press",
+          "aliases_ru": []
+        },
+        "saddle_clamp": {
+          "name_ru": "Saddle clamp",
+          "aliases_ru": []
+        },
+        "sanitary_fixture": {
+          "name_ru": "Sanitary fixture",
+          "aliases_ru": []
+        },
+        "sewer_socket": {
+          "name_ru": "Sewer socket",
+          "aliases_ru": []
+        },
+        "sewer_spigot": {
+          "name_ru": "Sewer spigot",
+          "aliases_ru": []
+        },
+        "socket_fusion": {
+          "name_ru": "Socket fusion",
+          "aliases_ru": []
+        },
+        "union": {
+          "name_ru": "Union",
+          "aliases_ru": []
+        }
+      }
+    },
+    "drain_seal_types": {
+      "values": {
+        "combined": {
+          "name_ru": "Combined",
+          "aliases_ru": []
+        },
+        "dry": {
+          "name_ru": "Dry",
+          "aliases_ru": []
+        },
+        "wet": {
+          "name_ru": "Wet",
+          "aliases_ru": []
+        }
+      }
+    },
+    "fitting_constructions": {
+      "values": {
+        "adapter": {
+          "name_ru": "Adapter",
+          "aliases_ru": []
+        },
+        "cap": {
+          "name_ru": "Cap",
+          "aliases_ru": []
+        },
+        "coupling": {
+          "name_ru": "Coupling",
+          "aliases_ru": []
+        },
+        "cross": {
+          "name_ru": "Cross",
+          "aliases_ru": []
+        },
+        "elbow": {
+          "name_ru": "Elbow",
+          "aliases_ru": []
+        },
+        "flange_adapter": {
+          "name_ru": "Flange adapter",
+          "aliases_ru": []
+        },
+        "nipple": {
+          "name_ru": "Nipple",
+          "aliases_ru": []
+        },
+        "plug": {
+          "name_ru": "Plug",
+          "aliases_ru": []
+        },
+        "reducer": {
+          "name_ru": "Reducer",
+          "aliases_ru": []
+        },
+        "repair_coupling": {
+          "name_ru": "Repair coupling",
+          "aliases_ru": []
+        },
+        "saddle": {
+          "name_ru": "Saddle",
+          "aliases_ru": []
+        },
+        "tee": {
+          "name_ru": "Tee",
+          "aliases_ru": []
+        },
+        "union": {
+          "name_ru": "Union",
+          "aliases_ru": []
+        }
+      }
+    },
+    "floor_heating_accessory_kinds": {
+      "values": {
+        "clip": {
+          "name_ru": "Clip",
+          "aliases_ru": []
+        },
+        "connector_kit": {
+          "name_ru": "Connector kit",
+          "aliases_ru": []
+        },
+        "edge_strip": {
+          "name_ru": "Edge strip",
+          "aliases_ru": []
+        },
+        "foil": {
+          "name_ru": "Foil",
+          "aliases_ru": []
+        },
+        "mat": {
+          "name_ru": "Mat",
+          "aliases_ru": []
+        },
+        "mounting_rail": {
+          "name_ru": "Mounting rail",
+          "aliases_ru": []
+        },
+        "panel": {
+          "name_ru": "Плита с бобышками",
+          "aliases_ru": []
+        },
+        "staple": {
+          "name_ru": "Staple",
+          "aliases_ru": []
+        }
+      }
+    },
+    "grate_materials": {
+      "values": {
+        "cast_iron": {
+          "name_ru": "Cast iron",
+          "aliases_ru": []
+        },
+        "plastic": {
+          "name_ru": "Plastic",
+          "aliases_ru": []
+        },
+        "stainless_steel": {
+          "name_ru": "Stainless steel",
+          "aliases_ru": []
+        }
+      }
+    },
+    "handle_types": {
+      "values": {
+        "butterfly": {
+          "name_ru": "Butterfly",
+          "aliases_ru": []
+        },
+        "lever": {
+          "name_ru": "Lever",
+          "aliases_ru": []
+        },
+        "none": {
+          "name_ru": "None",
+          "aliases_ru": []
+        },
+        "removable_key": {
+          "name_ru": "Removable key",
+          "aliases_ru": []
+        },
+        "wheel": {
+          "name_ru": "Wheel",
+          "aliases_ru": []
+        }
+      }
+    },
+    "heat_transfer_fluid_kinds": {
+      "values": {
+        "antifreeze": {
+          "name_ru": "Antifreeze",
+          "aliases_ru": []
+        },
+        "corrosion_inhibitor": {
+          "name_ru": "Corrosion inhibitor",
+          "aliases_ru": []
+        },
+        "heat_transfer_fluid": {
+          "name_ru": "Heat transfer fluid",
+          "aliases_ru": []
+        }
+      }
+    },
+    "installation_orientations": {
+      "values": {
+        "any": {
+          "name_ru": "Any",
+          "aliases_ru": []
+        },
+        "horizontal": {
+          "name_ru": "Horizontal",
+          "aliases_ru": []
+        },
+        "vertical": {
+          "name_ru": "Vertical",
+          "aliases_ru": []
+        }
+      }
+    },
+    "manifold_accessory_kinds": {
+      "values": {
+        "actuator": {
+          "name_ru": "Actuator",
+          "aliases_ru": []
+        },
+        "air_vent": {
+          "name_ru": "Air vent",
+          "aliases_ru": []
+        },
+        "bracket": {
+          "name_ru": "Bracket",
+          "aliases_ru": []
+        },
+        "cabinet": {
+          "name_ru": "Cabinet",
+          "aliases_ru": []
+        },
+        "connection_kit": {
+          "name_ru": "Connection kit",
+          "aliases_ru": []
+        },
+        "drain_unit": {
+          "name_ru": "Drain unit",
+          "aliases_ru": []
+        },
+        "flowmeter": {
+          "name_ru": "Flowmeter",
+          "aliases_ru": []
+        },
+        "mixing_unit": {
+          "name_ru": "Mixing unit",
+          "aliases_ru": []
+        }
+      }
+    },
+    "manifold_control_equipment": {
+      "values": {
+        "flowmeters": {
+          "name_ru": "Flowmeters",
+          "aliases_ru": []
+        },
+        "manual_valves": {
+          "name_ru": "Manual valves",
+          "aliases_ru": []
+        },
+        "mixing_control": {
+          "name_ru": "Mixing control",
+          "aliases_ru": []
+        },
+        "none": {
+          "name_ru": "None",
+          "aliases_ru": []
+        },
+        "thermostatic_valves": {
+          "name_ru": "Thermostatic valves",
+          "aliases_ru": []
+        }
+      }
+    },
+    "materials": {
+      "values": {
+        "aluminum": {
+          "name_ru": "Aluminum",
+          "aliases_ru": []
+        },
+        "brass": {
+          "name_ru": "Brass",
+          "aliases_ru": []
+        },
+        "cast_iron": {
+          "name_ru": "Cast iron",
+          "aliases_ru": []
+        },
+        "epdm": {
+          "name_ru": "Epdm",
+          "aliases_ru": []
+        },
+        "hdpe": {
+          "name_ru": "Hdpe",
+          "aliases_ru": []
+        },
+        "multilayer": {
+          "name_ru": "Multilayer",
+          "aliases_ru": []
+        },
+        "nylon": {
+          "name_ru": "Nylon",
+          "aliases_ru": []
+        },
+        "pe_rt": {
+          "name_ru": "Pe rt",
+          "aliases_ru": []
+        },
+        "pe_xa": {
+          "name_ru": "Pe xa",
+          "aliases_ru": []
+        },
+        "polypropylene": {
+          "name_ru": "Polypropylene",
+          "aliases_ru": []
+        },
+        "ppr": {
+          "name_ru": "Ppr",
+          "aliases_ru": []
+        },
+        "pprct": {
+          "name_ru": "Pprct",
+          "aliases_ru": []
+        },
+        "ptfe": {
+          "name_ru": "Ptfe",
+          "aliases_ru": []
+        },
+        "pvc": {
+          "name_ru": "Pvc",
+          "aliases_ru": []
+        },
+        "rubber": {
+          "name_ru": "Rubber",
+          "aliases_ru": []
+        },
+        "silicone": {
+          "name_ru": "Silicone",
+          "aliases_ru": []
+        },
+        "stainless_steel": {
+          "name_ru": "Stainless steel",
+          "aliases_ru": []
+        },
+        "steel": {
+          "name_ru": "Steel",
+          "aliases_ru": []
+        }
+      }
+    },
+    "mounting_tool_kinds": {
+      "values": {
+        "calibrator": {
+          "name_ru": "Calibrator",
+          "aliases_ru": []
+        },
+        "cutter": {
+          "name_ru": "Cutter",
+          "aliases_ru": []
+        },
+        "deburrer": {
+          "name_ru": "Deburrer",
+          "aliases_ru": []
+        },
+        "expander": {
+          "name_ru": "Expander",
+          "aliases_ru": []
+        },
+        "press_tool": {
+          "name_ru": "Press tool",
+          "aliases_ru": []
+        },
+        "tooling_accessory": {
+          "name_ru": "Tooling accessory",
+          "aliases_ru": []
+        },
+        "welding_machine": {
+          "name_ru": "Welding machine",
+          "aliases_ru": []
+        },
+        "wrench": {
+          "name_ru": "Wrench",
+          "aliases_ru": []
+        }
+      }
+    },
+    "multilayer_structures": {
+      "values": {
+        "pe_rt_al_pe_rt": {
+          "name_ru": "Pe rt al pe rt",
+          "aliases_ru": []
+        },
+        "pert_al_pert": {
+          "name_ru": "Pert al pert",
+          "aliases_ru": []
+        },
+        "pex_al_pex": {
+          "name_ru": "Pex al pex",
+          "aliases_ru": []
+        }
+      }
+    },
+    "outlet_orientations": {
+      "values": {
+        "angled": {
+          "name_ru": "Angled",
+          "aliases_ru": []
+        },
+        "horizontal": {
+          "name_ru": "Horizontal",
+          "aliases_ru": []
+        },
+        "vertical": {
+          "name_ru": "Vertical",
+          "aliases_ru": []
+        }
+      }
+    },
+    "pe_grades": {
+      "values": {
+        "pe100": {
+          "name_ru": "Pe100",
+          "aliases_ru": []
+        },
+        "pe100_rc": {
+          "name_ru": "Pe100 rc",
+          "aliases_ru": []
+        },
+        "pe80": {
+          "name_ru": "Pe80",
+          "aliases_ru": []
+        }
+      }
+    },
+    "pipe_protection_kinds": {
+      "values": {
+        "cover": {
+          "name_ru": "Cover",
+          "aliases_ru": []
+        },
+        "decorative_plate": {
+          "name_ru": "Decorative plate",
+          "aliases_ru": []
+        },
+        "protective_insert": {
+          "name_ru": "Protective insert",
+          "aliases_ru": []
+        },
+        "sleeve": {
+          "name_ru": "Sleeve",
+          "aliases_ru": []
+        },
+        "wall_passage": {
+          "name_ru": "Wall passage",
+          "aliases_ru": []
+        }
+      }
+    },
+    "pipe_support_kinds": {
+      "values": {
+        "bracket": {
+          "name_ru": "Bracket",
+          "aliases_ru": []
+        },
+        "clamp": {
+          "name_ru": "Clamp",
+          "aliases_ru": []
+        },
+        "clip": {
+          "name_ru": "Clip",
+          "aliases_ru": []
+        },
+        "double_clip": {
+          "name_ru": "Double clip",
+          "aliases_ru": []
+        },
+        "rail_mount": {
+          "name_ru": "Rail mount",
+          "aliases_ru": []
+        },
+        "support": {
+          "name_ru": "Support",
+          "aliases_ru": []
+        }
+      }
+    },
+    "pipe_systems": {
+      "values": {
+        "hdpe": {
+          "name_ru": "Hdpe",
+          "aliases_ru": []
+        },
+        "multilayer": {
+          "name_ru": "Multilayer",
+          "aliases_ru": []
+        },
+        "pe_rt": {
+          "name_ru": "Pe rt",
+          "aliases_ru": []
+        },
+        "pe_xa": {
+          "name_ru": "Pe xa",
+          "aliases_ru": []
+        },
+        "ppr": {
+          "name_ru": "Ppr",
+          "aliases_ru": []
+        },
+        "sewer_external": {
+          "name_ru": "Sewer external",
+          "aliases_ru": []
+        },
+        "sewer_internal": {
+          "name_ru": "Sewer internal",
+          "aliases_ru": []
+        },
+        "sewer_low_noise": {
+          "name_ru": "Sewer low noise",
+          "aliases_ru": []
+        },
+        "threaded_generic": {
+          "name_ru": "Threaded generic",
+          "aliases_ru": []
+        }
+      }
+    },
+    "plumbing_consumable_kinds": {
+      "values": {
+        "cleaner": {
+          "name_ru": "Cleaner",
+          "aliases_ru": []
+        },
+        "flax": {
+          "name_ru": "Flax",
+          "aliases_ru": []
+        },
+        "lubricant": {
+          "name_ru": "Lubricant",
+          "aliases_ru": []
+        },
+        "paste": {
+          "name_ru": "Paste",
+          "aliases_ru": []
+        },
+        "ptfe_tape": {
+          "name_ru": "Ptfe tape",
+          "aliases_ru": []
+        },
+        "sealing_thread": {
+          "name_ru": "Sealing thread",
+          "aliases_ru": []
+        }
+      }
+    },
+    "plumbing_sealant_kinds": {
+      "values": {
+        "anaerobic": {
+          "name_ru": "Anaerobic",
+          "aliases_ru": []
+        },
+        "polymer": {
+          "name_ru": "Polymer",
+          "aliases_ru": []
+        },
+        "sealing_paste": {
+          "name_ru": "Sealing paste",
+          "aliases_ru": []
+        },
+        "silicone": {
+          "name_ru": "Silicone",
+          "aliases_ru": []
+        }
+      }
+    },
+    "press_profiles": {
+      "values": {
+        "b": {
+          "name_ru": "B",
+          "aliases_ru": []
+        },
+        "h": {
+          "name_ru": "H",
+          "aliases_ru": []
+        },
+        "rf": {
+          "name_ru": "Rf",
+          "aliases_ru": []
+        },
+        "th": {
+          "name_ru": "Th",
+          "aliases_ru": []
+        },
+        "u": {
+          "name_ru": "U",
+          "aliases_ru": []
+        }
+      }
+    },
+    "pressure_classes": {
+      "values": {
+        "pn10": {
+          "name_ru": "Pn10",
+          "aliases_ru": []
+        },
+        "pn12_5": {
+          "name_ru": "Pn12 5",
+          "aliases_ru": []
+        },
+        "pn16": {
+          "name_ru": "Pn16",
+          "aliases_ru": []
+        },
+        "pn20": {
+          "name_ru": "Pn20",
+          "aliases_ru": []
+        },
+        "pn25": {
+          "name_ru": "Pn25",
+          "aliases_ru": []
+        },
+        "pn40": {
+          "name_ru": "Pn40",
+          "aliases_ru": []
+        },
+        "pn6": {
+          "name_ru": "Pn6",
+          "aliases_ru": []
+        }
+      }
+    },
+    "pressure_control_kinds": {
+      "values": {
+        "differential_bypass": {
+          "name_ru": "Differential bypass",
+          "aliases_ru": []
+        },
+        "pressure_reducing": {
+          "name_ru": "Pressure reducing",
+          "aliases_ru": []
+        },
+        "safety_relief": {
+          "name_ru": "Safety relief",
+          "aliases_ru": []
+        }
+      }
+    },
+    "quantity_units": {
+      "values": {
+        "coil": {
+          "name_ru": "Бухта",
+          "aliases_ru": []
+        },
+        "meter": {
+          "name_ru": "Метр",
+          "aliases_ru": []
+        },
+        "package": {
+          "name_ru": "Упаковка",
+          "aliases_ru": []
+        },
+        "piece": {
+          "name_ru": "Штука",
+          "aliases_ru": []
+        },
+        "set": {
+          "name_ru": "Комплект",
+          "aliases_ru": []
+        }
+      }
+    },
+    "radiator_control_types": {
+      "values": {
+        "manual": {
+          "name_ru": "Manual",
+          "aliases_ru": []
+        },
+        "presettable": {
+          "name_ru": "Presettable",
+          "aliases_ru": []
+        },
+        "thermostatic": {
+          "name_ru": "Thermostatic",
+          "aliases_ru": []
+        }
+      }
+    },
+    "radiator_valve_forms": {
+      "values": {
+        "angle": {
+          "name_ru": "Angle",
+          "aliases_ru": []
+        },
+        "axial": {
+          "name_ru": "Axial",
+          "aliases_ru": []
+        },
+        "straight": {
+          "name_ru": "Straight",
+          "aliases_ru": []
+        }
+      }
+    },
+    "ring_stiffness_classes": {
+      "values": {
+        "sn16": {
+          "name_ru": "Sn16",
+          "aliases_ru": []
+        },
+        "sn2": {
+          "name_ru": "Sn2",
+          "aliases_ru": []
+        },
+        "sn4": {
+          "name_ru": "Sn4",
+          "aliases_ru": []
+        },
+        "sn8": {
+          "name_ru": "Sn8",
+          "aliases_ru": []
+        }
+      }
+    },
+    "sanitary_connector_kinds": {
+      "values": {
+        "flexible_connector": {
+          "name_ru": "Flexible connector",
+          "aliases_ru": []
+        },
+        "offset_connector": {
+          "name_ru": "Offset connector",
+          "aliases_ru": []
+        },
+        "pan_connector": {
+          "name_ru": "Pan connector",
+          "aliases_ru": []
+        },
+        "siphon": {
+          "name_ru": "Siphon",
+          "aliases_ru": []
+        },
+        "soil_pipe_connector": {
+          "name_ru": "Soil pipe connector",
+          "aliases_ru": []
+        }
+      }
+    },
+    "sanitary_rosette_kinds": {
+      "values": {
+        "generic_pipe": {
+          "name_ru": "Generic pipe",
+          "aliases_ru": []
+        },
+        "siphon_pipe": {
+          "name_ru": "Siphon pipe",
+          "aliases_ru": []
+        },
+        "soil_pipe": {
+          "name_ru": "Soil pipe",
+          "aliases_ru": []
+        }
+      }
+    },
+    "sealant_strengths": {
+      "values": {
+        "high": {
+          "name_ru": "High",
+          "aliases_ru": []
+        },
+        "low": {
+          "name_ru": "Low",
+          "aliases_ru": []
+        },
+        "medium": {
+          "name_ru": "Medium",
+          "aliases_ru": []
+        }
+      }
+    },
+    "sewer_fitting_constructions": {
+      "values": {
+        "adapter": {
+          "name_ru": "Adapter",
+          "aliases_ru": []
+        },
+        "cap": {
+          "name_ru": "Cap",
+          "aliases_ru": []
+        },
+        "cleanout": {
+          "name_ru": "Cleanout",
+          "aliases_ru": []
+        },
+        "compensator": {
+          "name_ru": "Compensator",
+          "aliases_ru": []
+        },
+        "coupling": {
+          "name_ru": "Coupling",
+          "aliases_ru": []
+        },
+        "cross": {
+          "name_ru": "Cross",
+          "aliases_ru": []
+        },
+        "elbow": {
+          "name_ru": "Elbow",
+          "aliases_ru": []
+        },
+        "reducer": {
+          "name_ru": "Reducer",
+          "aliases_ru": []
+        },
+        "tee": {
+          "name_ru": "Tee",
+          "aliases_ru": []
+        }
+      }
+    },
+    "sewer_seal_kinds": {
+      "values": {
+        "gasket": {
+          "name_ru": "Gasket",
+          "aliases_ru": []
+        },
+        "lip_seal": {
+          "name_ru": "Lip seal",
+          "aliases_ru": []
+        },
+        "o_ring": {
+          "name_ru": "O ring",
+          "aliases_ru": []
+        },
+        "repair_seal": {
+          "name_ru": "Repair seal",
+          "aliases_ru": []
+        }
+      }
+    },
+    "sound_classes": {
+      "values": {
+        "low_noise": {
+          "name_ru": "Low noise",
+          "aliases_ru": []
+        },
+        "ultra_low_noise": {
+          "name_ru": "Ultra low noise",
+          "aliases_ru": []
+        }
+      }
+    },
+    "thread_standards": {
+      "values": {
+        "bsp_g": {
+          "name_ru": "Bsp g",
+          "aliases_ru": []
+        },
+        "bsp_r": {
+          "name_ru": "Bsp r",
+          "aliases_ru": []
+        },
+        "metric": {
+          "name_ru": "Metric",
+          "aliases_ru": []
+        },
+        "npt": {
+          "name_ru": "Npt",
+          "aliases_ru": []
+        }
+      }
+    },
+    "tool_drive_types": {
+      "values": {
+        "battery": {
+          "name_ru": "Battery",
+          "aliases_ru": []
+        },
+        "electric": {
+          "name_ru": "Electric",
+          "aliases_ru": []
+        },
+        "hydraulic": {
+          "name_ru": "Hydraulic",
+          "aliases_ru": []
+        },
+        "manual": {
+          "name_ru": "Manual",
+          "aliases_ru": []
+        }
+      }
+    },
+    "valve_actuator_types": {
+      "values": {
+        "cap": {
+          "name_ru": "Cap",
+          "aliases_ru": []
+        },
+        "lever": {
+          "name_ru": "Lever",
+          "aliases_ru": []
+        },
+        "servo_ready": {
+          "name_ru": "Servo ready",
+          "aliases_ru": []
+        },
+        "wheel": {
+          "name_ru": "Wheel",
+          "aliases_ru": []
+        }
+      }
+    },
+    "valve_box_installation_types": {
+      "values": {
+        "surface": {
+          "name_ru": "Surface",
+          "aliases_ru": []
+        },
+        "underground": {
+          "name_ru": "Underground",
+          "aliases_ru": []
+        },
+        "wall": {
+          "name_ru": "Wall",
+          "aliases_ru": []
+        }
+      }
+    },
+    "viscosity_classes": {
+      "values": {
+        "high": {
+          "name_ru": "High",
+          "aliases_ru": []
+        },
+        "low": {
+          "name_ru": "Low",
+          "aliases_ru": []
+        },
+        "medium": {
+          "name_ru": "Medium",
+          "aliases_ru": []
+        }
+      }
+    }
+  }
+}

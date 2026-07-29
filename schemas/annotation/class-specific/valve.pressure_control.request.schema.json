@@ -1,0 +1,303 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/valve.pressure_control.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "valve.pressure_control"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "body_material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "control_kind": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "max_inlet_pressure_bar": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "set_pressure_bar": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "female_thread",
+                                      "flange",
+                                      "male_thread"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "female_thread",
+                                        "flange",
+                                        "male_thread"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "nominal_diameter_dn": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_wall_thickness_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "inlet"
+                      },
+                      "system": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "thread_size": {
+                        "$ref": "../common.schema.json#/$defs/rationalConstraint"
+                      },
+                      "thread_standard": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "female_thread",
+                                      "flange",
+                                      "male_thread"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "female_thread",
+                                        "flange",
+                                        "male_thread"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "nominal_diameter_dn": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_wall_thickness_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "outlet"
+                      },
+                      "system": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "thread_size": {
+                        "$ref": "../common.schema.json#/$defs/rationalConstraint"
+                      },
+                      "thread_standard": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "maxItems": 2,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Клапан регулирования давления"
+}

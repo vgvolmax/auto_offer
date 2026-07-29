@@ -1,0 +1,569 @@
+{
+  "class_id": "valve.outdoor_tap",
+  "golden": {
+    "expected_output": {
+      "annotation": {
+        "ambiguities": [],
+        "evidence": [
+          {
+            "json_pointer": "/class_id",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/body_material",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/0/connection_kind",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/0/system",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/1/connection_kind",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/1/system",
+            "source_text": "synthetic evidence"
+          }
+        ],
+        "issues": [],
+        "status": "validated",
+        "unknown_fields": []
+      },
+      "attributes": {
+        "body_material": "aluminum"
+      },
+      "class_id": "valve.outdoor_tap",
+      "identity": {
+        "brand": null,
+        "manufacturer": null,
+        "manufacturer_articles": [],
+        "models": [],
+        "series": null
+      },
+      "ports": [
+        {
+          "connection_kind": "female_thread",
+          "role": "inlet",
+          "system": "hdpe"
+        },
+        {
+          "connection_kind": "female_thread",
+          "role": "outlet",
+          "system": "hdpe"
+        }
+      ],
+      "schema_version": "1.1.0",
+      "source_item_id": "synthetic-valve.outdoor_tap-1",
+      "taxonomy_version": "1.0.0"
+    },
+    "input_text_ru": "Синтетический пример: Уличный и поливочный кран",
+    "kind": "catalog_item"
+  },
+  "invalid": {
+    "additional_attribute": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "aluminum",
+          "unexpected_attribute": "forbidden"
+        },
+        "class_id": "valve.outdoor_tap",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "female_thread",
+            "role": "inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "female_thread",
+            "role": "outlet",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-valve.outdoor_tap-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_port_role": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "aluminum"
+        },
+        "class_id": "valve.outdoor_tap",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "female_thread",
+            "role": "unknown_role",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "female_thread",
+            "role": "outlet",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-valve.outdoor_tap-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_type": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": {
+            "invalid": true
+          }
+        },
+        "class_id": "valve.outdoor_tap",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "female_thread",
+            "role": "inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "female_thread",
+            "role": "outlet",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-valve.outdoor_tap-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "needs_review": {
+    "ambiguity": {
+      "data": {
+        "annotation": {
+          "ambiguities": [
+            {
+              "blocking": true,
+              "code": "AMBIGUOUS_SYNTHETIC_VALUE",
+              "json_pointer": "/attributes/anti_freeze",
+              "possible_values": [
+                true,
+                false
+              ],
+              "source_text": "synthetic ambiguous source"
+            }
+          ],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "aluminum"
+        },
+        "class_id": "valve.outdoor_tap",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "female_thread",
+            "role": "inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "female_thread",
+            "role": "outlet",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-valve.outdoor_tap-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "unknown": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": [
+            "/attributes/anti_freeze"
+          ]
+        },
+        "attributes": {
+          "body_material": "aluminum"
+        },
+        "class_id": "valve.outdoor_tap",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "female_thread",
+            "role": "inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "female_thread",
+            "role": "outlet",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-valve.outdoor_tap-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "valid": [
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "aluminum"
+        },
+        "class_id": "valve.outdoor_tap",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "female_thread",
+            "role": "inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "female_thread",
+            "role": "outlet",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-valve.outdoor_tap-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/constraints/attributes/body_material",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "class_id": "valve.outdoor_tap",
+        "constraints": {
+          "attributes": {
+            "body_material": {
+              "operator": "eq",
+              "value": "aluminum"
+            }
+          },
+          "ports": []
+        },
+        "line_id": "request-valve.outdoor_tap",
+        "raw_text": "Синтетическая заявка: Уличный и поливочный кран",
+        "requested_identity": {},
+        "substitution_statement": {
+          "explicit": false,
+          "policy": "unspecified",
+          "raw_text": null
+        }
+      },
+      "kind": "request_line"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/system",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/connection_kind",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/system",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "body_material": "brass"
+        },
+        "class_id": "valve.outdoor_tap",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "female_thread",
+            "role": "inlet",
+            "system": "hdpe"
+          },
+          {
+            "connection_kind": "female_thread",
+            "role": "outlet",
+            "system": "hdpe"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-valve.outdoor_tap-2",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  ]
+}

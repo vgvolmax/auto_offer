@@ -1,0 +1,139 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/pipe.multilayer.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "coil_length_m": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            "layer_structure": {
+              "enum": [
+                "pe_rt_al_pe_rt",
+                "pert_al_pert",
+                "pex_al_pex"
+              ]
+            },
+            "wall_thickness_mm": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "pipe.multilayer"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 2,
+          "minItems": 0,
+          "prefixItems": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "const": "plain_end"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "pipe_end"
+                },
+                "system": {
+                  "const": "multilayer"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "const": "plain_end"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "pipe_end"
+                },
+                "system": {
+                  "const": "multilayer"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            }
+          ],
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "layer_structure",
+              "wall_thickness_mm"
+            ]
+          },
+          "ports": {
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "required": [
+                  "role",
+                  "connection_kind",
+                  "system",
+                  "pipe_outer_diameter_mm"
+                ]
+              },
+              {
+                "required": [
+                  "role",
+                  "connection_kind",
+                  "system",
+                  "pipe_outer_diameter_mm"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Многослойная труба"
+}

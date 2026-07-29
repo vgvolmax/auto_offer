@@ -1,0 +1,115 @@
+{
+  "lineage_schema_version": "1.0.0",
+  "proposal_version": "0.1.0",
+  "production_taxonomy_version": "1.0.0",
+  "proposal_sha256": "a8b3091004bb80a88c4be61ef471e0a9e02db7f7ed8620c0a1298820ab0e1d32",
+  "mappings": {
+    "accessory.floor_heating": [
+      "accessory.floor_heating"
+    ],
+    "conduit.corrugated": [
+      "conduit.corrugated"
+    ],
+    "drain.floor": [
+      "drain.floor"
+    ],
+    "fitting.axial": [
+      "fitting.axial"
+    ],
+    "fitting.brass.threaded": [
+      "fitting.brass.threaded"
+    ],
+    "fitting.compression": [
+      "fitting.compression.hdpe",
+      "fitting.compression.multilayer"
+    ],
+    "fitting.ppr": [
+      "fitting.ppr"
+    ],
+    "fitting.radial": [
+      "fitting.radial"
+    ],
+    "fitting.sewer.external": [
+      "fitting.sewer.external"
+    ],
+    "fitting.sewer.internal": [
+      "fitting.sewer.internal"
+    ],
+    "fitting.sewer.low_noise": [
+      "fitting.sewer.low_noise"
+    ],
+    "insulation.pipe": [
+      "insulation.pipe"
+    ],
+    "manifold": [
+      "manifold.accessory",
+      "manifold.distribution",
+      "manifold.group"
+    ],
+    "pipe.hdpe": [
+      "pipe.hdpe"
+    ],
+    "pipe.multilayer": [
+      "pipe.multilayer"
+    ],
+    "pipe.pert": [
+      "pipe.pert"
+    ],
+    "pipe.pex_a": [
+      "pipe.pex_a"
+    ],
+    "pipe.ppr": [
+      "pipe.ppr"
+    ],
+    "pipe.sewer.external": [
+      "pipe.sewer.external"
+    ],
+    "pipe.sewer.internal": [
+      "pipe.sewer.internal"
+    ],
+    "pipe.sewer.low_noise": [
+      "pipe.sewer.low_noise"
+    ],
+    "sanitary.connector": [
+      "sanitary.connector"
+    ],
+    "sealant.plumbing": [
+      "consumable.plumbing",
+      "fluid.heat_transfer",
+      "sealant.plumbing"
+    ],
+    "support.pipe": [
+      "accessory.pipe.protection",
+      "fire_collar.pipe",
+      "seal.sewer",
+      "support.pipe"
+    ],
+    "tool.mounting": [
+      "tool.mounting"
+    ],
+    "valve.ball": [
+      "valve.ball"
+    ],
+    "valve.shutoff": [
+      "valve.check",
+      "valve.outdoor_tap",
+      "valve.pressure_control",
+      "valve.radiator",
+      "valve.shutoff.generic"
+    ]
+  },
+  "case_created_classes": [
+    "accessory.sanitary.pipe_rosette",
+    "accessory.valve_box"
+  ],
+  "folded_resolutions": [
+    {
+      "from": "accessory.floor_heating.panel",
+      "to": "accessory.floor_heating",
+      "discriminator": {
+        "path": "/attributes/accessory_kind",
+        "value": "panel"
+      }
+    }
+  ]
+}

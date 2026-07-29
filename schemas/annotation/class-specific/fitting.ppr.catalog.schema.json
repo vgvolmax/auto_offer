@@ -1,0 +1,332 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/fitting.ppr.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "body_material": {
+              "enum": [
+                "aluminum",
+                "brass",
+                "cast_iron",
+                "epdm",
+                "hdpe",
+                "multilayer",
+                "nylon",
+                "pe_rt",
+                "pe_xa",
+                "polypropylene",
+                "ppr",
+                "pprct",
+                "ptfe",
+                "pvc",
+                "rubber",
+                "silicone",
+                "stainless_steel",
+                "steel"
+              ]
+            },
+            "color": {
+              "enum": [
+                "black",
+                "blue",
+                "gray",
+                "green",
+                "metallic",
+                "orange",
+                "red",
+                "transparent",
+                "white",
+                "yellow"
+              ]
+            },
+            "construction": {
+              "enum": [
+                "adapter",
+                "cap",
+                "coupling",
+                "cross",
+                "elbow",
+                "flange_adapter",
+                "nipple",
+                "plug",
+                "reducer",
+                "repair_coupling",
+                "saddle",
+                "tee",
+                "union"
+              ]
+            },
+            "pressure_class": {
+              "enum": [
+                "pn10",
+                "pn12_5",
+                "pn16",
+                "pn20",
+                "pn25",
+                "pn40",
+                "pn6"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "fitting.ppr"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 4,
+          "minItems": 0,
+          "prefixItems": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "enum": [
+                    "socket_fusion",
+                    "male_thread",
+                    "female_thread",
+                    "union"
+                  ]
+                },
+                "nominal_diameter_dn": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_wall_thickness_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "end_1"
+                },
+                "system": {
+                  "enum": [
+                    "ppr",
+                    "threaded_generic"
+                  ]
+                },
+                "thread_size": {
+                  "$ref": "../common.schema.json#/$defs/rationalInch"
+                },
+                "thread_standard": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "enum": [
+                    "socket_fusion",
+                    "male_thread",
+                    "female_thread",
+                    "union"
+                  ]
+                },
+                "nominal_diameter_dn": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_wall_thickness_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "end_2"
+                },
+                "system": {
+                  "enum": [
+                    "ppr",
+                    "threaded_generic"
+                  ]
+                },
+                "thread_size": {
+                  "$ref": "../common.schema.json#/$defs/rationalInch"
+                },
+                "thread_standard": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "enum": [
+                    "socket_fusion",
+                    "male_thread",
+                    "female_thread",
+                    "union"
+                  ]
+                },
+                "nominal_diameter_dn": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_wall_thickness_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "branch_1"
+                },
+                "system": {
+                  "enum": [
+                    "ppr",
+                    "threaded_generic"
+                  ]
+                },
+                "thread_size": {
+                  "$ref": "../common.schema.json#/$defs/rationalInch"
+                },
+                "thread_standard": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "enum": [
+                    "socket_fusion",
+                    "male_thread",
+                    "female_thread",
+                    "union"
+                  ]
+                },
+                "nominal_diameter_dn": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_wall_thickness_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "branch_2"
+                },
+                "system": {
+                  "enum": [
+                    "ppr",
+                    "threaded_generic"
+                  ]
+                },
+                "thread_size": {
+                  "$ref": "../common.schema.json#/$defs/rationalInch"
+                },
+                "thread_standard": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            }
+          ],
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "body_material",
+              "construction"
+            ]
+          },
+          "ports": {
+            "minItems": 1,
+            "prefixItems": [
+              {
+                "required": [
+                  "role",
+                  "connection_kind"
+                ]
+              },
+              {
+                "required": [
+                  "role",
+                  "connection_kind"
+                ]
+              },
+              {
+                "required": [
+                  "role",
+                  "connection_kind"
+                ]
+              },
+              {
+                "required": [
+                  "role",
+                  "connection_kind"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Фитинг PP-R"
+}

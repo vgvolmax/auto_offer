@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/taxonomy/taxonomy.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "taxonomy_schema_version",
+    "taxonomy_version",
+    "status",
+    "mass_annotation_allowed",
+    "approval_manifest",
+    "class_count",
+    "classes",
+    "value_sets"
+  ],
+  "properties": {
+    "taxonomy_schema_version": {
+      "const": "1.0.0"
+    },
+    "taxonomy_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "const": "production"
+    },
+    "mass_annotation_allowed": {
+      "const": false
+    },
+    "approval_manifest": {
+      "const": "production-approval-manifest.json"
+    },
+    "class_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "classes": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/class"
+      }
+    },
+    "value_sets": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/valueSet"
+      }
+    }
+  },
+  "$defs": {
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "fixed"
+          ]
+        },
+        {
+          "required": [
+            "allowed"
+          ]
+        }
+      ],
+      "properties": {
+        "fixed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allowed": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "attribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "required_for_validated",
+        "matching_critical"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "enum",
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "rational_inch",
+            "number_set",
+            "string_set",
+            "dimensions"
+          ]
+        },
+        "value_set_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required_for_validated": {
+          "type": "boolean"
+        },
+        "matching_critical": {
+          "type": "boolean"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "exclusive_minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "portSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "required",
+        "connection_kind",
+        "allowed_fields",
+        "required_for_validated"
+      ],
+      "properties": {
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "connection_kind": {
+          "$ref": "#/$defs/selector"
+        },
+        "system": {
+          "$ref": "#/$defs/selector"
+        },
+        "allowed_fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "nominal_diameter_dn",
+              "pipe_outer_diameter_mm",
+              "pipe_wall_thickness_mm",
+              "thread_standard",
+              "thread_size"
+            ]
+          }
+        },
+        "required_for_validated": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "ports": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalog_ordered_slots",
+        "request_allowed_roles",
+        "repeatable_roles"
+      ],
+      "properties": {
+        "catalog_ordered_slots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/portSlot"
+          }
+        },
+        "request_allowed_roles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "repeatable_roles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_id",
+        "name_ru",
+        "family_id",
+        "definition_ru",
+        "include_rules_ru",
+        "exclude_rules_ru",
+        "attributes",
+        "ports",
+        "matching_critical_paths"
+      ],
+      "properties": {
+        "class_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+        },
+        "name_ru": {
+          "type": "string",
+          "minLength": 1
+        },
+        "family_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "definition_ru": {
+          "type": "string",
+          "minLength": 1
+        },
+        "include_rules_ru": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "exclude_rules_ru": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/attribute"
+          }
+        },
+        "ports": {
+          "$ref": "#/$defs/ports"
+        },
+        "matching_critical_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^/"
+          }
+        }
+      }
+    },
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name_ru",
+        "aliases_ru"
+      ],
+      "properties": {
+        "name_ru": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases_ru": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "valueSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "values"
+      ],
+      "properties": {
+        "values": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/value"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/insulation.pipe.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "inner_diameter_mm": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            "length_m": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            "thickness_mm": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "insulation.pipe"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 0,
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "inner_diameter_mm",
+              "thickness_mm"
+            ]
+          },
+          "ports": {
+            "maxItems": 0
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Теплоизоляция для труб"
+}

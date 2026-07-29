@@ -1,0 +1,33 @@
+{
+  "approval_manifest_schema_version": "1.0.0",
+  "owner": "vgvolmax",
+  "approved_at": "2026-07-29",
+  "proposal_version": "0.1.0",
+  "proposal_sha256": "a8b3091004bb80a88c4be61ef471e0a9e02db7f7ed8620c0a1298820ab0e1d32",
+  "source_inventory_sha256": "dda007dba97121a73c793f0dab003242910e6454337be453a5aa2d7479f58fed",
+  "proposed_class_count": 27,
+  "unresolved_case_count": 192,
+  "class_decision_counts": {
+    "approve": 20,
+    "revise": 2,
+    "split": 5
+  },
+  "case_decision_counts": {
+    "select_option": 179,
+    "create_new_class": 13
+  },
+  "post_approval_resolutions": [
+    {
+      "resolution_id": "floor-heating-panel-as-accessory-kind",
+      "superseded_class_id": "accessory.floor_heating.panel",
+      "target_class_id": "accessory.floor_heating",
+      "attribute_path": "/attributes/accessory_kind",
+      "canonical_value": "panel",
+      "decided_by": "vgvolmax",
+      "decided_at": "2026-07-29"
+    }
+  ],
+  "production_taxonomy_version": "1.0.0",
+  "production_class_count": 41,
+  "mass_annotation_allowed": false
+}

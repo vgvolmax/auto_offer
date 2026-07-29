@@ -1,10 +1,130 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.local/schemas/annotation/generated/request-line.dispatch.schema.json",
-  "title": "Generated request class dispatcher",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "oneOf": [
     {
-      "$ref": "../class-specific/fitting.adapter.ppr.male_thread.request.schema.json"
+      "$ref": "../class-specific/accessory.floor_heating.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/accessory.pipe.protection.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/accessory.sanitary.pipe_rosette.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/accessory.valve_box.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/conduit.corrugated.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/consumable.plumbing.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/drain.floor.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fire_collar.pipe.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.axial.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.brass.threaded.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.compression.hdpe.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.compression.multilayer.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.ppr.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.radial.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.sewer.external.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.sewer.internal.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fitting.sewer.low_noise.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/fluid.heat_transfer.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/insulation.pipe.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/manifold.accessory.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/manifold.distribution.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/manifold.group.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/pipe.hdpe.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/pipe.multilayer.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/pipe.pert.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/pipe.pex_a.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/pipe.ppr.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/pipe.sewer.external.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/pipe.sewer.internal.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/pipe.sewer.low_noise.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/sanitary.connector.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/seal.sewer.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/sealant.plumbing.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/support.pipe.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/tool.mounting.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/valve.ball.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/valve.check.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/valve.outdoor_tap.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/valve.pressure_control.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/valve.radiator.request.schema.json"
+    },
+    {
+      "$ref": "../class-specific/valve.shutoff.generic.request.schema.json"
     }
-  ]
+  ],
+  "title": "Generated request class dispatcher"
 }

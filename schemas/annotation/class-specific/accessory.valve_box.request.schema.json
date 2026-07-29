@@ -1,0 +1,43 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/accessory.valve_box.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "accessory.valve_box"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "box_size_inch": {
+                  "$ref": "../common.schema.json#/$defs/rationalConstraint"
+                },
+                "installation_type": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": false,
+              "maxItems": 0,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Клапанный бокс"
+}

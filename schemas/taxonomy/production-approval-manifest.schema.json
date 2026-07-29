@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://example.local/schemas/taxonomy/production-approval-manifest.schema.json",
+  "type":"object","additionalProperties":false,
+  "required":["approval_manifest_schema_version","owner","approved_at","proposal_version","proposal_sha256","source_inventory_sha256","proposed_class_count","unresolved_case_count","class_decision_counts","case_decision_counts","post_approval_resolutions","production_taxonomy_version","production_class_count","mass_annotation_allowed"],
+  "properties":{
+    "approval_manifest_schema_version":{"const":"1.0.0"},"owner":{"const":"vgvolmax"},"approved_at":{"const":"2026-07-29"},"proposal_version":{"const":"0.1.0"},
+    "proposal_sha256":{"const":"a8b3091004bb80a88c4be61ef471e0a9e02db7f7ed8620c0a1298820ab0e1d32"},
+    "source_inventory_sha256":{"const":"dda007dba97121a73c793f0dab003242910e6454337be453a5aa2d7479f58fed"},
+    "proposed_class_count":{"const":27},"unresolved_case_count":{"const":192},
+    "class_decision_counts":{"type":"object","additionalProperties":false,"required":["approve","revise","split"],"properties":{"approve":{"const":20},"revise":{"const":2},"split":{"const":5}}},
+    "case_decision_counts":{"type":"object","additionalProperties":false,"required":["select_option","create_new_class"],"properties":{"select_option":{"const":179},"create_new_class":{"const":13}}},
+    "post_approval_resolutions":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["resolution_id","superseded_class_id","target_class_id","attribute_path","canonical_value","decided_by","decided_at"],"properties":{"resolution_id":{"type":"string"},"superseded_class_id":{"type":"string"},"target_class_id":{"type":"string"},"attribute_path":{"type":"string"},"canonical_value":{"type":"string"},"decided_by":{"const":"vgvolmax"},"decided_at":{"const":"2026-07-29"}}}},
+    "production_taxonomy_version":{"const":"1.0.0"},"production_class_count":{"const":41},"mass_annotation_allowed":{"const":false}
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/accessory.valve_box.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "box_size_inch": {
+              "$ref": "../common.schema.json#/$defs/rationalInch"
+            },
+            "installation_type": {
+              "enum": [
+                "surface",
+                "underground",
+                "wall"
+              ]
+            },
+            "material": {
+              "enum": [
+                "aluminum",
+                "brass",
+                "cast_iron",
+                "epdm",
+                "hdpe",
+                "multilayer",
+                "nylon",
+                "pe_rt",
+                "pe_xa",
+                "polypropylene",
+                "ppr",
+                "pprct",
+                "ptfe",
+                "pvc",
+                "rubber",
+                "silicone",
+                "stainless_steel",
+                "steel"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "accessory.valve_box"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 0,
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "box_size_inch"
+            ]
+          },
+          "ports": {
+            "maxItems": 0
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Клапанный бокс"
+}

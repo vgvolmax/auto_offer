@@ -1,0 +1,551 @@
+{
+  "class_id": "pipe.sewer.low_noise",
+  "golden": {
+    "expected_output": {
+      "annotation": {
+        "ambiguities": [],
+        "evidence": [
+          {
+            "json_pointer": "/class_id",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/length_mm",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/attributes/sound_class",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+            "source_text": "synthetic evidence"
+          },
+          {
+            "json_pointer": "/ports/1/pipe_outer_diameter_mm",
+            "source_text": "synthetic evidence"
+          }
+        ],
+        "issues": [],
+        "status": "validated",
+        "unknown_fields": []
+      },
+      "attributes": {
+        "length_mm": 1,
+        "sound_class": "low_noise"
+      },
+      "class_id": "pipe.sewer.low_noise",
+      "identity": {
+        "brand": null,
+        "manufacturer": null,
+        "manufacturer_articles": [],
+        "models": [],
+        "series": null
+      },
+      "ports": [
+        {
+          "connection_kind": "sewer_socket",
+          "pipe_outer_diameter_mm": 20,
+          "role": "socket",
+          "system": "sewer_low_noise"
+        },
+        {
+          "connection_kind": "sewer_spigot",
+          "pipe_outer_diameter_mm": 21,
+          "role": "spigot",
+          "system": "sewer_low_noise"
+        }
+      ],
+      "schema_version": "1.1.0",
+      "source_item_id": "synthetic-pipe.sewer.low_noise-1",
+      "taxonomy_version": "1.0.0"
+    },
+    "input_text_ru": "Синтетический пример: Малошумная канализационная труба",
+    "kind": "catalog_item"
+  },
+  "invalid": {
+    "additional_attribute": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/length_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/sound_class",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "length_mm": 1,
+          "sound_class": "low_noise",
+          "unexpected_attribute": "forbidden"
+        },
+        "class_id": "pipe.sewer.low_noise",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "sewer_socket",
+            "pipe_outer_diameter_mm": 20,
+            "role": "socket",
+            "system": "sewer_low_noise"
+          },
+          {
+            "connection_kind": "sewer_spigot",
+            "pipe_outer_diameter_mm": 21,
+            "role": "spigot",
+            "system": "sewer_low_noise"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-pipe.sewer.low_noise-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_port_role": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/length_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/sound_class",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "length_mm": 1,
+          "sound_class": "low_noise"
+        },
+        "class_id": "pipe.sewer.low_noise",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "sewer_socket",
+            "pipe_outer_diameter_mm": 20,
+            "role": "unknown_role",
+            "system": "sewer_low_noise"
+          },
+          {
+            "connection_kind": "sewer_spigot",
+            "pipe_outer_diameter_mm": 21,
+            "role": "spigot",
+            "system": "sewer_low_noise"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-pipe.sewer.low_noise-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "invalid_type": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/length_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/sound_class",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "length_mm": {
+            "invalid": true
+          },
+          "sound_class": "low_noise"
+        },
+        "class_id": "pipe.sewer.low_noise",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "sewer_socket",
+            "pipe_outer_diameter_mm": 20,
+            "role": "socket",
+            "system": "sewer_low_noise"
+          },
+          {
+            "connection_kind": "sewer_spigot",
+            "pipe_outer_diameter_mm": 21,
+            "role": "spigot",
+            "system": "sewer_low_noise"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-pipe.sewer.low_noise-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "needs_review": {
+    "ambiguity": {
+      "data": {
+        "annotation": {
+          "ambiguities": [
+            {
+              "blocking": true,
+              "code": "AMBIGUOUS_SYNTHETIC_VALUE",
+              "json_pointer": "/attributes/length_mm",
+              "possible_values": [
+                20,
+                25
+              ],
+              "source_text": "synthetic ambiguous source"
+            }
+          ],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/sound_class",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "sound_class": "low_noise"
+        },
+        "class_id": "pipe.sewer.low_noise",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "sewer_socket",
+            "pipe_outer_diameter_mm": 20,
+            "role": "socket",
+            "system": "sewer_low_noise"
+          },
+          {
+            "connection_kind": "sewer_spigot",
+            "pipe_outer_diameter_mm": 21,
+            "role": "spigot",
+            "system": "sewer_low_noise"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-pipe.sewer.low_noise-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    "unknown": {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/sound_class",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "needs_review",
+          "unknown_fields": [
+            "/attributes/length_mm"
+          ]
+        },
+        "attributes": {
+          "sound_class": "low_noise"
+        },
+        "class_id": "pipe.sewer.low_noise",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "sewer_socket",
+            "pipe_outer_diameter_mm": 20,
+            "role": "socket",
+            "system": "sewer_low_noise"
+          },
+          {
+            "connection_kind": "sewer_spigot",
+            "pipe_outer_diameter_mm": 21,
+            "role": "spigot",
+            "system": "sewer_low_noise"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-pipe.sewer.low_noise-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  },
+  "valid": [
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/length_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/sound_class",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "length_mm": 1,
+          "sound_class": "low_noise"
+        },
+        "class_id": "pipe.sewer.low_noise",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "sewer_socket",
+            "pipe_outer_diameter_mm": 20,
+            "role": "socket",
+            "system": "sewer_low_noise"
+          },
+          {
+            "connection_kind": "sewer_spigot",
+            "pipe_outer_diameter_mm": 21,
+            "role": "spigot",
+            "system": "sewer_low_noise"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-pipe.sewer.low_noise-1",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/constraints/attributes/length_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "class_id": "pipe.sewer.low_noise",
+        "constraints": {
+          "attributes": {
+            "length_mm": {
+              "operator": "eq",
+              "value": 1
+            }
+          },
+          "ports": []
+        },
+        "line_id": "request-pipe.sewer.low_noise",
+        "raw_text": "Синтетическая заявка: Малошумная канализационная труба",
+        "requested_identity": {},
+        "substitution_statement": {
+          "explicit": false,
+          "policy": "unspecified",
+          "raw_text": null
+        }
+      },
+      "kind": "request_line"
+    },
+    {
+      "data": {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/length_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/attributes/sound_class",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/0/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/ports/1/pipe_outer_diameter_mm",
+              "source_text": "synthetic evidence"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "attributes": {
+          "length_mm": 1,
+          "sound_class": "ultra_low_noise"
+        },
+        "class_id": "pipe.sewer.low_noise",
+        "identity": {
+          "brand": null,
+          "manufacturer": null,
+          "manufacturer_articles": [],
+          "models": [],
+          "series": null
+        },
+        "ports": [
+          {
+            "connection_kind": "sewer_socket",
+            "pipe_outer_diameter_mm": 20,
+            "role": "socket",
+            "system": "sewer_low_noise"
+          },
+          {
+            "connection_kind": "sewer_spigot",
+            "pipe_outer_diameter_mm": 21,
+            "role": "spigot",
+            "system": "sewer_low_noise"
+          }
+        ],
+        "schema_version": "1.1.0",
+        "source_item_id": "synthetic-pipe.sewer.low_noise-2",
+        "taxonomy_version": "1.0.0"
+      },
+      "kind": "catalog_item"
+    }
+  ]
+}

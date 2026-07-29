@@ -1,0 +1,46 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/sealant.plumbing.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "sealant.plumbing"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "sealant_kind": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "strength": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "viscosity": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "volume_ml": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": false,
+              "maxItems": 0,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Сантехнический герметик"
+}

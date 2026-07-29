@@ -1,0 +1,191 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/sanitary.connector.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "connector_kind": {
+              "enum": [
+                "flexible_connector",
+                "offset_connector",
+                "pan_connector",
+                "siphon",
+                "soil_pipe_connector"
+              ]
+            },
+            "material": {
+              "enum": [
+                "aluminum",
+                "brass",
+                "cast_iron",
+                "epdm",
+                "hdpe",
+                "multilayer",
+                "nylon",
+                "pe_rt",
+                "pe_xa",
+                "polypropylene",
+                "ppr",
+                "pprct",
+                "ptfe",
+                "pvc",
+                "rubber",
+                "silicone",
+                "stainless_steel",
+                "steel"
+              ]
+            },
+            "outlet_diameter_mm": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "sanitary.connector"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 2,
+          "minItems": 0,
+          "prefixItems": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "enum": [
+                    "sanitary_fixture",
+                    "flexible_connector"
+                  ]
+                },
+                "nominal_diameter_dn": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_wall_thickness_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "fixture_port"
+                },
+                "thread_size": {
+                  "$ref": "../common.schema.json#/$defs/rationalInch"
+                },
+                "thread_standard": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "enum": [
+                    "sewer_socket",
+                    "sewer_spigot",
+                    "flexible_connector"
+                  ]
+                },
+                "nominal_diameter_dn": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "pipe_wall_thickness_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "sewer_port"
+                },
+                "system": {
+                  "enum": [
+                    "sewer_internal",
+                    "sewer_external"
+                  ]
+                },
+                "thread_size": {
+                  "$ref": "../common.schema.json#/$defs/rationalInch"
+                },
+                "thread_standard": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            }
+          ],
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "connector_kind"
+            ]
+          },
+          "ports": {
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "required": [
+                  "role",
+                  "connection_kind"
+                ]
+              },
+              {
+                "required": [
+                  "role",
+                  "connection_kind"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Санитарный соединитель и сифон"
+}

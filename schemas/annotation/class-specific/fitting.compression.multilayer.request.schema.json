@@ -1,0 +1,301 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/fitting.compression.multilayer.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "fitting.compression.multilayer"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "body_material": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "construction": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "compression",
+                                      "female_thread",
+                                      "male_thread"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "compression",
+                                        "female_thread",
+                                        "male_thread"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "nominal_diameter_dn": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_wall_thickness_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "end_1"
+                      },
+                      "system": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "multilayer",
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "multilayer",
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "thread_size": {
+                        "$ref": "../common.schema.json#/$defs/rationalConstraint"
+                      },
+                      "thread_standard": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "compression",
+                                      "female_thread",
+                                      "male_thread"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "compression",
+                                        "female_thread",
+                                        "male_thread"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "nominal_diameter_dn": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "pipe_wall_thickness_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "end_2"
+                      },
+                      "system": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq",
+                                      "neq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "multilayer",
+                                      "threaded_generic"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "multilayer",
+                                        "threaded_generic"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "thread_size": {
+                        "$ref": "../common.schema.json#/$defs/rationalConstraint"
+                      },
+                      "thread_standard": {
+                        "$ref": "../common.schema.json#/$defs/enumConstraint"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "maxItems": 2,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Обжимной фитинг для многослойной трубы"
+}

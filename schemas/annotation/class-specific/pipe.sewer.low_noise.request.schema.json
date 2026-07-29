@@ -1,0 +1,264 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/pipe.sewer.low_noise.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "pipe.sewer.low_noise"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "length_mm": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "sound_class": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_socket"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_socket"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "socket"
+                      },
+                      "system": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_low_noise"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_low_noise"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_spigot"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_spigot"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "spigot"
+                      },
+                      "system": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "sewer_low_noise"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "sewer_low_noise"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "maxItems": 2,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Малошумная канализационная труба"
+}

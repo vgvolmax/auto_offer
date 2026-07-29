@@ -1,0 +1,121 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/drain.floor.catalog.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../catalog-item-annotation.base.schema.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "annotation": {
+            "properties": {
+              "status": {
+                "const": "validated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "annotation"
+        ]
+      },
+      "properties": {
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "adjustable": {
+              "type": "boolean"
+            },
+            "grate_material": {
+              "enum": [
+                "cast_iron",
+                "plastic",
+                "stainless_steel"
+              ]
+            },
+            "outlet_orientation": {
+              "enum": [
+                "angled",
+                "horizontal",
+                "vertical"
+              ]
+            },
+            "seal_type": {
+              "enum": [
+                "combined",
+                "dry",
+                "wet"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "class_id": {
+          "const": "drain.floor"
+        },
+        "ports": {
+          "items": false,
+          "maxItems": 1,
+          "minItems": 0,
+          "prefixItems": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "connection_kind": {
+                  "const": "sewer_spigot"
+                },
+                "pipe_outer_diameter_mm": {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                "role": {
+                  "const": "sewer_outlet"
+                },
+                "system": {
+                  "enum": [
+                    "sewer_internal",
+                    "sewer_external"
+                  ]
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "type": "object"
+            }
+          ],
+          "type": "array"
+        }
+      },
+      "then": {
+        "properties": {
+          "attributes": {
+            "required": [
+              "outlet_orientation",
+              "seal_type"
+            ]
+          },
+          "ports": {
+            "minItems": 1,
+            "prefixItems": [
+              {
+                "required": [
+                  "role",
+                  "connection_kind",
+                  "system",
+                  "pipe_outer_diameter_mm"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Catalog annotation: Сливной трап"
+}

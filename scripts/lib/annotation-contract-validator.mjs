@@ -1,4 +1,5 @@
 import { classifyGtin } from './catalog-identifiers.mjs';
+import { buildRequestPortContracts } from '../annotation/lib/request-port-contracts.mjs';
 
 const issue = (code, path, message, details) => ({ code, path, message, ...(details === undefined ? {} : { details }) });
 const escapeToken = value => String(value).replaceAll('~', '~0').replaceAll('/', '~1');
@@ -30,6 +31,17 @@ function hasConfirmedValue(target) {
 function matches(pattern, pointer) {
   const a = pattern.split('/'); const b = pointer.split('/');
   return a.length === b.length && a.every((part, index) => part === '*' || part === b[index]);
+}
+function requestPointerAllowed(item, classDefinition, pointer) {
+  const match = /^\/constraints\/ports\/(\d+)\/([^/]+)$/.exec(pointer);
+  if (!match) return true;
+  const port = item.constraints?.ports?.[Number(match[1])];
+  if (!port || !classDefinition) return false;
+  const contract = buildRequestPortContracts(classDefinition).find(candidate => candidate.role === port.role);
+  if (!contract) return false;
+  const fields = new Set(['connection_kind', ...contract.allowed_fields]);
+  if (contract.system_selector) fields.add('system');
+  return fields.has(match[2]);
 }
 function walk(value, path, callback) {
   callback(value, path);
@@ -74,16 +86,17 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
     if (annotation.status === 'invalid' && !annotation.issues?.length) add('ISSUE_REQUIRED', `${prefix}/annotation/issues`, 'invalid annotation requires an issue');
 
     const allowed = registration.allowed_annotation_paths ?? [];
+    const classDefinition = taxonomy.classes?.[item.class_id];
     for (const pointer of annotation.unknown_fields ?? []) {
       const target = pointerAt(item, pointer);
       if (target.invalid) add('INVALID_JSON_POINTER', `${prefix}/annotation/unknown_fields`, 'Unknown field pointer is not RFC 6901');
-      else if (!allowed.some(pattern => matches(pattern, pointer))) add('UNKNOWN_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Unknown pointer is not allowed for this class');
+      else if (!allowed.some(pattern => matches(pattern, pointer)) || (kind === 'request_document' && !requestPointerAllowed(item, classDefinition, pointer))) add('UNKNOWN_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Unknown pointer is not allowed for this class');
       if (hasConfirmedValue(target)) add('UNKNOWN_POINTS_TO_VALUE', `${prefix}${pointer}`, 'Unknown pointer already has a value');
     }
     for (const ambiguity of annotation.ambiguities ?? []) {
       const pointer = ambiguity.json_pointer;
       if (pointerAt(item, pointer).invalid) add('INVALID_JSON_POINTER', `${prefix}/annotation/ambiguities`, 'Ambiguity pointer is not RFC 6901');
-      else if (!allowed.some(pattern => matches(pattern, pointer))) add('AMBIGUITY_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Ambiguity pointer is not allowed for this class');
+      else if (!allowed.some(pattern => matches(pattern, pointer)) || (kind === 'request_document' && !requestPointerAllowed(item, classDefinition, pointer))) add('AMBIGUITY_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Ambiguity pointer is not allowed for this class');
       const values = ambiguity.possible_values;
       if (values && new Set(values.map(JSON.stringify)).size < 2) add('AMBIGUITY_VALUES_REQUIRED', `${prefix}${pointer}`, 'Ambiguity requires at least two unique possible values');
       const target = pointerAt(item, pointer);
@@ -107,7 +120,18 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
     });
 
     const ports = item.ports ?? item.constraints?.ports ?? []; const roles = new Set();
-    for (const port of ports) { if (roles.has(port.role)) add('DUPLICATE_PORT_ROLE', `${prefix}${item.ports ? '/ports' : '/constraints/ports'}`, 'Port roles must be unique', { role: port.role }); roles.add(port.role); }
+    const repeatableRoles = new Set(registration.repeatable_port_roles ?? []);
+    for (const port of ports) {
+      if (roles.has(port.role) && !repeatableRoles.has(port.role)) add('DUPLICATE_PORT_ROLE', `${prefix}${item.ports ? '/ports' : '/constraints/ports'}`, 'Port role is not repeatable for this class', { role: port.role });
+      roles.add(port.role);
+    }
+    if (kind === 'catalog_item' && annotation.status === 'validated' && repeatableRoles.has('pipe_end')) {
+      const pipeEnds = ports.filter(port => port.role === 'pipe_end');
+      if (pipeEnds.length === 2) {
+        const fields = ['connection_kind', 'system', 'pipe_outer_diameter_mm'];
+        if (fields.some(field => pipeEnds[0][field] !== pipeEnds[1][field])) add('PIPE_END_MISMATCH', `${prefix}/ports`, 'Validated pressure-pipe ends must describe the same pipe', { fields });
+      }
+    }
     for (const [pattern, valueSetId] of Object.entries(registration.canonical_value_paths ?? {})) {
       walk(item, '', (value, pointer) => {
         if (!matches(pattern, pointer)) return;

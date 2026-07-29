@@ -1,0 +1,158 @@
+{
+  "$id": "https://example.local/schemas/annotation/class-specific/pipe.pert.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../request-line-annotation.base.schema.json"
+    },
+    {
+      "properties": {
+        "class_id": {
+          "const": "pipe.pert"
+        },
+        "constraints": {
+          "properties": {
+            "attributes": {
+              "additionalProperties": false,
+              "properties": {
+                "barrier_layer": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "coil_length_m": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                },
+                "color": {
+                  "$ref": "../common.schema.json#/$defs/enumConstraint"
+                },
+                "wall_thickness_mm": {
+                  "$ref": "../common.schema.json#/$defs/numberConstraint"
+                }
+              },
+              "type": "object"
+            },
+            "ports": {
+              "items": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "connection_kind": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "plain_end"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "plain_end"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "pipe_outer_diameter_mm": {
+                        "$ref": "../common.schema.json#/$defs/numberConstraint"
+                      },
+                      "role": {
+                        "const": "pipe_end"
+                      },
+                      "system": {
+                        "allOf": [
+                          {
+                            "$ref": "../common.schema.json#/$defs/enumConstraint"
+                          },
+                          {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "enum": [
+                                      "eq"
+                                    ]
+                                  },
+                                  "value": {
+                                    "enum": [
+                                      "pe_rt"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "value"
+                                ]
+                              },
+                              {
+                                "properties": {
+                                  "operator": {
+                                    "const": "in"
+                                  },
+                                  "values": {
+                                    "items": {
+                                      "enum": [
+                                        "pe_rt"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "operator",
+                                  "values"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "maxItems": 2,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "title": "Request line annotation: Труба PE-RT"
+}
