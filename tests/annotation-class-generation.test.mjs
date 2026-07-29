@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { buildRequestPortContracts, selectorValues } from '../scripts/annotation/lib/request-port-contracts.mjs';
 
 const json = async filename => JSON.parse(await readFile(filename, 'utf8'));
 
@@ -46,4 +47,27 @@ test('registry declares repeatable pipe_end only for pressure pipe classes', asy
     const expectedRoles = classId.startsWith('pipe.') && !classId.startsWith('pipe.sewer.') ? ['pipe_end'] : [];
     assert.deepEqual(entry.repeatable_port_roles, expectedRoles, classId);
   }
+});
+
+test('request registry exposes only class-declared technical port fields', async () => {
+  const registry = await json('schemas/annotation/class-schema-registry.json');
+  const paths = registry.classes['pipe.pert'].allowed_annotation_paths;
+  for (const path of ['/constraints/ports/*/connection_kind', '/constraints/ports/*/system', '/constraints/ports/*/pipe_outer_diameter_mm']) assert.ok(paths.includes(path), path);
+  for (const path of ['/constraints/ports/*/nominal_diameter_dn', '/constraints/ports/*/pipe_wall_thickness_mm', '/constraints/ports/*/thread_standard', '/constraints/ports/*/thread_size']) assert.equal(paths.includes(path), false, path);
+  assert.ok(paths.includes('/constraints/attributes/wall_thickness_mm'));
+});
+
+test('request port contracts merge selectors and fields deterministically', () => {
+  assert.deepEqual(selectorValues({ allowed: ['female_thread', 'male_thread', 'female_thread'] }), ['female_thread', 'male_thread']);
+  assert.deepEqual(selectorValues({ fixed: 'pe_rt' }), ['pe_rt']);
+  assert.deepEqual(selectorValues(), []);
+  const definition = { class_id: 'synthetic', ports: { request_allowed_roles: ['inlet'], catalog_ordered_slots: [
+    { role: 'inlet', connection_kind: { fixed: 'female_thread' }, system: { fixed: 'threaded_generic' }, allowed_fields: ['thread_size'] },
+    { role: 'inlet', connection_kind: { allowed: ['male_thread', 'female_thread'] }, system: { fixed: 'threaded_generic' }, allowed_fields: ['thread_standard'] }
+  ] } };
+  assert.deepEqual(buildRequestPortContracts(definition), [{
+    role: 'inlet', connection_kind_selector: { allowed: ['female_thread', 'male_thread'] },
+    system_selector: { fixed: 'threaded_generic' }, allowed_fields: ['thread_size', 'thread_standard']
+  }]);
+  assert.throws(() => buildRequestPortContracts({ class_id: 'broken', ports: { request_allowed_roles: ['missing'], catalog_ordered_slots: [] } }), /REQUEST_ROLE_WITHOUT_CATALOG_SLOT:broken:missing/);
 });

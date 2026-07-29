@@ -1,4 +1,5 @@
 import { classifyGtin } from './catalog-identifiers.mjs';
+import { buildRequestPortContracts } from '../annotation/lib/request-port-contracts.mjs';
 
 const issue = (code, path, message, details) => ({ code, path, message, ...(details === undefined ? {} : { details }) });
 const escapeToken = value => String(value).replaceAll('~', '~0').replaceAll('/', '~1');
@@ -30,6 +31,17 @@ function hasConfirmedValue(target) {
 function matches(pattern, pointer) {
   const a = pattern.split('/'); const b = pointer.split('/');
   return a.length === b.length && a.every((part, index) => part === '*' || part === b[index]);
+}
+function requestPointerAllowed(item, classDefinition, pointer) {
+  const match = /^\/constraints\/ports\/(\d+)\/([^/]+)$/.exec(pointer);
+  if (!match) return true;
+  const port = item.constraints?.ports?.[Number(match[1])];
+  if (!port || !classDefinition) return false;
+  const contract = buildRequestPortContracts(classDefinition).find(candidate => candidate.role === port.role);
+  if (!contract) return false;
+  const fields = new Set(['connection_kind', ...contract.allowed_fields]);
+  if (contract.system_selector) fields.add('system');
+  return fields.has(match[2]);
 }
 function walk(value, path, callback) {
   callback(value, path);
@@ -74,16 +86,17 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
     if (annotation.status === 'invalid' && !annotation.issues?.length) add('ISSUE_REQUIRED', `${prefix}/annotation/issues`, 'invalid annotation requires an issue');
 
     const allowed = registration.allowed_annotation_paths ?? [];
+    const classDefinition = taxonomy.classes?.[item.class_id];
     for (const pointer of annotation.unknown_fields ?? []) {
       const target = pointerAt(item, pointer);
       if (target.invalid) add('INVALID_JSON_POINTER', `${prefix}/annotation/unknown_fields`, 'Unknown field pointer is not RFC 6901');
-      else if (!allowed.some(pattern => matches(pattern, pointer))) add('UNKNOWN_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Unknown pointer is not allowed for this class');
+      else if (!allowed.some(pattern => matches(pattern, pointer)) || (kind === 'request_document' && !requestPointerAllowed(item, classDefinition, pointer))) add('UNKNOWN_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Unknown pointer is not allowed for this class');
       if (hasConfirmedValue(target)) add('UNKNOWN_POINTS_TO_VALUE', `${prefix}${pointer}`, 'Unknown pointer already has a value');
     }
     for (const ambiguity of annotation.ambiguities ?? []) {
       const pointer = ambiguity.json_pointer;
       if (pointerAt(item, pointer).invalid) add('INVALID_JSON_POINTER', `${prefix}/annotation/ambiguities`, 'Ambiguity pointer is not RFC 6901');
-      else if (!allowed.some(pattern => matches(pattern, pointer))) add('AMBIGUITY_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Ambiguity pointer is not allowed for this class');
+      else if (!allowed.some(pattern => matches(pattern, pointer)) || (kind === 'request_document' && !requestPointerAllowed(item, classDefinition, pointer))) add('AMBIGUITY_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Ambiguity pointer is not allowed for this class');
       const values = ambiguity.possible_values;
       if (values && new Set(values.map(JSON.stringify)).size < 2) add('AMBIGUITY_VALUES_REQUIRED', `${prefix}${pointer}`, 'Ambiguity requires at least two unique possible values');
       const target = pointerAt(item, pointer);

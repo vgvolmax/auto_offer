@@ -6,6 +6,18 @@ export function selectorSchema(selector) {
   return { enum: [...selector.allowed] };
 }
 
+export function requestSelectorConstraint(selector) {
+  const values = Object.hasOwn(selector, 'fixed') ? [selector.fixed] : [...new Set(selector.allowed)].sort();
+  const scalarOperators = Object.hasOwn(selector, 'fixed') ? ['eq'] : ['eq', 'neq'];
+  return { allOf: [
+    commonRef('enumConstraint'),
+    { oneOf: [
+      { required: ['operator', 'value'], properties: { operator: { enum: scalarOperators }, value: { enum: values } } },
+      { required: ['operator', 'values'], properties: { operator: { const: 'in' }, values: { items: { enum: values } } } }
+    ] }
+  ] };
+}
+
 export function catalogAttributeSchema(definition, taxonomy) {
   const numeric = { type: definition.type === 'integer' ? 'integer' : 'number' };
   if (definition.minimum !== undefined) numeric.minimum = definition.minimum;

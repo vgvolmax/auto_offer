@@ -1,3 +1,5 @@
+import { buildRequestPortContracts } from './request-port-contracts.mjs';
+
 const identityPaths = ['/identity/brand','/identity/manufacturer','/identity/series','/identity/manufacturer_articles/*','/identity/models/*'];
 const requestedIdentityPaths = ['/requested_identity/brand','/requested_identity/manufacturer','/requested_identity/manufacturer_article','/requested_identity/model','/requested_identity/gtin','/requested_identity/supplier_sku'];
 const technicalFields = ['nominal_diameter_dn','pipe_outer_diameter_mm','pipe_wall_thickness_mm','thread_standard','thread_size'];
@@ -6,9 +8,13 @@ export function buildRegistry(taxonomy) {
   const classes = {};
   for (const classId of Object.keys(taxonomy.classes)) {
     const definition = taxonomy.classes[classId];
+    const requestPorts = buildRequestPortContracts(definition);
+    const requestFields = [...new Set(requestPorts.flatMap(contract => contract.allowed_fields))].sort();
+    const requestHasSystem = requestPorts.some(contract => contract.system_selector);
     const canonical = {};
     const allowed = ['/class_id', ...identityPaths, ...requestedIdentityPaths, '/quantity', '/substitution_statement'];
-    const requiredPatterns = ['/class_id', ...identityPaths, '/attributes/*', '/ports/*/connection_kind','/ports/*/system',...technicalFields.map(field=>`/ports/*/${field}`),'/requested_identity/*','/constraints/attributes/*','/constraints/ports/*/connection_kind','/constraints/ports/*/system',...technicalFields.map(field=>`/constraints/ports/*/${field}`),'/quantity','/substitution_statement'];
+    const requestPortPatterns = requestPorts.length ? ['/constraints/ports/*/connection_kind', ...(requestHasSystem ? ['/constraints/ports/*/system'] : []), ...requestFields.map(field => `/constraints/ports/*/${field}`)] : [];
+    const requiredPatterns = ['/class_id', ...identityPaths, '/attributes/*', '/ports/*/connection_kind','/ports/*/system',...technicalFields.map(field=>`/ports/*/${field}`),'/requested_identity/*','/constraints/attributes/*',...requestPortPatterns,'/quantity','/substitution_statement'];
     const fixed = [];
     for (const [attributeId, attribute] of Object.entries(definition.attributes)) {
       allowed.push(`/attributes/${attributeId}`, `/constraints/attributes/${attributeId}`);
@@ -26,11 +32,11 @@ export function buildRegistry(taxonomy) {
       if (slot.system) canonical[`/ports/${index}/system`] = 'pipe_systems';
       if (slot.allowed_fields.includes('thread_standard')) canonical[`/ports/${index}/thread_standard`] = 'thread_standards';
     }
-    for (const role of definition.ports.request_allowed_roles) {
-      allowed.push('/constraints/ports/*/connection_kind','/constraints/ports/*/system',...technicalFields.map(field=>`/constraints/ports/*/${field}`));
+    if (requestPorts.length) {
+      allowed.push('/constraints/ports/*/connection_kind', ...(requestHasSystem ? ['/constraints/ports/*/system'] : []), ...requestFields.map(field => `/constraints/ports/*/${field}`));
       canonical['/constraints/ports/*/connection_kind'] = 'connection_kinds';
-      canonical['/constraints/ports/*/system'] = 'pipe_systems';
-      canonical['/constraints/ports/*/thread_standard'] = 'thread_standards';
+      if (requestHasSystem) canonical['/constraints/ports/*/system'] = 'pipe_systems';
+      if (requestFields.includes('thread_standard')) canonical['/constraints/ports/*/thread_standard'] = 'thread_standards';
     }
     classes[classId] = {
       catalog_schema: `class-specific/${classId}.catalog.schema.json`,
