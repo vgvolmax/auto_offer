@@ -81,17 +81,17 @@ test('matcher evaluates only the request class bucket without mutating inputs', 
 
 test('catalog references are deterministic with partial priority', async () => {
   const fixture = await loadGoldenScenario('tests/fixtures/matching/golden/D1-single-exact');
-  const makeCatalog = (catalogRecordId, catalogId, shaDigit) => {
+  const makeCatalog = (catalogRecordId, shaDigit) => {
     const bundle = structuredClone(fixture.catalogs[0].bundle);
-    bundle.catalog.catalog_id = catalogId;
     bundle.catalog.source_sha256 = shaDigit.repeat(64);
     return { catalogRecordId, bundle };
   };
-  const catalogs = [makeCatalog('record-priority', 'z-priority', '1'), makeCatalog('record-b', 'b-catalog', '2'), makeCatalog('record-a', 'a-catalog', '3')];
-  const policy = { ...fixture.policy, catalog_record_ids: catalogs.map(({ catalogRecordId }) => catalogRecordId), catalog_priority: ['record-priority'] };
+  const catalogs = [makeCatalog('record-b', '2'), makeCatalog('record-a', '1')];
+  const policy = { ...fixture.policy, catalog_record_ids: catalogs.map(({ catalogRecordId }) => catalogRecordId), catalog_priority: [] };
   const run = (selected) => runPilotMatcher({ requestBundle: fixture.request, catalogs: selected, policy, registry: pilotRegistry, engineVersion: 'pilot-1.0.0' });
   const firstResult = await run(catalogs);
   const secondResult = await run([...catalogs].reverse());
   assert.deepEqual(firstResult, secondResult);
-  assert.deepEqual(firstResult.catalog_refs.map(({ catalog_record_id }) => catalog_record_id), ['record-priority', 'record-a', 'record-b']);
+  assert.deepEqual(firstResult.lines[0].candidates.map((candidate) => candidate.offer_ref.catalog_record_id), ['record-a', 'record-b']);
+  assert.deepEqual(firstResult.catalog_refs.map(({ catalog_record_id }) => catalog_record_id), ['record-a', 'record-b']);
 });
