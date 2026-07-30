@@ -1,3 +1,19 @@
 import { projectCatalog } from './projectors.mjs';
 import { ordinalCompare } from './candidate-ordering.mjs';
-export function buildCatalogIndex(catalogs) { const index=new Map(); for (const {catalogRecordId,bundle} of catalogs) for (const c of projectCatalog(catalogRecordId,bundle)) { const xs=index.get(c.class_id)??[]; xs.push(c); index.set(c.class_id,xs); } for (const [k,xs] of index) index.set(k,[...xs].sort((a,b)=>ordinalCompare(a.catalog_id,b.catalog_id)||ordinalCompare(a.source_item_id,b.source_item_id))); return index; }
+
+export function buildCatalogIndex(catalogs) {
+  const index = new Map();
+  const allCandidates = [];
+  for (const { catalogRecordId, bundle } of catalogs) {
+    for (const candidate of projectCatalog(catalogRecordId, bundle)) {
+      allCandidates.push(candidate);
+      const classCandidates = index.get(candidate.class_id) ?? [];
+      classCandidates.push(candidate);
+      index.set(candidate.class_id, classCandidates);
+    }
+  }
+  const compare = (left, right) => ordinalCompare(left.catalog_id, right.catalog_id) || ordinalCompare(left.source_item_id, right.source_item_id);
+  for (const [classId, candidates] of index) index.set(classId, [...candidates].sort(compare));
+  index.set('*', [...allCandidates].sort(compare));
+  return index;
+}

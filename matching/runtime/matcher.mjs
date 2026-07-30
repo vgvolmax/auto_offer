@@ -6,8 +6,78 @@ import { evaluateCandidate } from './candidate-evaluator.mjs';
 import { applyPolicy } from './policy-filter.mjs';
 import { candidateComparator } from './candidate-ordering.mjs';
 import { matchingInputFingerprint } from './matching-fingerprint.mjs';
-import { publicCandidate,resolution } from './result-builder.mjs';
-const reasonOrder=['CLASS_MISMATCH','IDENTITY_EXCLUDED','IDENTITY_DIFFERENCE','ATTRIBUTE_CONSTRAINT_FAILED','PORT_ROLE_MISSING','PORT_CONSTRAINT_FAILED','CATALOG_VALUE_MISSING','CATALOG_ITEM_INVALID'];
-export async function runPilotMatcher(input){validateInput(input);const {requestBundle,catalogs,policy,registry,engineVersion}=input;const refs=catalogs.map(({catalogRecordId,bundle})=>({catalog_record_id:catalogRecordId,catalog_id:bundle.catalog.catalog_id,source_sha256:bundle.catalog.source_sha256})).sort((a,b)=>policy.catalog_priority.indexOf(a.catalog_record_id)-policy.catalog_priority.indexOf(b.catalog_record_id));const index=buildCatalogIndex(catalogs);const lines=[];
- for(const source of requestBundle.request_document.lines){const req=projectRequestLine(source);if(req.annotation_status!=='validated'){lines.push({line_id:req.line_id,resolution:'request_review_required',candidates:[],excluded_candidates:[],rejection_summary:[{code:'REQUEST_REVIEW_REQUIRED',count:1}]});continue;}const max=effectiveMaximumMatchLevel(req.substitution_statement,policy.max_match_level);const eligible=[],excluded=[],counts=new Map();for(const c of index.get(req.class_id)??[]){if(c.annotation_status==='invalid'){counts.set('CATALOG_ITEM_INVALID',(counts.get('CATALOG_ITEM_INVALID')??0)+1);continue;}const tech=evaluateCandidate(req,c,registry,max);if(tech.rejected.size){for(const code of tech.rejected)counts.set(code,(counts.get(code)??0)+1);continue;}const codes=applyPolicy(c,tech,policy,max);const availability=c.annotation_status==='needs_review'?'manual_only':'eligible';const item=publicCandidate(c,tech,availability,c.annotation_status==='needs_review'?'CATALOG_ITEM_NEEDS_REVIEW':undefined);item.brand=c.identity.brand;if(codes.length){delete item.brand;item.exclusion_codes=codes;excluded.push(item)}else eligible.push(item)}eligible.sort(candidateComparator(policy));excluded.sort(candidateComparator(policy));for(const x of eligible)delete x.brand;lines.push({line_id:req.line_id,resolution:resolution(eligible,excluded),candidates:eligible,excluded_candidates:excluded,rejection_summary:reasonOrder.filter(c=>counts.has(c)).map(code=>({code,count:counts.get(code)}))});}
- const fingerprint=await matchingInputFingerprint({requestBundle,catalogRefs:refs,policy,policyRegistryVersion:registry.policy_version,engineVersion});return {schema_version:'1.0.0',kind:'match_result',engine_version:engineVersion,policy_registry_version:registry.policy_version,taxonomy_version:requestBundle.taxonomy_version,request_id:requestBundle.request_document.request_id,input_fingerprint:fingerprint,policy:structuredClone(policy),catalog_refs:refs,lines,summary:{lines:lines.length}};}
+import { determineResolution, serializeCandidate } from './result-builder.mjs';
+
+const reasonOrder = ['CLASS_MISMATCH', 'IDENTITY_EXCLUDED', 'IDENTITY_DIFFERENCE', 'ATTRIBUTE_CONSTRAINT_FAILED', 'PORT_ROLE_MISSING', 'PORT_CONSTRAINT_FAILED', 'CATALOG_VALUE_MISSING', 'CATALOG_ITEM_INVALID'];
+
+function incrementTechnicalRejections(counts, codes) {
+  for (const code of new Set(codes)) counts.set(code, (counts.get(code) ?? 0) + 1);
+}
+
+function catalogReferences(catalogs, policy) {
+  const priority = new Map(policy.catalog_priority.map((id, index) => [id, index]));
+  return catalogs.map(({ catalogRecordId, bundle }) => ({
+    catalog_record_id: catalogRecordId,
+    catalog_id: bundle.catalog.catalog_id,
+    source_sha256: bundle.catalog.source_sha256,
+  })).sort((left, right) => (priority.get(left.catalog_record_id) ?? Infinity) - (priority.get(right.catalog_record_id) ?? Infinity));
+}
+
+function reviewRequiredLine(request) {
+  return { line_id: request.line_id, resolution: determineResolution([], [], false), candidates: [], excluded_candidates: [], rejection_summary: [{ code: 'REQUEST_REVIEW_REQUIRED', count: 1 }] };
+}
+
+function matchLine(request, catalogIndex, policy, registry) {
+  if (request.annotation_status !== 'validated') return reviewRequiredLine(request);
+
+  const maximumLevel = effectiveMaximumMatchLevel(request.substitution_statement, policy.max_match_level);
+  const candidates = [];
+  const excludedCandidates = [];
+  const rejectionCounts = new Map();
+
+  for (const catalogCandidate of catalogIndex.get('*') ?? []) {
+    if (catalogCandidate.annotation_status === 'invalid') {
+      incrementTechnicalRejections(rejectionCounts, ['CATALOG_ITEM_INVALID']);
+      continue;
+    }
+    const technical = evaluateCandidate(request, catalogCandidate, registry);
+    if (technical.rejectionCodes.size > 0) {
+      incrementTechnicalRejections(rejectionCounts, technical.rejectionCodes);
+      continue;
+    }
+    const policyResult = applyPolicy(catalogCandidate, technical, policy, maximumLevel);
+    const serialized = serializeCandidate(catalogCandidate, technical, policyResult);
+    serialized.brand = catalogCandidate.identity.brand;
+    if (policyResult.exclusionCodes.length > 0) excludedCandidates.push(serialized);
+    else candidates.push(serialized);
+  }
+
+  const compareCandidates = candidateComparator(policy);
+  candidates.sort(compareCandidates);
+  excludedCandidates.sort(compareCandidates);
+  for (const candidate of [...candidates, ...excludedCandidates]) delete candidate.brand;
+
+  return {
+    line_id: request.line_id,
+    resolution: determineResolution(candidates, excludedCandidates),
+    candidates,
+    excluded_candidates: excludedCandidates,
+    rejection_summary: reasonOrder.filter((code) => rejectionCounts.has(code)).map((code) => ({ code, count: rejectionCounts.get(code) })),
+  };
+}
+
+export async function runPilotMatcher(input) {
+  validateInput(input);
+  const { requestBundle, catalogs, policy, registry, engineVersion } = input;
+  const refs = catalogReferences(catalogs, policy);
+  const catalogIndex = buildCatalogIndex(catalogs);
+  const lines = requestBundle.request_document.lines.map((line) => matchLine(projectRequestLine(line), catalogIndex, policy, registry));
+  const inputFingerprint = await matchingInputFingerprint({ requestBundle, catalogRefs: refs, policy, policyRegistryVersion: registry.policy_version, engineVersion });
+
+  return {
+    schema_version: '1.0.0', kind: 'match_result', engine_version: engineVersion,
+    policy_registry_version: registry.policy_version, taxonomy_version: requestBundle.taxonomy_version,
+    request_id: requestBundle.request_document.request_id, input_fingerprint: inputFingerprint,
+    policy: structuredClone(policy), catalog_refs: refs, lines, summary: { lines: lines.length },
+  };
+}

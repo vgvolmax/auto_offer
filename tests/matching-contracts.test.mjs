@@ -113,3 +113,32 @@ test('forbidden decision fields remain rejected by result schema', async () => {
   loaded.expected.selected_candidate = {};
   assert.equal(schemas.result(loaded.expected), false);
 });
+
+test('fixture rejects a policy-selected catalog absent from scenario inputs', async () => {
+  const errors = await changedGolden('D1-single-exact', ({ policy, expected }) => {
+    policy.catalog_record_ids.push('record-secondary');
+    policy.catalog_priority.push('record-secondary');
+    expected.policy = structuredClone(policy);
+  });
+  assert.match(errors.join('\n'), /UNKNOWN_CATALOG_RECORD_ID.*record-secondary/);
+});
+
+test('fixture rejects priority with an unknown selected catalog ID', async () => {
+  const errors = await changedGolden('D1-single-exact', ({ policy, expected }) => {
+    policy.catalog_priority.push('unknown-record');
+    expected.policy = structuredClone(policy);
+  });
+  assert.match(errors.join('\n'), /INVALID_CATALOG_PRIORITY.*unknown-record/);
+});
+
+test('fixture rejects expected result with a different embedded policy', async () => {
+  const errors = await changedGolden('D1-single-exact', ({ expected }) => { expected.policy.policy_id = 'different'; });
+  assert.match(errors.join('\n'), /expected\.policy does not deeply equal policy\.json/);
+});
+
+test('fixture rejects duplicate catalog_record_id inputs', async () => {
+  const errors = await changedGolden('D2-multiple-exact', ({ scenario }) => {
+    scenario.catalog_inputs[1].catalog_record_id = scenario.catalog_inputs[0].catalog_record_id;
+  });
+  assert.match(errors.join('\n'), /DUPLICATE_CATALOG_RECORD_ID/);
+});
