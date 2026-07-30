@@ -5,13 +5,16 @@
     "C10"
   ],
   "purpose": "review item manual only",
-  "catalog_files": [
-    "../shared/catalog-main.json"
-  ],
   "request_file": "request.json",
   "policy_file": "policy.json",
   "expected_file": "expected.json",
   "required_reason_codes": [
     "CATALOG_ITEM_NEEDS_REVIEW"
+  ],
+  "catalog_inputs": [
+    {
+      "file": "../shared/catalog-main.json",
+      "catalog_record_id": "record-main"
+    }
   ]
 }

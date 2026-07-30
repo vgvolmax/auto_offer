@@ -42,7 +42,8 @@
     "test:annotation-classes": "node --test tests/annotation-class-generation.test.mjs tests/annotation-class-fixtures.test.mjs tests/annotation-production-semantics.test.mjs",
     "test:annotation-golden": "node --test tests/annotation-class-golden.test.mjs",
     "validate:matching-contracts": "node scripts/matching/validate-matching-contracts.mjs",
-    "test:matching-contracts": "node --test tests/matching-contracts.test.mjs"
+    "test:matching-contracts": "node --test tests/matching-contracts.test.mjs",
+    "update:matching-golden-fingerprints": "node scripts/matching/update-golden-fingerprints.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",

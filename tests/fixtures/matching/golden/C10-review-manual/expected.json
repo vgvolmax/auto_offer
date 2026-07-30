@@ -5,7 +5,7 @@
   "policy_registry_version": "pilot-1.0.0",
   "taxonomy_version": "1.0.0",
   "request_id": "request-001",
-  "input_fingerprint": "7777777777777777777777777777777777777777777777777777777777777777",
+  "input_fingerprint": "e1f1cc5c2d6c3021e85eb41cb68f183e92c3871e2316f91a89747a35167591a4",
   "policy": {
     "schema_version": "1.0.0",
     "kind": "matching_policy",

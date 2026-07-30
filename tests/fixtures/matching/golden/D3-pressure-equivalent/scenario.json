@@ -5,14 +5,17 @@
     "D3"
   ],
   "purpose": "higher pressure class",
-  "catalog_files": [
-    "../shared/catalog-main.json"
-  ],
   "request_file": "request.json",
   "policy_file": "policy.json",
   "expected_file": "expected.json",
   "required_reason_codes": [
     "ATTRIBUTE_DIFFERENCE",
     "EQUIVALENT_RULE_APPLIED"
+  ],
+  "catalog_inputs": [
+    {
+      "file": "../shared/catalog-main.json",
+      "catalog_record_id": "record-main"
+    }
   ]
 }

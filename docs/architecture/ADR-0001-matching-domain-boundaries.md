@@ -20,3 +20,15 @@ MatchResult — воспроизводимый снимок вычисления
 ## Последствия
 
 Коммерческие строки разных прайсов остаются разными предложениями; цена и остаток не загрязняют техническую модель. Matcher и UI намеренно не реализованы: ADR утверждает границы для следующего PR.
+
+## Fingerprint and golden-fixture boundary
+
+Fingerprint calculation is an asynchronous browser runtime responsibility and uses
+Web Crypto (`globalThis.crypto.subtle`), not a Node-only hashing API. Canonical JSON
+serialization remains independent from hashing.
+
+A golden scenario explicitly binds every catalog file to its `catalog_record_id`.
+Catalog and offer references are validated against bundle metadata; an offer identity
+is the complete tuple `(catalog_record_id, catalog_id, source_sha256, source_item_id)`.
+Committed expected fingerprints are derived contract values and are recalculated by
+contract validation, rather than example placeholders.

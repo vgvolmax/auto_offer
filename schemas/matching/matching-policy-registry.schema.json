@@ -1,5 +1,70 @@
 {
- "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://example.local/schemas/matching/matching-policy-registry.schema.json","type":"object","additionalProperties":false,"required":["schema_version","policy_version","defaults","identity_rules","class_rules"],
- "properties":{"schema_version":{"const":"1.0.0"},"policy_version":{"const":"pilot-1.0.0"},"defaults":{"type":"object"},"identity_rules":{"type":"object"},"class_rules":{"type":"object","additionalProperties":{"$ref":"#/$defs/classRule"}}},
- "$defs":{"target":{"oneOf":[{"type":"object","additionalProperties":false,"required":["kind","field"],"properties":{"kind":{"const":"attribute"},"field":{"type":"string"}}},{"type":"object","additionalProperties":false,"required":["kind","role","field"],"properties":{"kind":{"const":"port"},"role":{"enum":["inlet","outlet"]},"field":{"type":"string"}}}]},"classRule":{"type":"object","additionalProperties":false,"required":["hard_targets","equivalent_rules","alternative_rules"],"properties":{"hard_targets":{"type":"array","items":{"$ref":"#/$defs/target"}},"equivalent_rules":{"type":"array","items":{"type":"object"}},"alternative_rules":{"type":"array","items":{"type":"object"}}}}}
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/matching/matching-policy-registry.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policy_version", "defaults", "identity_rules", "class_rules"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "policy_version": { "const": "pilot-1.0.0" },
+    "defaults": { "$ref": "#/$defs/defaults" },
+    "identity_rules": { "$ref": "#/$defs/identityRules" },
+    "class_rules": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/classRule" }
+    }
+  },
+  "$defs": {
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["class_id", "explicit_technical_constraints", "port_role_and_connection_fields", "unknown_technical_field", "negative_identity_constraints", "positive_identity_mismatch", "unspecified_fields", "classes_without_override"],
+      "properties": {
+        "class_id": { "const": "hard_exact" },
+        "explicit_technical_constraints": { "const": "hard" },
+        "port_role_and_connection_fields": { "const": "hard" },
+        "unknown_technical_field": { "const": "reject" },
+        "negative_identity_constraints": { "const": "hard" },
+        "positive_identity_mismatch": {
+          "type": "object", "additionalProperties": false,
+          "required": ["exact_only", "equivalent_allowed", "alternative_allowed"],
+          "properties": { "exact_only": { "const": "reject" }, "equivalent_allowed": { "const": "equivalent" }, "alternative_allowed": { "const": "equivalent" } }
+        },
+        "unspecified_fields": { "const": "ignore" },
+        "classes_without_override": {
+          "type": "object", "additionalProperties": false,
+          "required": ["technical_mismatch", "identity_equivalent", "alternative"],
+          "properties": { "technical_mismatch": { "const": "reject" }, "identity_equivalent": { "const": true }, "alternative": { "const": false } }
+        }
+      }
+    },
+    "identityRules": {
+      "type": "object", "additionalProperties": false, "required": ["neq"],
+      "properties": { "neq": { "const": "hard_never_relaxed" } }
+    },
+    "target": {
+      "oneOf": [
+        { "type": "object", "additionalProperties": false, "required": ["kind", "field"], "properties": { "kind": { "const": "attribute" }, "field": { "type": "string", "minLength": 1 } } },
+        { "type": "object", "additionalProperties": false, "required": ["kind", "role", "field"], "properties": { "kind": { "const": "port" }, "role": { "enum": ["inlet", "outlet"] }, "field": { "type": "string", "minLength": 1 } } }
+      ]
+    },
+    "equivalentRule": {
+      "type": "object", "additionalProperties": false,
+      "required": ["target", "operator", "ordered_values", "direction"],
+      "properties": { "target": { "$ref": "#/$defs/target" }, "operator": { "const": "eq" }, "ordered_values": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }, "direction": { "const": "catalog_greater" } }
+    },
+    "alternativeRule": {
+      "type": "object", "additionalProperties": false, "required": ["target", "on"],
+      "properties": { "target": { "$ref": "#/$defs/target" }, "on": { "const": "mismatch" } }
+    },
+    "classRule": {
+      "type": "object", "additionalProperties": false,
+      "required": ["hard_targets", "equivalent_rules", "alternative_rules"],
+      "properties": {
+        "hard_targets": { "type": "array", "items": { "$ref": "#/$defs/target" } },
+        "equivalent_rules": { "type": "array", "items": { "$ref": "#/$defs/equivalentRule" } },
+        "alternative_rules": { "type": "array", "items": { "$ref": "#/$defs/alternativeRule" } }
+      }
+    }
+  }
 }
