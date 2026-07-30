@@ -1,6 +1,6 @@
-import { canonicalJson } from './canonical-json.mjs';
+import { canonicalJson } from '../../../matching/runtime/canonical-json.mjs';
 import { catalogReferences } from './golden-scenario-loader.mjs';
-import { matchingInputFingerprint } from './matching-fingerprint.mjs';
+import { matchingInputFingerprint } from '../../../matching/runtime/matching-fingerprint.mjs';
 
 function offerKey(reference) {
   return [reference.catalog_record_id, reference.catalog_id, reference.source_sha256, reference.source_item_id].join('\u0000');

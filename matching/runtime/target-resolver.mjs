@@ -1,0 +1,1 @@
+export function resolveTarget(entity,target) { if(target.kind==='attribute') return entity.attributes?.[target.field]; if(target.kind==='port') return entity.ports?.find(p=>p.role===target.role)?.[target.field]; return undefined; }
