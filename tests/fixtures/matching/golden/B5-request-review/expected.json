@@ -5,19 +5,17 @@
   "policy_registry_version": "pilot-1.0.0",
   "taxonomy_version": "1.0.0",
   "request_id": "request-001",
-  "input_fingerprint": "115066d2806a1272b8152424fbdb496596799e252e220cd8b60a01f81b7ceda2",
+  "input_fingerprint": "5c199cddf48097e5b8662b24adbc3d8b1af4a30c85820aaaf4a69b866891505c",
   "policy": {
     "schema_version": "1.0.0",
     "kind": "matching_policy",
     "policy_id": "golden-policy",
     "policy_registry_version": "pilot-1.0.0",
     "catalog_record_ids": [
-      "record-main",
-      "record-secondary"
+      "record-main"
     ],
     "catalog_priority": [
-      "record-main",
-      "record-secondary"
+      "record-main"
     ],
     "brands": {
       "include": [],

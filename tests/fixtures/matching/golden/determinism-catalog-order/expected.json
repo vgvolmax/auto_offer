@@ -60,9 +60,23 @@
               "target": {
                 "class_id": "valve.ball"
               },
+              "expected": "valve.ball",
+              "actual": "valve.ball",
               "outcome": "pass",
               "effect": "exact",
               "code": "CLASS_MATCH"
+            },
+            {
+              "scope": "attribute",
+              "target": {
+                "field": "body_material"
+              },
+              "operator": "eq",
+              "expected": "aluminum",
+              "actual": "aluminum",
+              "outcome": "pass",
+              "effect": "exact",
+              "code": "ATTRIBUTE_MATCH"
             }
           ],
           "differences": []
@@ -82,9 +96,23 @@
               "target": {
                 "class_id": "valve.ball"
               },
+              "expected": "valve.ball",
+              "actual": "valve.ball",
               "outcome": "pass",
               "effect": "exact",
               "code": "CLASS_MATCH"
+            },
+            {
+              "scope": "attribute",
+              "target": {
+                "field": "body_material"
+              },
+              "operator": "eq",
+              "expected": "aluminum",
+              "actual": "aluminum",
+              "outcome": "pass",
+              "effect": "exact",
+              "code": "ATTRIBUTE_MATCH"
             }
           ],
           "differences": []

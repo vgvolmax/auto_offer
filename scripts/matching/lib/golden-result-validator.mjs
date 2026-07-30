@@ -1,6 +1,6 @@
-import { canonicalJson } from './canonical-json.mjs';
+import { canonicalJson } from '../../../matching/runtime/canonical-json.mjs';
 import { catalogReferences } from './golden-scenario-loader.mjs';
-import { matchingInputFingerprint } from './matching-fingerprint.mjs';
+import { matchingInputFingerprint } from '../../../matching/runtime/matching-fingerprint.mjs';
 
 function offerKey(reference) {
   return [reference.catalog_record_id, reference.catalog_id, reference.source_sha256, reference.source_item_id].join('\u0000');
@@ -23,6 +23,21 @@ export async function validateGoldenResult(loaded) {
   const actualCatalogRefs = catalogReferences(catalogs);
   const allowedCatalogRefs = new Set(actualCatalogRefs.map(canonicalJson));
   const seenCatalogRefs = new Set();
+  const inputCatalogIds = scenario.catalog_inputs.map((input) => input.catalog_record_id);
+  const inputCatalogIdSet = new Set(inputCatalogIds);
+
+  for (const [index, id] of inputCatalogIds.entries()) {
+    if (inputCatalogIds.indexOf(id) !== index) errors.push(`${prefix}: DUPLICATE_CATALOG_RECORD_ID ${JSON.stringify(id)} in scenario.catalog_inputs`);
+  }
+  for (const id of loaded.policy.catalog_record_ids) {
+    if (!inputCatalogIdSet.has(id)) errors.push(`${prefix}: UNKNOWN_CATALOG_RECORD_ID ${JSON.stringify(id)} selected by policy`);
+  }
+  for (const id of loaded.policy.catalog_priority) {
+    if (!loaded.policy.catalog_record_ids.includes(id)) errors.push(`${prefix}: INVALID_CATALOG_PRIORITY ${JSON.stringify(id)} is not selected`);
+  }
+  if (canonicalJson(expected.policy) !== canonicalJson(loaded.policy)) {
+    errors.push(`${prefix}: expected.policy does not deeply equal policy.json`);
+  }
 
   for (const reference of expected.catalog_refs) {
     const key = canonicalJson(reference);

@@ -33,6 +33,10 @@
             {
               "json_pointer": "/quantity",
               "source_text": "10 шт"
+            },
+            {
+              "json_pointer": "/constraints/ports/0/thread_size",
+              "source_text": "synthetic evidence"
             }
           ],
           "issues": [],
@@ -47,7 +51,19 @@
               "value": "aluminum"
             }
           },
-          "ports": []
+          "ports": [
+            {
+              "role": "inlet",
+              "thread_size": {
+                "operator": "eq",
+                "value": {
+                  "numerator": 1,
+                  "denominator": 2,
+                  "unit": "inch"
+                }
+              }
+            }
+          ]
         },
         "line_id": "request-valve.ball",
         "raw_text": "Синтетическая заявка: Кран шаровой",

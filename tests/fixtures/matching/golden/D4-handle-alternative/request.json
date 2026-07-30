@@ -33,6 +33,10 @@
             {
               "json_pointer": "/quantity",
               "source_text": "10 шт"
+            },
+            {
+              "json_pointer": "/constraints/attributes/handle_type",
+              "source_text": "synthetic evidence"
             }
           ],
           "issues": [],
@@ -45,6 +49,10 @@
             "body_material": {
               "operator": "eq",
               "value": "aluminum"
+            },
+            "handle_type": {
+              "operator": "eq",
+              "value": "lever"
             }
           },
           "ports": []

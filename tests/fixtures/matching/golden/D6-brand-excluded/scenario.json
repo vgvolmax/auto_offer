@@ -13,7 +13,7 @@
   ],
   "catalog_inputs": [
     {
-      "file": "../shared/catalog-main.json",
+      "file": "../shared/catalog-brand-blocked.json",
       "catalog_record_id": "record-main"
     }
   ]

@@ -4,12 +4,10 @@
   "policy_id": "golden-policy",
   "policy_registry_version": "pilot-1.0.0",
   "catalog_record_ids": [
-    "record-main",
-    "record-secondary"
+    "record-main"
   ],
   "catalog_priority": [
-    "record-main",
-    "record-secondary"
+    "record-main"
   ],
   "brands": {
     "include": [],

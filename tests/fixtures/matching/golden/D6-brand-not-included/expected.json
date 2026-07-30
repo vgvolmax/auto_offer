@@ -5,19 +5,17 @@
   "policy_registry_version": "pilot-1.0.0",
   "taxonomy_version": "1.0.0",
   "request_id": "request-001",
-  "input_fingerprint": "470ecccc8ff252465a570fb4ecb40b3ce7a9d9e887ce0fe87521298456d4a7d4",
+  "input_fingerprint": "218825c258f8936555d0a840c072e88eaa7503395e20cf8bdc085301ed1a407b",
   "policy": {
     "schema_version": "1.0.0",
     "kind": "matching_policy",
     "policy_id": "golden-policy",
     "policy_registry_version": "pilot-1.0.0",
     "catalog_record_ids": [
-      "record-main",
-      "record-secondary"
+      "record-main"
     ],
     "catalog_priority": [
-      "record-main",
-      "record-secondary"
+      "record-main"
     ],
     "brands": {
       "include": [
@@ -58,8 +56,31 @@
               "target": {
                 "class_id": "valve.ball"
               },
+              "expected": "valve.ball",
+              "actual": "valve.ball",
               "outcome": "pass",
               "effect": "exact",
+              "code": "CLASS_MATCH"
+            },
+            {
+              "scope": "attribute",
+              "target": {
+                "field": "body_material"
+              },
+              "operator": "eq",
+              "expected": "aluminum",
+              "actual": "aluminum",
+              "outcome": "pass",
+              "effect": "exact",
+              "code": "ATTRIBUTE_MATCH"
+            },
+            {
+              "scope": "policy",
+              "target": {
+                "field": "brand"
+              },
+              "outcome": "fail",
+              "effect": "reject",
               "code": "BRAND_NOT_INCLUDED"
             }
           ],
