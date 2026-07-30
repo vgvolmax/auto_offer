@@ -20,7 +20,18 @@
     "lines": [
       {
         "annotation": {
-          "ambiguities": [],
+          "ambiguities": [
+            {
+              "blocking": true,
+              "code": "AMBIGUOUS_SYNTHETIC_VALUE",
+              "json_pointer": "/attributes/body_material",
+              "possible_values": [
+                "aluminum",
+                "brass"
+              ],
+              "source_text": "synthetic ambiguous source"
+            }
+          ],
           "evidence": [
             {
               "json_pointer": "/class_id",
@@ -36,7 +47,7 @@
             }
           ],
           "issues": [],
-          "status": "validated",
+          "status": "needs_review",
           "unknown_fields": []
         },
         "class_id": "valve.ball",

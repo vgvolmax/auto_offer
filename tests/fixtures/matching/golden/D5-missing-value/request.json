@@ -33,6 +33,10 @@
             {
               "json_pointer": "/quantity",
               "source_text": "10 шт"
+            },
+            {
+              "json_pointer": "/constraints/attributes/pressure_class",
+              "source_text": "synthetic evidence"
             }
           ],
           "issues": [],
@@ -45,6 +49,10 @@
             "body_material": {
               "operator": "eq",
               "value": "aluminum"
+            },
+            "pressure_class": {
+              "operator": "eq",
+              "value": "pn16"
             }
           },
           "ports": []

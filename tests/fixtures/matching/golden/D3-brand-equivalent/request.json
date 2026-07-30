@@ -33,6 +33,10 @@
             {
               "json_pointer": "/quantity",
               "source_text": "10 шт"
+            },
+            {
+              "json_pointer": "/requested_identity/brand",
+              "source_text": "synthetic evidence"
             }
           ],
           "issues": [],
@@ -51,7 +55,12 @@
         },
         "line_id": "request-valve.ball",
         "raw_text": "Синтетическая заявка: Кран шаровой",
-        "requested_identity": {},
+        "requested_identity": {
+          "brand": {
+            "operator": "eq",
+            "value": "brand_a"
+          }
+        },
         "substitution_statement": {
           "explicit": false,
           "policy": "unspecified",

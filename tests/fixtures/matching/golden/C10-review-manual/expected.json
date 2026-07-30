@@ -5,19 +5,17 @@
   "policy_registry_version": "pilot-1.0.0",
   "taxonomy_version": "1.0.0",
   "request_id": "request-001",
-  "input_fingerprint": "e1f1cc5c2d6c3021e85eb41cb68f183e92c3871e2316f91a89747a35167591a4",
+  "input_fingerprint": "c52a43a90bcb3c57d7cf7fc8689025ec8e15f7aadf4325368a99f676d9a557a8",
   "policy": {
     "schema_version": "1.0.0",
     "kind": "matching_policy",
     "policy_id": "golden-policy",
     "policy_registry_version": "pilot-1.0.0",
     "catalog_record_ids": [
-      "record-main",
-      "record-secondary"
+      "record-main"
     ],
     "catalog_priority": [
-      "record-main",
-      "record-secondary"
+      "record-main"
     ],
     "brands": {
       "include": [],
@@ -38,7 +36,7 @@
   "lines": [
     {
       "line_id": "request-valve.ball",
-      "resolution": "single_exact",
+      "resolution": "no_match",
       "candidates": [
         {
           "offer_ref": {
@@ -54,6 +52,29 @@
               "scope": "class",
               "target": {
                 "class_id": "valve.ball"
+              },
+              "expected": "valve.ball",
+              "actual": "valve.ball",
+              "outcome": "pass",
+              "effect": "exact",
+              "code": "CLASS_MATCH"
+            },
+            {
+              "scope": "attribute",
+              "target": {
+                "field": "body_material"
+              },
+              "operator": "eq",
+              "expected": "aluminum",
+              "actual": "aluminum",
+              "outcome": "pass",
+              "effect": "exact",
+              "code": "ATTRIBUTE_MATCH"
+            },
+            {
+              "scope": "policy",
+              "target": {
+                "annotation_status": "needs_review"
               },
               "outcome": "pass",
               "effect": "exact",

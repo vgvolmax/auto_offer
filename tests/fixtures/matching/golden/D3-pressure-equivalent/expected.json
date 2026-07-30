@@ -5,19 +5,17 @@
   "policy_registry_version": "pilot-1.0.0",
   "taxonomy_version": "1.0.0",
   "request_id": "request-001",
-  "input_fingerprint": "115066d2806a1272b8152424fbdb496596799e252e220cd8b60a01f81b7ceda2",
+  "input_fingerprint": "3ed3e75c38ec990cb316c0dd45108f26f0fa48e701298ab7f833488aebab9d0c",
   "policy": {
     "schema_version": "1.0.0",
     "kind": "matching_policy",
     "policy_id": "golden-policy",
     "policy_registry_version": "pilot-1.0.0",
     "catalog_record_ids": [
-      "record-main",
-      "record-secondary"
+      "record-main"
     ],
     "catalog_priority": [
-      "record-main",
-      "record-secondary"
+      "record-main"
     ],
     "brands": {
       "include": [],
@@ -55,17 +53,46 @@
               "target": {
                 "class_id": "valve.ball"
               },
+              "expected": "valve.ball",
+              "actual": "valve.ball",
               "outcome": "pass",
+              "effect": "exact",
+              "code": "CLASS_MATCH"
+            },
+            {
+              "scope": "attribute",
+              "target": {
+                "field": "body_material"
+              },
+              "operator": "eq",
+              "expected": "aluminum",
+              "actual": "aluminum",
+              "outcome": "pass",
+              "effect": "exact",
+              "code": "ATTRIBUTE_MATCH"
+            },
+            {
+              "scope": "attribute",
+              "target": {
+                "field": "pressure_class"
+              },
+              "operator": "eq",
+              "expected": "pn16",
+              "actual": "pn25",
+              "outcome": "difference",
               "effect": "equivalent",
-              "code": "ATTRIBUTE_DIFFERENCE"
+              "code": "EQUIVALENT_RULE_APPLIED"
             }
           ],
           "differences": [
             {
               "scope": "attribute",
               "target": {
-                "field": "pilot_rule"
+                "field": "pressure_class"
               },
+              "operator": "eq",
+              "expected": "pn16",
+              "actual": "pn25",
               "outcome": "difference",
               "effect": "equivalent",
               "code": "EQUIVALENT_RULE_APPLIED"
