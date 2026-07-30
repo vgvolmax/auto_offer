@@ -59,3 +59,15 @@ Resolution закрыт: `single_exact`, `multiple_exact`, `equivalent_only`, `a
 ## Ограничения пилота
 
 Нет matcher, AI/hidden score, UI, автоматического выбора, экспорта, price ranking, allocation, package conversion, brand aliases, backend или candidate index. Цена, stock и исходная unit информационны. Policy registry data-driven и versioned; неизвестные поля/версии fail closed.
+
+### Воспроизводимость matching input
+
+`matchingInputFingerprint` — асинхронная browser-compatible операция на Web Crypto
+`globalThis.crypto.subtle`. Она канонизирует ключи объектов, нормализует порядок
+`catalog_refs` и возвращает lowercase SHA-256 без Node polyfills.
+
+Golden scenario связывает каждый catalog bundle с локальным `catalog_record_id`
+через `catalog_inputs`. Ссылка на предложение считается допустимой только по полному
+составному ключу `catalog_record_id + catalog_id + source_sha256 + source_item_id`.
+`input_fingerprint` в expected result является пересчитываемым контрактным значением,
+а не иллюстративным примером; обычная validation сверяет committed значение.

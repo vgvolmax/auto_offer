@@ -1,1 +1,19 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://example.local/schemas/matching/golden-scenario.schema.json","type":"object","additionalProperties":false,"required":["schema_version","scenario_id","use_case_ids","purpose","catalog_files","request_file","policy_file","expected_file","required_reason_codes"],"properties":{"schema_version":{"const":"1.0.0"},"scenario_id":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._-]*$"},"use_case_ids":{"type":"array","minItems":1,"items":{"type":"string","pattern":"^[A-Z]+[0-9]+$"}},"purpose":{"type":"string","minLength":1},"catalog_files":{"type":"array","minItems":1,"items":{"type":"string"}},"request_file":{"type":"string"},"policy_file":{"type":"string"},"expected_file":{"type":"string"},"required_reason_codes":{"type":"array","items":{"$ref":"match-result.schema.json#/$defs/reasonCode"}}}}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/matching/golden-scenario.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "scenario_id", "use_case_ids", "purpose", "catalog_inputs", "request_file", "policy_file", "expected_file", "required_reason_codes"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "scenario_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "use_case_ids": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[A-Z]+[0-9]+$" } },
+    "purpose": { "type": "string", "minLength": 1 },
+    "catalog_inputs": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "object", "additionalProperties": false, "required": ["file", "catalog_record_id"], "properties": { "file": { "type": "string", "minLength": 1 }, "catalog_record_id": { "type": "string", "minLength": 1 } } }
+    },
+    "request_file": { "type": "string" }, "policy_file": { "type": "string" }, "expected_file": { "type": "string" },
+    "required_reason_codes": { "type": "array", "items": { "$ref": "match-result.schema.json#/$defs/reasonCode" } }
+  }
+}

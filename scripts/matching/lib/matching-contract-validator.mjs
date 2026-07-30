@@ -1,4 +1,34 @@
-const forbidden=new Set(['confirmed','selected','selected_candidate','accepted','rejected_by_operator','operator_comment','manual_override','match_score','similarity_score','product_id','offer_id']);
-export function validatePolicySemantics(policy,{catalogRecordIds=[]}={}){const e=[];const b=policy.brands;for(const x of b.include)if(b.exclude.includes(x))e.push('brand include/exclude conflict: '+x);for(const x of b.preferred)if(b.exclude.includes(x))e.push('preferred brand is excluded: '+x);for(const x of policy.catalog_priority)if(!policy.catalog_record_ids.includes(x))e.push('catalog_priority is outside selected catalogs: '+x);for(const x of policy.catalog_record_ids)if(catalogRecordIds.length&&!catalogRecordIds.includes(x))e.push('unknown catalog record: '+x);return e}
-export function findForbiddenDecisionFields(value,path='$',out=[]){if(value&&typeof value==='object')for(const [k,v] of Object.entries(value)){if(forbidden.has(k))out.push(`${path}.${k}`);findForbiddenDecisionFields(v,`${path}.${k}`,out)}return out}
-export function validatePolicyTargets(registry,taxonomy){const classes=new Map(taxonomy.classes.map(c=>[c.class_id,c]));const e=[];for(const [id,rule] of Object.entries(registry.class_rules)){if(!classes.has(id))e.push(`unknown class ${id}`);for(const t of rule.hard_targets){if(t.kind==='attribute'&&!classes.get(id)?.attributes?.some?.(a=>a.id===t.field||a.name===t.field)) { /* generated schema is authoritative in CLI */ }}}return e}
+const forbiddenDecisionFields = new Set([
+  'confirmed', 'selected', 'selected_candidate', 'accepted', 'rejected_by_operator',
+  'operator_comment', 'manual_override', 'match_score', 'similarity_score',
+  'product_id', 'offer_id',
+]);
+
+export function validatePolicySemantics(policy, { catalogRecordIds = [] } = {}) {
+  const errors = [];
+  const brands = policy.brands;
+
+  for (const brand of brands.include) {
+    if (brands.exclude.includes(brand)) errors.push(`brand include/exclude conflict: ${brand}`);
+  }
+  for (const brand of brands.preferred) {
+    if (brands.exclude.includes(brand)) errors.push(`preferred brand is excluded: ${brand}`);
+  }
+  for (const recordId of policy.catalog_priority) {
+    if (!policy.catalog_record_ids.includes(recordId)) errors.push(`catalog_priority is outside selected catalogs: ${recordId}`);
+  }
+  for (const recordId of policy.catalog_record_ids) {
+    if (catalogRecordIds.length && !catalogRecordIds.includes(recordId)) errors.push(`unknown catalog record: ${recordId}`);
+  }
+  return errors;
+}
+
+export function findForbiddenDecisionFields(value, path = '$', output = []) {
+  if (!value || typeof value !== 'object') return output;
+
+  for (const [key, child] of Object.entries(value)) {
+    if (forbiddenDecisionFields.has(key)) output.push(`${path}.${key}`);
+    findForbiddenDecisionFields(child, `${path}.${key}`, output);
+  }
+  return output;
+}

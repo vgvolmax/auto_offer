@@ -1,12 +1,64 @@
 #!/usr/bin/env node
-import { readFile, readdir } from 'node:fs/promises'; import path from 'node:path';
-import { loadMatchingSchemas } from './lib/matching-schema-loader.mjs'; import { validatePolicySemantics, findForbiddenDecisionFields } from './lib/matching-contract-validator.mjs';
-import { loadBundleValidationContext } from '../bundles/lib/bundle-schema-loader.mjs'; import { validateCatalogBundle, validateRequestBundle } from '../bundles/lib/bundle-validator.mjs';
-const read=async p=>JSON.parse(await readFile(p)); const root='tests/fixtures/matching/golden'; const errors=[];
-const schemas=await loadMatchingSchemas(); const registry=await read('matching/policies/pilot-v1.json'); if(!schemas.registry(registry))errors.push('registry schema: '+JSON.stringify(schemas.registry.errors));
-// Validate targets against the unchanged production class contract.
-const valve=await read('schemas/annotation/class-specific/valve.ball.catalog.schema.json');const attrs=valve.allOf[1].properties.attributes.properties;const portProps=valve.allOf[1].properties.ports.prefixItems.flatMap(x=>Object.keys(x.properties));for(const rule of Object.values(registry.class_rules))for(const t of rule.hard_targets)if(t.kind==='attribute'&&!attrs[t.field]||t.kind==='port'&&!portProps.includes(t.field))errors.push('unknown policy target '+JSON.stringify(t));
-const bundleContext=await loadBundleValidationContext();const ids=new Set();const dirs=(await readdir(root,{withFileTypes:true})).filter(x=>x.isDirectory()&&x.name!=='shared');
-for(const ent of dirs){const dir=path.join(root,ent.name),m=await read(path.join(dir,'scenario.json'));if(!schemas.scenario(m))errors.push(`${ent.name} manifest: ${JSON.stringify(schemas.scenario.errors)}`);if(ids.has(m.scenario_id))errors.push('duplicate scenario '+m.scenario_id);ids.add(m.scenario_id);const req=await read(path.join(dir,m.request_file));const pol=await read(path.join(dir,m.policy_file));const exp=await read(path.join(dir,m.expected_file));if(!validateRequestBundle(req,bundleContext).valid)errors.push(ent.name+' invalid request bundle');for(const rel of m.catalog_files){const cat=await read(path.resolve(dir,rel));if(!validateCatalogBundle(cat,bundleContext).valid)errors.push(ent.name+' invalid catalog bundle')};if(!schemas.policy(pol))errors.push(ent.name+' policy schema '+JSON.stringify(schemas.policy.errors));errors.push(...validatePolicySemantics(pol).map(e=>ent.name+' '+e));if(!schemas.result(exp))errors.push(ent.name+' result schema '+JSON.stringify(schemas.result.errors));for(const x of findForbiddenDecisionFields(exp))errors.push(ent.name+' forbidden '+x);const lines=new Set(req.request_document.lines.map(x=>x.line_id));for(const line of exp.lines)if(!lines.has(line.line_id))errors.push(ent.name+' unknown line '+line.line_id);const offers=new Set();for(const rel of m.catalog_files){const cat=await read(path.resolve(dir,rel));for(const x of cat.items)offers.add(x.catalog_item.source_item_id)}for(const line of exp.lines)for(const c of [...line.candidates,...line.excluded_candidates])if(!offers.has(c.offer_ref.source_item_id))errors.push(ent.name+' unknown offer '+c.offer_ref.source_item_id);const serialized=JSON.stringify(exp);for(const code of m.required_reason_codes)if(!serialized.includes(code))errors.push(ent.name+' missing reason '+code)}
-const required=['D1-single-exact','D2-multiple-exact','D3-brand-equivalent','D3-pressure-equivalent','D4-handle-alternative','D5-thread-no-match','D5-missing-value','D6-brand-excluded','D6-brand-not-included','D9-two-offers','D10-policy-fingerprint','C10-review-excluded','C10-review-manual','B5-request-review','identity-neq-hard','determinism-catalog-order'];for(const x of required)if(!ids.has(x))errors.push('missing mandatory scenario '+x);
-if(errors.length){console.error(errors.join('\n'));process.exit(1)}console.log(`Matching contracts valid: ${ids.size} golden scenarios, pilot-1.0.0`);
+import path from 'node:path';
+import { loadBundleValidationContext } from '../bundles/lib/bundle-schema-loader.mjs';
+import { validateCatalogBundle, validateRequestBundle } from '../bundles/lib/bundle-validator.mjs';
+import { findForbiddenDecisionFields, validatePolicySemantics } from './lib/matching-contract-validator.mjs';
+import { loadMatchingSchemas } from './lib/matching-schema-loader.mjs';
+import { loadProductionClassContracts, validatePolicyRegistry } from './lib/policy-registry-validator.mjs';
+import { listGoldenScenarioDirectories, loadGoldenScenario, readJson } from './lib/golden-scenario-loader.mjs';
+import { validateGoldenResult } from './lib/golden-result-validator.mjs';
+
+const requiredScenarios = [
+  'D1-single-exact', 'D2-multiple-exact', 'D3-brand-equivalent', 'D3-pressure-equivalent',
+  'D4-handle-alternative', 'D5-thread-no-match', 'D5-missing-value', 'D6-brand-excluded',
+  'D6-brand-not-included', 'D9-two-offers', 'D10-policy-fingerprint', 'C10-review-excluded',
+  'C10-review-manual', 'B5-request-review', 'identity-neq-hard', 'determinism-catalog-order',
+];
+
+const errors = [];
+const schemas = await loadMatchingSchemas();
+const registry = await readJson('matching/policies/pilot-v1.json');
+if (!schemas.registry(registry)) {
+  errors.push(`registry schema: ${JSON.stringify(schemas.registry.errors)}`);
+} else {
+  errors.push(...await validatePolicyRegistry(registry, await loadProductionClassContracts()));
+}
+
+const bundleContext = await loadBundleValidationContext();
+const scenarioIds = new Set();
+for (const directory of await listGoldenScenarioDirectories()) {
+  const loaded = await loadGoldenScenario(directory);
+  const { scenario, request, policy, expected, catalogs } = loaded;
+  const scenarioId = scenario.scenario_id ?? path.basename(directory);
+
+  if (!schemas.scenario(scenario)) errors.push(`${scenarioId}: scenario schema ${JSON.stringify(schemas.scenario.errors)}`);
+  if (scenarioIds.has(scenarioId)) errors.push(`${scenarioId}: duplicate scenario ID`);
+  scenarioIds.add(scenarioId);
+
+  const requestValidation = validateRequestBundle(request, bundleContext);
+  if (!requestValidation.valid) errors.push(`${scenarioId}: invalid request bundle ${JSON.stringify(requestValidation.errors)}`);
+  for (const { input, bundle } of catalogs) {
+    const validation = validateCatalogBundle(bundle, bundleContext);
+    if (!validation.valid) errors.push(`${scenarioId}: invalid catalog bundle ${input.file}: ${JSON.stringify(validation.errors)}`);
+  }
+
+  if (!schemas.policy(policy)) errors.push(`${scenarioId}: policy schema ${JSON.stringify(schemas.policy.errors)}`);
+  errors.push(...validatePolicySemantics(policy).map((error) => `${scenarioId}: ${error}`));
+  if (!schemas.result(expected)) errors.push(`${scenarioId}: result schema ${JSON.stringify(schemas.result.errors)}`);
+  errors.push(...findForbiddenDecisionFields(expected).map((field) => `${scenarioId}: forbidden ${field}`));
+  errors.push(...await validateGoldenResult(loaded));
+
+  const serializedResult = JSON.stringify(expected);
+  for (const code of scenario.required_reason_codes) {
+    if (!serializedResult.includes(code)) errors.push(`${scenarioId}: missing required reason ${code}`);
+  }
+}
+for (const scenarioId of requiredScenarios) {
+  if (!scenarioIds.has(scenarioId)) errors.push(`missing mandatory scenario ${scenarioId}`);
+}
+
+if (errors.length) {
+  console.error(errors.join('\n'));
+  process.exit(1);
+}
+console.log(`Matching contracts valid: ${scenarioIds.size} golden scenarios, pilot-1.0.0`);
