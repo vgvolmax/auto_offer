@@ -8,7 +8,7 @@ describe('browser semantic validation parity',()=>{
     bad.items.push(structuredClone(bad.items[0]));
     Reflect.set(bad.items[1].catalog_item,'taxonomy_version','mismatch');
     bad.items[0].catalog_item.annotation.evidence=[];
-    bad.items[0].catalog_item.annotation.unknown_fields=['/not-allowed'];
+    Reflect.set(bad.items[0].catalog_item.annotation,'unknown_fields',['/not-allowed']);
     const result=validateCatalogBundle(bad),codes=new Set(result.errors.map(error=>error.code));
     for(const code of ['DUPLICATE_SOURCE_ITEM_ID','ITEM_COUNT_MISMATCH','TAXONOMY_VERSION_MISMATCH','MISSING_EVIDENCE','UNKNOWN_PATH_NOT_ALLOWED'])expect(codes).toContain(code);
     expect(result.errors.find(error=>error.code==='DUPLICATE_SOURCE_ITEM_ID')?.path).toBe('/items/1/catalog_item/source_item_id');
