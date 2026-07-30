@@ -13,7 +13,7 @@
   ],
   "catalog_inputs": [
     {
-      "file": "catalog.json",
+      "file": "../shared/catalog-needs-review.json",
       "catalog_record_id": "record-main"
     }
   ]
