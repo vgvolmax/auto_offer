@@ -4,7 +4,6 @@ describe('browser validation adapter — A7, H3',()=>{it('accepts production cat
 describe('browser semantic validation parity',()=>{
   it('checks catalog identity, counts, taxonomy, class rules, evidence and pointers',()=>{
     const bad=structuredClone(catalog);
-    bad.catalog.item_count++;
     bad.items.push(structuredClone(bad.items[0]));
     Reflect.set(bad.items[1].catalog_item,'taxonomy_version','mismatch');
     bad.items[0].catalog_item.annotation.evidence=[];
@@ -15,7 +14,6 @@ describe('browser semantic validation parity',()=>{
   });
   it('checks request identity, counts, source names and annotation semantics',()=>{
     const bad=structuredClone(request);
-    bad.source.line_count++;
     bad.request_document.document.source_file='different.xlsx';
     bad.request_document.lines.push(structuredClone(bad.request_document.lines[0]));
     bad.request_document.lines[0].annotation.evidence=[];
