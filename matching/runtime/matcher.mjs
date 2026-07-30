@@ -4,7 +4,7 @@ import { buildCatalogIndex } from './catalog-index.mjs';
 import { effectiveMaximumMatchLevel } from './substitution-policy.mjs';
 import { evaluateCandidate } from './candidate-evaluator.mjs';
 import { applyPolicy } from './policy-filter.mjs';
-import { candidateComparator } from './candidate-ordering.mjs';
+import { candidateComparator, ordinalCompare } from './candidate-ordering.mjs';
 import { matchingInputFingerprint } from './matching-fingerprint.mjs';
 import { determineResolution, serializeCandidate } from './result-builder.mjs';
 
@@ -20,7 +20,11 @@ function catalogReferences(catalogs, policy) {
     catalog_record_id: catalogRecordId,
     catalog_id: bundle.catalog.catalog_id,
     source_sha256: bundle.catalog.source_sha256,
-  })).sort((left, right) => (priority.get(left.catalog_record_id) ?? Infinity) - (priority.get(right.catalog_record_id) ?? Infinity));
+  })).sort((left, right) =>
+    (priority.get(left.catalog_record_id) ?? Infinity) - (priority.get(right.catalog_record_id) ?? Infinity)
+    || ordinalCompare(left.catalog_id, right.catalog_id)
+    || ordinalCompare(left.catalog_record_id, right.catalog_record_id)
+    || ordinalCompare(left.source_sha256, right.source_sha256));
 }
 
 function reviewRequiredLine(request) {
@@ -35,7 +39,8 @@ function matchLine(request, catalogIndex, policy, registry) {
   const excludedCandidates = [];
   const rejectionCounts = new Map();
 
-  for (const catalogCandidate of catalogIndex.get('*') ?? []) {
+  const classCandidates = catalogIndex.get(request.class_id) ?? [];
+  for (const catalogCandidate of classCandidates) {
     if (catalogCandidate.annotation_status === 'invalid') {
       incrementTechnicalRejections(rejectionCounts, ['CATALOG_ITEM_INVALID']);
       continue;

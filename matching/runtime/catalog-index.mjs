@@ -3,10 +3,8 @@ import { ordinalCompare } from './candidate-ordering.mjs';
 
 export function buildCatalogIndex(catalogs) {
   const index = new Map();
-  const allCandidates = [];
   for (const { catalogRecordId, bundle } of catalogs) {
     for (const candidate of projectCatalog(catalogRecordId, bundle)) {
-      allCandidates.push(candidate);
       const classCandidates = index.get(candidate.class_id) ?? [];
       classCandidates.push(candidate);
       index.set(candidate.class_id, classCandidates);
@@ -14,6 +12,5 @@ export function buildCatalogIndex(catalogs) {
   }
   const compare = (left, right) => ordinalCompare(left.catalog_id, right.catalog_id) || ordinalCompare(left.source_item_id, right.source_item_id);
   for (const [classId, candidates] of index) index.set(classId, [...candidates].sort(compare));
-  index.set('*', [...allCandidates].sort(compare));
   return index;
 }

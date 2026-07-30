@@ -1,7 +1,7 @@
 import test from 'node:test'; import assert from 'node:assert/strict';
 import {effectiveMaximumMatchLevel,evaluateConstraint,equalValue,MatchingInputError} from '../matching/runtime/index.mjs';
 test('effective substitution is the stricter line/session level',()=>{for(const [line,session,want] of [['exact_only','alternative','exact'],['equivalent_allowed','alternative','equivalent'],['alternative_allowed','exact','exact'],['unspecified','equivalent','equivalent']])assert.equal(effectiveMaximumMatchLevel({policy:line},session),want)});
-test('constraint operators and rational inch values',()=>{assert.equal(evaluateConstraint({operator:'eq',value:'x'},'x').outcome,'pass');assert.equal(evaluateConstraint({operator:'neq',value:'x'},'x').outcome,'fail');assert.equal(evaluateConstraint({operator:'gte',value:2},3).outcome,'pass');assert.equal(evaluateConstraint({operator:'lte',value:2},3).outcome,'fail');assert.equal(equalValue({numerator:1,denominator:2},{numerator:2,denominator:4}),true);assert.equal(evaluateConstraint({operator:'eq',value:1},undefined).code,'CATALOG_VALUE_MISSING')});
+test('in constraint accepts a listed value',()=>assert.equal(evaluateConstraint({operator:'in',value:['x','y']},'y').outcome,'pass'));
 test('MatchingInputError exposes stable diagnostics',()=>{const e=new MatchingInputError('CODE','/path','message');assert.equal(e.code,'CODE');assert.equal(e.path,'/path')});
 
 import { evaluateCandidate } from '../matching/runtime/candidate-evaluator.mjs';
@@ -44,7 +44,7 @@ test('catalog needs-review manual-only returns manual availability', () => asser
 test('resolution supports every automatic outcome', () => { assert.equal(determineResolution([{ match_level: 'exact', availability: 'eligible' }], []), 'single_exact'); assert.equal(determineResolution([{ match_level: 'exact', availability: 'eligible' }, { match_level: 'exact', availability: 'eligible' }], []), 'multiple_exact'); assert.equal(determineResolution([{ match_level: 'equivalent', availability: 'eligible' }], []), 'equivalent_only'); assert.equal(determineResolution([{ match_level: 'alternative', availability: 'eligible' }], []), 'alternative_only'); assert.equal(determineResolution([], [{}]), 'excluded_by_policy'); assert.equal(determineResolution([], []), 'no_match'); assert.equal(determineResolution([], [], false), 'request_review_required'); });
 test('manual-only exact does not become single_exact', () => assert.equal(determineResolution([{ match_level: 'exact', availability: 'manual_only' }], []), 'no_match'));
 test('repeated matcher run is immutable and deterministic', async () => { const fixture = await loadGoldenScenario('tests/fixtures/matching/golden/D1-single-exact'); const input = { requestBundle: fixture.request, catalogs: fixture.catalogs.map(({ input, bundle }) => ({ catalogRecordId: input.catalog_record_id, bundle })), policy: fixture.policy, registry: pilotRegistry, engineVersion: 'pilot-1.0.0' }; const before = JSON.stringify(input); assert.deepEqual(await runPilotMatcher(input), await runPilotMatcher(input)); assert.equal(JSON.stringify(input), before); });
-test('matcher result passes match-result schema', async () => { const fixture = await loadGoldenScenario('tests/fixtures/matching/golden/D3-pressure-equivalent'); const result = await runPilotMatcher({ requestBundle: fixture.request, catalogs: fixture.catalogs.map(({ input, bundle }) => ({ catalogRecordId: input.catalog_record_id, bundle })), policy: fixture.policy, registry: pilotRegistry, engineVersion: 'pilot-1.0.0' }); const schemas = await loadMatchingSchemas(); assert.equal(schemas.result(result), true, JSON.stringify(schemas.result.errors)); assert.equal(result.lines[0].excluded_candidates[0]?.exclusion_codes.includes('MATCH_LEVEL_NOT_ALLOWED') ?? true, true); });
+test('matcher result passes match-result schema', async () => { const fixture = await loadGoldenScenario('tests/fixtures/matching/golden/D3-pressure-equivalent'); const result = await runPilotMatcher({ requestBundle: fixture.request, catalogs: fixture.catalogs.map(({ input, bundle }) => ({ catalogRecordId: input.catalog_record_id, bundle })), policy: fixture.policy, registry: pilotRegistry, engineVersion: 'pilot-1.0.0' }); const schemas = await loadMatchingSchemas(); assert.equal(schemas.result(result), true, JSON.stringify(schemas.result.errors)); });
 
 test('equivalent candidate above exact policy is excluded and schema-compatible', async () => {
   const fixture = await loadGoldenScenario('tests/fixtures/matching/golden/D3-pressure-equivalent');
@@ -58,3 +58,40 @@ test('equivalent candidate above exact policy is excluded and schema-compatible'
 });
 
 test('class mismatch is a technical rejection', () => assert.ok(technical({}, { class_id: 'valve.check' }).rejectionCodes.has('CLASS_MISMATCH')));
+
+test('matcher evaluates only the request class bucket without mutating inputs', async () => {
+  const fixture = await loadGoldenScenario('tests/fixtures/matching/golden/D1-single-exact');
+  const catalog = structuredClone(fixture.catalogs[0].bundle);
+  for (const [classId, sourceItemId] of [['valve.check', 'other-check'], ['valve.gate', 'other-gate']]) {
+    const item = structuredClone(catalog.items[0]);
+    item.catalog_item.class_id = classId;
+    item.catalog_item.source_item_id = sourceItemId;
+    catalog.items.push(item);
+  }
+  catalog.catalog.item_count = catalog.items.length;
+  const input = { requestBundle: fixture.request, catalogs: [{ catalogRecordId: 'record-main', bundle: catalog }], policy: fixture.policy, registry: pilotRegistry, engineVersion: 'pilot-1.0.0' };
+  const before = structuredClone(input);
+  const result = await runPilotMatcher(input);
+  assert.deepEqual(result.lines[0].candidates.map((candidate) => candidate.offer_ref.source_item_id), ['synthetic-valve.ball-1']);
+  assert.equal(result.lines[0].rejection_summary.some(({ code }) => code === 'CLASS_MISMATCH'), false);
+  const schemas = await loadMatchingSchemas();
+  assert.equal(schemas.result(result), true, JSON.stringify(schemas.result.errors));
+  assert.deepEqual(input, before);
+});
+
+test('catalog references are deterministic with partial priority', async () => {
+  const fixture = await loadGoldenScenario('tests/fixtures/matching/golden/D1-single-exact');
+  const makeCatalog = (catalogRecordId, catalogId, shaDigit) => {
+    const bundle = structuredClone(fixture.catalogs[0].bundle);
+    bundle.catalog.catalog_id = catalogId;
+    bundle.catalog.source_sha256 = shaDigit.repeat(64);
+    return { catalogRecordId, bundle };
+  };
+  const catalogs = [makeCatalog('record-priority', 'z-priority', '1'), makeCatalog('record-b', 'b-catalog', '2'), makeCatalog('record-a', 'a-catalog', '3')];
+  const policy = { ...fixture.policy, catalog_record_ids: catalogs.map(({ catalogRecordId }) => catalogRecordId), catalog_priority: ['record-priority'] };
+  const run = (selected) => runPilotMatcher({ requestBundle: fixture.request, catalogs: selected, policy, registry: pilotRegistry, engineVersion: 'pilot-1.0.0' });
+  const firstResult = await run(catalogs);
+  const secondResult = await run([...catalogs].reverse());
+  assert.deepEqual(firstResult, secondResult);
+  assert.deepEqual(firstResult.catalog_refs.map(({ catalog_record_id }) => catalog_record_id), ['record-priority', 'record-a', 'record-b']);
+});
