@@ -6,7 +6,7 @@ describe('browser semantic validation parity',()=>{
     const bad=structuredClone(catalog);
     bad.catalog.item_count++;
     bad.items.push(structuredClone(bad.items[0]));
-    bad.items[1].catalog_item.taxonomy_version='mismatch';
+    Reflect.set(bad.items[1].catalog_item,'taxonomy_version','mismatch');
     bad.items[0].catalog_item.annotation.evidence=[];
     bad.items[0].catalog_item.annotation.unknown_fields=['/not-allowed'];
     const result=validateCatalogBundle(bad),codes=new Set(result.errors.map(error=>error.code));
