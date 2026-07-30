@@ -1,0 +1,1 @@
+export function StatusBadge({kind='success',children}:{kind?:'success'|'warning'|'error';children:React.ReactNode}){return <span className={`badge badge--${kind}`}>{kind==='success'?'✓':kind==='warning'?'!':'×'} {children}</span>}

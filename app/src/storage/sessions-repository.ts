@@ -1,0 +1,2 @@
+import type {SessionRecord} from '../domain/session';import {getDatabase} from './database';
+export const sessionsRepository={async all(){return (await getDatabase()).getAll('sessions')},async get(id:string){return (await getDatabase()).get('sessions',id)},async save(value:SessionRecord){await (await getDatabase()).put('sessions',value);return value},async countUsingCatalog(id:string){return (await this.all()).filter(s=>s.status==='draft'&&s.catalogRefs.some(r=>r.recordId===id)).length}};

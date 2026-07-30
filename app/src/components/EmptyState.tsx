@@ -1,0 +1,1 @@
+export function EmptyState({title,children,actions}:{title:string;children:React.ReactNode;actions?:React.ReactNode}){return <section className="empty"><h2>{title}</h2><p>{children}</p>{actions&&<div className="actions">{actions}</div>}</section>}
