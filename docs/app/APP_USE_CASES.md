@@ -584,3 +584,34 @@
 - **Альтернативный или ошибочный поток:** Если условия не выполнены или возникает ошибка, действие не портит ранее сохранённые данные и может быть повторено.
 - **Ожидаемая обратная связь:** Интерфейс показывает текущее состояние, причину ограничений и доступный следующий шаг.
 - **Итоговое состояние данных:** Сохраняется только явно подтверждённое состояние; связанные данные остаются согласованными.
+
+## Matching pilot contract flows (B2, design-first)
+
+Эти потоки определяют контракт, но не утверждают реализацию matcher/UI.
+
+| ID | Реальный поток пилота |
+|---|---|
+| C1 | Оператор создаёт policy и выбирает catalog record IDs; только выбранные записи входят в scope. |
+| C2 | Include ограничивает кандидатов перечисленными brand IDs. |
+| C3 | Exclude жёстко удаляет brand даже при include/preferred. |
+| C4 | Preferred переставляет только уже допустимых кандидатов. |
+| C5 | Unknown brand допускается или исключается явной настройкой. |
+| C6 | Оператор задаёт exact/equivalent/alternative maximum; line policy не ослабляется. |
+| C7 | Catalog priority сортирует предложения и валидируется против scope. |
+| C8 | Изменение policy создаёт новый immutable result и fingerprint. |
+| C9 | Excluded candidates сохраняют technical level и diagnostic codes. |
+| C10 | Catalog needs_review исключается по умолчанию либо возвращается manual_only. |
+| C12 | Невалидная policy/version/target отклоняется до вычисления. |
+| D1 | Одна допустимая exact позиция даёт `single_exact`. |
+| D2 | Несколько exact позиций сортируются детерминированно и дают `multiple_exact`. |
+| D3 | Разрешённый иной brand или больший pressure class даёт explicit equivalent. |
+| D4 | Разрешённое отличие handle/coating даёт alternative с difference. |
+| D5 | Hard port failure или missing requested value даёт `no_match`. |
+| D6 | Технический exact, удалённый brand policy, даёт `excluded_by_policy`. |
+| D7 | Остаток информационный; автоматическое деление поставки не выполняется; planned. |
+| D8 | Исходная единица информационная; упаковки не пересчитываются; planned. |
+| D9 | Одна техника в двух прайсах остаётся двумя CatalogOffer. |
+| D10 | Canonical inputs дают воспроизводимый fingerprint; policy меняет его. |
+| E1 | UI в будущем читает resolution и structured checks без скрытого score. |
+| E3 | UI в будущем отдельно показывает excluded candidates и причины policy. |
+| E4 | Ручной выбор в будущем сохраняется в SelectionState, не в MatchResult. |

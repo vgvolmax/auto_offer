@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "B5-request-review",
+  "use_case_ids": [
+    "B5"
+  ],
+  "purpose": "request review blocks automatic match",
+  "request_file": "request.json",
+  "policy_file": "policy.json",
+  "expected_file": "expected.json",
+  "required_reason_codes": [
+    "REQUEST_REVIEW_REQUIRED"
+  ],
+  "catalog_inputs": [
+    {
+      "file": "../shared/catalog-main.json",
+      "catalog_record_id": "record-main"
+    }
+  ]
+}

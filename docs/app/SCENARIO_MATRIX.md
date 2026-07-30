@@ -16,34 +16,34 @@
 | B2 | implemented | Реализован | Реализован | `B2` / component or repository | 23 |
 | B3 | implemented | Реализован | Реализован | `B3` / component or repository | 23 |
 | B4 | planned | — | — | — | 23 |
-| B5 | planned | — | — | — | 23 |
-| C1 | planned | — | — | — | 23 |
-| C2 | planned | — | — | — | 23 |
-| C3 | planned | — | — | — | 23 |
-| C4 | planned | — | — | — | 23 |
-| C5 | planned | — | — | — | 23 |
-| C6 | planned | — | — | — | 23 |
-| C7 | planned | — | — | — | 23 |
-| C8 | planned | — | — | — | 23 |
-| C9 | planned | — | — | — | 23 |
-| C10 | planned | — | — | — | 23 |
+| B5 | partial | — | Contract defined | `B5-request-review` | B2 |
+| C1 | partial | — | Contract defined | contract validation | B2 |
+| C2 | partial | — | Contract defined | contract validation | B2 |
+| C3 | partial | — | Contract defined | contract validation | B2 |
+| C4 | partial | — | Contract defined | contract validation | B2 |
+| C5 | partial | — | Contract defined | contract validation | B2 |
+| C6 | partial | — | Contract defined | contract validation | B2 |
+| C7 | partial | — | Contract defined | contract validation | B2 |
+| C8 | partial | — | Contract defined | contract validation | B2 |
+| C9 | partial | — | Contract defined | contract validation | B2 |
+| C10 | partial | — | Contract defined | `C10-review-excluded`, `C10-review-manual` | B2 |
 | C11 | planned | — | — | — | 23 |
-| C12 | planned | — | — | — | 23 |
+| C12 | partial | — | Contract defined | contract validation | B2 |
 | C13 | planned | — | — | — | 23 |
-| D1 | planned | — | — | — | 23 |
-| D2 | planned | — | — | — | 23 |
-| D3 | planned | — | — | — | 23 |
-| D4 | planned | — | — | — | 23 |
-| D5 | planned | — | — | — | 23 |
-| D6 | planned | — | — | — | 23 |
-| D7 | planned | — | — | — | 23 |
-| D8 | planned | — | — | — | 23 |
-| D9 | planned | — | — | — | 23 |
-| D10 | planned | — | — | — | 23 |
-| E1 | planned | — | — | — | 23 |
+| D1 | partial | — | Contract defined | `D1-single-exact` | B2 |
+| D2 | partial | — | Contract defined | `D2-multiple-exact`, `determinism-catalog-order` | B2 |
+| D3 | partial | — | Contract defined | `D3-brand-equivalent`, `D3-pressure-equivalent` | B2 |
+| D4 | partial | — | Contract defined | `D4-handle-alternative` | B2 |
+| D5 | partial | — | Contract defined | `D5-thread-no-match`, `D5-missing-value`, `identity-neq-hard` | B2 |
+| D6 | partial | — | Contract defined | `D6-brand-excluded`, `D6-brand-not-included` | B2 |
+| D7 | planned | — | Pilot: stock informational; no split allocation | — | B2 |
+| D8 | planned | — | Pilot: source unit informational; no package conversion | — | B2 |
+| D9 | partial | — | Contract defined | `D9-two-offers` | B2 |
+| D10 | partial | — | Contract defined | `D10-policy-fingerprint` | B2 |
+| E1 | partial | — | Contract defined | contract validation | B2 |
 | E2 | planned | — | — | — | 23 |
-| E3 | planned | — | — | — | 23 |
-| E4 | planned | — | — | — | 23 |
+| E3 | partial | — | Contract defined | contract validation | B2 |
+| E4 | partial | — | Contract defined | contract validation | B2 |
 | E5 | planned | — | — | — | 23 |
 | E6 | planned | — | — | — | 23 |
 | E7 | planned | — | — | — | 23 |
