@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/matching/match-result.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "engine_version",
+    "policy_registry_version",
+    "taxonomy_version",
+    "request_id",
+    "input_fingerprint",
+    "policy",
+    "catalog_refs",
+    "lines",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "kind": {
+      "const": "match_result"
+    },
+    "engine_version": {
+      "const": "pilot-1.0.0"
+    },
+    "policy_registry_version": {
+      "const": "pilot-1.0.0"
+    },
+    "taxonomy_version": {
+      "const": "1.0.0"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "input_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "policy": {
+      "$ref": "matching-policy.schema.json"
+    },
+    "catalog_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/catalogRef"
+      }
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/line"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  },
+  "$defs": {
+    "reasonCode": {
+      "enum": [
+        "CLASS_MATCH",
+        "CLASS_MISMATCH",
+        "IDENTITY_MATCH",
+        "IDENTITY_DIFFERENCE",
+        "IDENTITY_EXCLUDED",
+        "ATTRIBUTE_MATCH",
+        "ATTRIBUTE_DIFFERENCE",
+        "ATTRIBUTE_CONSTRAINT_FAILED",
+        "PORT_MATCH",
+        "PORT_ROLE_MISSING",
+        "PORT_CONSTRAINT_FAILED",
+        "CATALOG_VALUE_MISSING",
+        "CATALOG_ITEM_INVALID",
+        "CATALOG_ITEM_NEEDS_REVIEW",
+        "REQUEST_REVIEW_REQUIRED",
+        "BRAND_NOT_INCLUDED",
+        "BRAND_EXCLUDED",
+        "BRAND_UNKNOWN_EXCLUDED",
+        "CATALOG_NOT_SELECTED",
+        "MATCH_LEVEL_NOT_ALLOWED",
+        "EQUIVALENT_RULE_APPLIED",
+        "ALTERNATIVE_RULE_APPLIED"
+      ]
+    },
+    "catalogRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalog_record_id",
+        "catalog_id",
+        "source_sha256"
+      ],
+      "properties": {
+        "catalog_record_id": {
+          "type": "string"
+        },
+        "catalog_id": {
+          "type": "string"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "offerRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalog_record_id",
+        "catalog_id",
+        "source_sha256",
+        "source_item_id"
+      ],
+      "properties": {
+        "catalog_record_id": {
+          "type": "string"
+        },
+        "catalog_id": {
+          "type": "string"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_item_id": {
+          "type": "string"
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "target",
+        "outcome",
+        "effect",
+        "code"
+      ],
+      "properties": {
+        "scope": {
+          "enum": [
+            "class",
+            "identity",
+            "attribute",
+            "port",
+            "annotation",
+            "policy"
+          ]
+        },
+        "target": {
+          "type": "object"
+        },
+        "operator": {
+          "enum": [
+            "eq",
+            "neq",
+            "in",
+            "gte",
+            "lte"
+          ]
+        },
+        "expected": {},
+        "actual": {},
+        "outcome": {
+          "enum": [
+            "pass",
+            "difference",
+            "missing",
+            "fail"
+          ]
+        },
+        "effect": {
+          "enum": [
+            "exact",
+            "equivalent",
+            "alternative",
+            "reject"
+          ]
+        },
+        "code": {
+          "$ref": "#/$defs/reasonCode"
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "offer_ref",
+        "match_level",
+        "availability",
+        "checks",
+        "differences"
+      ],
+      "properties": {
+        "offer_ref": {
+          "$ref": "#/$defs/offerRef"
+        },
+        "match_level": {
+          "enum": [
+            "exact",
+            "equivalent",
+            "alternative"
+          ]
+        },
+        "availability": {
+          "enum": [
+            "eligible",
+            "manual_only"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        }
+      }
+    },
+    "excluded": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "offer_ref",
+        "match_level",
+        "availability",
+        "checks",
+        "differences",
+        "exclusion_codes"
+      ],
+      "properties": {
+        "offer_ref": {
+          "$ref": "#/$defs/offerRef"
+        },
+        "match_level": {
+          "enum": [
+            "exact",
+            "equivalent",
+            "alternative"
+          ]
+        },
+        "availability": {
+          "enum": [
+            "eligible",
+            "manual_only"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        },
+        "exclusion_codes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/reasonCode"
+          }
+        }
+      }
+    },
+    "rejection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "count"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/reasonCode"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "line_id",
+        "resolution",
+        "candidates",
+        "excluded_candidates",
+        "rejection_summary"
+      ],
+      "properties": {
+        "line_id": {
+          "type": "string"
+        },
+        "resolution": {
+          "enum": [
+            "single_exact",
+            "multiple_exact",
+            "equivalent_only",
+            "alternative_only",
+            "excluded_by_policy",
+            "no_match",
+            "request_review_required",
+            "request_invalid"
+          ]
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/candidate"
+          }
+        },
+        "excluded_candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/excluded"
+          }
+        },
+        "rejection_summary": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rejection"
+          }
+        }
+      }
+    }
+  }
+}

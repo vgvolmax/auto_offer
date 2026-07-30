@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "identity-neq-hard",
+  "use_case_ids": [
+    "D5"
+  ],
+  "purpose": "negative identity remains hard",
+  "catalog_files": [
+    "../shared/catalog-main.json"
+  ],
+  "request_file": "request.json",
+  "policy_file": "policy.json",
+  "expected_file": "expected.json",
+  "required_reason_codes": [
+    "IDENTITY_EXCLUDED"
+  ]
+}

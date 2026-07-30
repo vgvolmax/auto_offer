@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "D5-missing-value",
+  "use_case_ids": [
+    "D5"
+  ],
+  "purpose": "missing required value",
+  "catalog_files": [
+    "../shared/catalog-main.json"
+  ],
+  "request_file": "request.json",
+  "policy_file": "policy.json",
+  "expected_file": "expected.json",
+  "required_reason_codes": [
+    "CATALOG_VALUE_MISSING"
+  ]
+}

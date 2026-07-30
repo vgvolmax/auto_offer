@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "match_result",
+  "engine_version": "pilot-1.0.0",
+  "policy_registry_version": "pilot-1.0.0",
+  "taxonomy_version": "1.0.0",
+  "request_id": "request-001",
+  "input_fingerprint": "6666666666666666666666666666666666666666666666666666666666666666",
+  "policy": {
+    "schema_version": "1.0.0",
+    "kind": "matching_policy",
+    "policy_id": "golden-policy",
+    "policy_registry_version": "pilot-1.0.0",
+    "catalog_record_ids": [
+      "record-main",
+      "record-secondary"
+    ],
+    "catalog_priority": [
+      "record-main",
+      "record-secondary"
+    ],
+    "brands": {
+      "include": [],
+      "exclude": [],
+      "preferred": [],
+      "unknown": "allow"
+    },
+    "max_match_level": "alternative",
+    "catalog_needs_review": "exclude"
+  },
+  "catalog_refs": [
+    {
+      "catalog_record_id": "record-main",
+      "catalog_id": "synthetic-valves",
+      "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "lines": [
+    {
+      "line_id": "request-valve.ball",
+      "resolution": "no_match",
+      "candidates": [],
+      "excluded_candidates": [],
+      "rejection_summary": [
+        {
+          "code": "CATALOG_VALUE_MISSING",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "lines": 1
+  }
+}

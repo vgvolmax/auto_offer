@@ -26,7 +26,7 @@
     "taxonomy:validate-approval": "node scripts/taxonomy/validate-taxonomy-approval.mjs",
     "taxonomy:review-status": "node scripts/taxonomy/build-review-status.mjs",
     "test:taxonomy-review": "node --test tests/taxonomy-review-*.test.mjs",
-    "test": "npm run check:annotation-schemas && npm run check:annotation-kits && npm run test:annotation-kits && npm run test:chat-prompts && npm run test:production-taxonomy && npm run test:annotation && npm run test:bundles && npm run test:catalog && npm run test:inventory && npm run test:taxonomy-review && npm run typecheck:app && npm run test:app",
+    "test": "npm run validate:matching-contracts && npm run test:matching-contracts && npm run check:annotation-schemas && npm run check:annotation-kits && npm run test:annotation-kits && npm run test:chat-prompts && npm run test:production-taxonomy && npm run test:annotation && npm run test:bundles && npm run test:catalog && npm run test:inventory && npm run test:taxonomy-review && npm run typecheck:app && npm run test:app",
     "app:dev": "vite --config app/vite.config.ts",
     "app:build": "vite build --config app/vite.config.ts",
     "app:preview": "vite preview --config app/vite.config.ts",
@@ -40,7 +40,9 @@
     "generate:annotation-fixtures": "node scripts/annotation/generate-class-fixtures.mjs",
     "test:production-taxonomy": "node --test tests/production-taxonomy.test.mjs",
     "test:annotation-classes": "node --test tests/annotation-class-generation.test.mjs tests/annotation-class-fixtures.test.mjs tests/annotation-production-semantics.test.mjs",
-    "test:annotation-golden": "node --test tests/annotation-class-golden.test.mjs"
+    "test:annotation-golden": "node --test tests/annotation-class-golden.test.mjs",
+    "validate:matching-contracts": "node scripts/matching/validate-matching-contracts.mjs",
+    "test:matching-contracts": "node --test tests/matching-contracts.test.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",

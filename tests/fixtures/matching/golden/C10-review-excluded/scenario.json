@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "C10-review-excluded",
+  "use_case_ids": [
+    "C10"
+  ],
+  "purpose": "review item excluded",
+  "catalog_files": [
+    "../shared/catalog-main.json"
+  ],
+  "request_file": "request.json",
+  "policy_file": "policy.json",
+  "expected_file": "expected.json",
+  "required_reason_codes": [
+    "CATALOG_ITEM_NEEDS_REVIEW"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "matching_policy",
+  "policy_id": "golden-policy",
+  "policy_registry_version": "pilot-1.0.0",
+  "catalog_record_ids": [
+    "record-main",
+    "record-secondary"
+  ],
+  "catalog_priority": [
+    "record-main",
+    "record-secondary"
+  ],
+  "brands": {
+    "include": [
+      "brand.allowed"
+    ],
+    "exclude": [],
+    "preferred": [],
+    "unknown": "allow"
+  },
+  "max_match_level": "alternative",
+  "catalog_needs_review": "exclude"
+}

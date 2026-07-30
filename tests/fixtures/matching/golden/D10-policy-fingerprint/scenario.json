@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "D10-policy-fingerprint",
+  "use_case_ids": [
+    "D10"
+  ],
+  "purpose": "policy changes fingerprint",
+  "catalog_files": [
+    "../shared/catalog-main.json"
+  ],
+  "request_file": "request.json",
+  "policy_file": "policy.json",
+  "expected_file": "expected.json",
+  "required_reason_codes": [
+    "CLASS_MATCH"
+  ]
+}

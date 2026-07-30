@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "determinism-catalog-order",
+  "use_case_ids": [
+    "D2"
+  ],
+  "purpose": "catalog permutation is invariant",
+  "catalog_files": [
+    "../shared/catalog-main.json",
+    "../shared/catalog-secondary.json"
+  ],
+  "request_file": "request.json",
+  "policy_file": "policy.json",
+  "expected_file": "expected.json",
+  "required_reason_codes": [
+    "CLASS_MATCH"
+  ]
+}

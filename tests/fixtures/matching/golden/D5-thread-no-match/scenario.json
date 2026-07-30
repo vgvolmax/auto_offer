@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "D5-thread-no-match",
+  "use_case_ids": [
+    "D5"
+  ],
+  "purpose": "incompatible thread",
+  "catalog_files": [
+    "../shared/catalog-main.json"
+  ],
+  "request_file": "request.json",
+  "policy_file": "policy.json",
+  "expected_file": "expected.json",
+  "required_reason_codes": [
+    "PORT_CONSTRAINT_FAILED"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "D6-brand-not-included",
+  "use_case_ids": [
+    "D6"
+  ],
+  "purpose": "brand outside include",
+  "catalog_files": [
+    "../shared/catalog-main.json"
+  ],
+  "request_file": "request.json",
+  "policy_file": "policy.json",
+  "expected_file": "expected.json",
+  "required_reason_codes": [
+    "BRAND_NOT_INCLUDED"
+  ]
+}

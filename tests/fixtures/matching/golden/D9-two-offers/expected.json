@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "match_result",
+  "engine_version": "pilot-1.0.0",
+  "policy_registry_version": "pilot-1.0.0",
+  "taxonomy_version": "1.0.0",
+  "request_id": "request-001",
+  "input_fingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+  "policy": {
+    "schema_version": "1.0.0",
+    "kind": "matching_policy",
+    "policy_id": "golden-policy",
+    "policy_registry_version": "pilot-1.0.0",
+    "catalog_record_ids": [
+      "record-main",
+      "record-secondary"
+    ],
+    "catalog_priority": [
+      "record-main",
+      "record-secondary"
+    ],
+    "brands": {
+      "include": [],
+      "exclude": [],
+      "preferred": [],
+      "unknown": "allow"
+    },
+    "max_match_level": "alternative",
+    "catalog_needs_review": "exclude"
+  },
+  "catalog_refs": [
+    {
+      "catalog_record_id": "record-main",
+      "catalog_id": "synthetic-valves",
+      "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "catalog_record_id": "record-secondary",
+      "catalog_id": "secondary-valves",
+      "source_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  ],
+  "lines": [
+    {
+      "line_id": "request-valve.ball",
+      "resolution": "multiple_exact",
+      "candidates": [
+        {
+          "offer_ref": {
+            "catalog_record_id": "record-main",
+            "catalog_id": "synthetic-valves",
+            "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "source_item_id": "synthetic-valve.ball-1"
+          },
+          "match_level": "exact",
+          "availability": "eligible",
+          "checks": [
+            {
+              "scope": "class",
+              "target": {
+                "class_id": "valve.ball"
+              },
+              "outcome": "pass",
+              "effect": "exact",
+              "code": "CLASS_MATCH"
+            }
+          ],
+          "differences": []
+        },
+        {
+          "offer_ref": {
+            "catalog_record_id": "record-secondary",
+            "catalog_id": "secondary-valves",
+            "source_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+            "source_item_id": "secondary-valve.ball-1"
+          },
+          "match_level": "exact",
+          "availability": "eligible",
+          "checks": [
+            {
+              "scope": "class",
+              "target": {
+                "class_id": "valve.ball"
+              },
+              "outcome": "pass",
+              "effect": "exact",
+              "code": "CLASS_MATCH"
+            }
+          ],
+          "differences": []
+        }
+      ],
+      "excluded_candidates": [],
+      "rejection_summary": []
+    }
+  ],
+  "summary": {
+    "lines": 1
+  }
+}
