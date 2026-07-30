@@ -67,3 +67,11 @@
 | H6 | planned | — | — | — | 23 |
 | H7 | planned | — | — | — | 23 |
 | H8 | planned | — | — | — | 23 |
+
+| B4a policy configuration | implemented |
+| B4a matcher launch from session | implemented |
+| B4a MatchResult persistence | implemented |
+| B4a run summary | implemented |
+| B4b candidate review | planned |
+| B4b manual selection | planned |
+| Export | planned |
