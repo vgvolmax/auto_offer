@@ -39,3 +39,6 @@
 ## B4a matching workspace
 
 Draft route содержит неизменяемые источники, focused policy form (match level, needs_review, catalog priority и brand policy) и сводку последнего запуска. Application hook управляет явными состояниями loading/clean/dirty/saving/running/current/stale/error. Candidate review, manual selection и export planned и на этом экране отсутствуют.
+# B4b result review
+
+The session page composes a dedicated result-review feature. Search, filters, expansion, and the 50-row display limit are local UI state. Selection is persisted separately; stale results remain inspectable while all decision controls are read-only. Final review and export remain planned.

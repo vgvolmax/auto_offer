@@ -4,6 +4,7 @@ import { StatusBadge } from "../../components/StatusBadge";
 import { MatchingPolicyForm } from "./matching/MatchingPolicyForm";
 import { MatchRunSummaryView } from "./matching/MatchRunSummary";
 import { useSessionMatching } from "./matching/useSessionMatching";
+import { MatchResultsPanel } from "./results/MatchResultsPanel";
 export function SessionPage() {
   const { id } = useParams(),
     matching = useSessionMatching(id);
@@ -53,6 +54,7 @@ export function SessionPage() {
         onRun={matching.run}
       />
       {run && <MatchRunSummaryView run={run} current={current} />}{" "}
+      {run && <MatchResultsPanel session={session} catalogs={catalogs} run={run} current={current} />}
       {matching.state.kind === "error" && (
         <p className="error-text" role="alert">
           {matching.state.message}
