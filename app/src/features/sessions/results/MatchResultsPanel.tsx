@@ -1,2 +1,77 @@
-import type { CatalogRecord } from "../../../domain/catalog";import type { MatchRunRecord } from "../../../domain/matching/match-run";import type { SessionRecord } from "../../../domain/session";import { MatchLineCard } from "./MatchLineCard";import { MatchResultsToolbar } from "./MatchResultsToolbar";import { useMatchResultReview } from "./useMatchResultReview";
-export function MatchResultsPanel(input:{session:SessionRecord;catalogs:readonly CatalogRecord[];run:MatchRunRecord;current:boolean}){const review=useMatchResultReview(input);if(review.state.kind==="loading")return <section className="card"><h2>Результаты подбора</h2><p role="status">Загружаем решения…</p></section>;if(!review.view)return <section className="card"><h2>Результаты подбора</h2><p role="alert">{review.state.kind==="error"&&review.state.message}</p></section>;const busy=review.state.kind==="saving";return <section className="card"><h2>Результаты подбора</h2><p>Выбрано {review.view.selectedCount} из {review.view.selectableLineCount} строк с предложениями · осталось {review.view.unresolvedSelectableCount}</p>{!input.current&&<p className="warning-text">Результат построен по другим настройкам. Решения сохранены, но редактирование недоступно. Верните настройки или запустите подбор заново.</p>}{review.state.kind==="error"&&<p role="alert">{review.state.message}</p>}<MatchResultsToolbar query={review.query} filter={review.filter} onQuery={review.setQuery} onFilter={review.setFilter}/>{review.lines.map(line=><MatchLineCard key={line.lineId} line={line} expanded={review.expanded.has(line.lineId)} disabled={!input.current||busy||!line.selectable} saving={busy&&review.state.kind==="saving"&&review.state.savingLineId===line.lineId} onToggle={()=>review.toggle(line.lineId)} onSelect={i=>void review.save(line.lineId,line.candidates[i].offerRef)} onClear={()=>void review.save(line.lineId)}/>)}{review.hasMore&&<button onClick={review.showMore}>Показать ещё</button>}</section>}
+import type { CatalogRecord } from "../../../domain/catalog";
+import type { MatchRunRecord } from "../../../domain/matching/match-run";
+import type { SessionRecord } from "../../../domain/session";
+import { MatchLineCard } from "./MatchLineCard";
+import { MatchResultsToolbar } from "./MatchResultsToolbar";
+import { useMatchResultReview } from "./useMatchResultReview";
+export function MatchResultsPanel(input: {
+  session: SessionRecord;
+  catalogs: readonly CatalogRecord[];
+  run: MatchRunRecord;
+  current: boolean;
+}) {
+  const review = useMatchResultReview(input);
+  if (review.state.kind === "loading")
+    return (
+      <section className="card">
+        <h2>Результаты подбора</h2>
+        <p role="status">Загружаем решения…</p>
+      </section>
+    );
+  if (!review.view)
+    return (
+      <section className="card">
+        <h2>Результаты подбора</h2>
+        <p role="alert">
+          {review.state.kind === "error" && review.state.message}
+        </p>
+      </section>
+    );
+  const busy = review.state.kind === "saving";
+  return (
+    <section className="card">
+      <h2>Результаты подбора</h2>
+      <p>
+        Выбрано {review.view.selectedCount} из {review.view.selectableLineCount}{" "}
+        строк с предложениями · осталось {review.view.unresolvedSelectableCount}
+      </p>
+      {!input.current && (
+        <p className="warning-text">
+          Результат построен по другим настройкам. Решения сохранены, но
+          редактирование недоступно. Верните настройки или запустите подбор
+          заново.
+        </p>
+      )}
+      {review.state.kind === "error" && (
+        <p role="alert">{review.state.message}</p>
+      )}
+      <MatchResultsToolbar
+        query={review.query}
+        filter={review.filter}
+        onQuery={review.setQuery}
+        onFilter={review.setFilter}
+      />
+      {review.lines.map((line) => (
+        <MatchLineCard
+          key={line.lineId}
+          line={line}
+          expanded={review.expanded.has(line.lineId)}
+          disabled={!input.current || busy || !line.selectable}
+          saving={
+            busy &&
+            review.state.kind === "saving" &&
+            review.state.savingLineId === line.lineId
+          }
+          onToggle={() => review.toggle(line.lineId)}
+          onSelect={(i) =>
+            void review.save(line.lineId, line.candidates[i].offerRef)
+          }
+          onClear={() => void review.save(line.lineId)}
+        />
+      ))}
+      {review.hasMore && (
+        <button onClick={review.showMore}>Показать ещё</button>
+      )}
+    </section>
+  );
+}

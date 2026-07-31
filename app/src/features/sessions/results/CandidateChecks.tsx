@@ -1,2 +1,33 @@
 import type { MatchCheckView } from "../../../domain/matching/match-result-review";
-export function CandidateChecks({checks,differences}:{checks:MatchCheckView[];differences:MatchCheckView[]}){const list=(xs:MatchCheckView[])=>xs.map((x,i)=><li key={`${x.code}-${i}`}><strong title={x.code}>{x.label}</strong>: {x.scope} / {x.target}; ожидалось {x.expected??"—"}, получено {x.actual??"—"}; {x.outcome}, {x.effect}</li>);return <details><summary>Совпало: {checks.filter(x=>x.outcome==="pass").length} · Отличий: {differences.length}</summary>{differences.length>0&&<><h5>Отличия</h5><ul>{list(differences)}</ul></>}<h5>Все проверки</h5><ul>{list(checks)}</ul></details>}
+export function CandidateChecks({
+  checks,
+  differences,
+}: {
+  checks: MatchCheckView[];
+  differences: MatchCheckView[];
+}) {
+  const list = (xs: MatchCheckView[]) =>
+    xs.map((x, i) => (
+      <li key={`${x.code}-${i}`}>
+        <strong title={x.code}>{x.label}</strong>: {x.scope} / {x.target};
+        ожидалось {x.expected ?? "—"}, получено {x.actual ?? "—"}; {x.outcome},{" "}
+        {x.effect}
+      </li>
+    ));
+  return (
+    <details>
+      <summary>
+        Совпало: {checks.filter((x) => x.outcome === "pass").length} · Отличий:{" "}
+        {differences.length}
+      </summary>
+      {differences.length > 0 && (
+        <>
+          <h5>Отличия</h5>
+          <ul>{list(differences)}</ul>
+        </>
+      )}
+      <h5>Все проверки</h5>
+      <ul>{list(checks)}</ul>
+    </details>
+  );
+}

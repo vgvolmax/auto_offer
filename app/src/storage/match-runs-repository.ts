@@ -29,7 +29,10 @@ export const matchRunsRepository: MatchRunRepository = {
   },
   async saveLatest(input) {
     const db = await getDatabase();
-    const tx = db.transaction(["sessions", "matchRuns", "selectionStates"], "readwrite");
+    const tx = db.transaction(
+      ["sessions", "matchRuns", "selectionStates"],
+      "readwrite",
+    );
     try {
       const stored = await tx.objectStore("sessions").get(input.sessionId);
       if (!stored) throw new Error("SESSION_NOT_FOUND");
