@@ -8,6 +8,8 @@ import {
 } from "./match-result-labels";
 import { equalOfferRefs, offerRefKey, type OfferRef } from "./offer-ref";
 import { SelectionError, type SelectionStateRecord } from "./selection-state";
+import type { LineDecision } from "./selection-state";
+import type { LineFeedback } from "./line-feedback";
 export type MatchLevel = "exact" | "equivalent" | "alternative";
 export type CandidateAvailability = "eligible" | "manual_only";
 export type MatchLineResolution =
@@ -45,6 +47,7 @@ export interface CandidateReviewView {
   selected: boolean;
   suggested: boolean;
   selectable: boolean;
+  resultPosition: number;
 }
 export interface ExcludedCandidateReviewView extends CandidateReviewView {
   exclusionCodes: string[];
@@ -59,9 +62,15 @@ export interface MatchLineReviewView {
   candidates: CandidateReviewView[];
   excludedCandidates: ExcludedCandidateReviewView[];
   rejectionSummary: Array<{ code: string; label: string; count: number }>;
+  decision?: LineDecision;
+  decisionKind?: "selected_offer" | "no_offer";
+  hasDecision: boolean;
+  feedback?: LineFeedback;
   selectedOfferRef?: OfferRef;
   hasSelection: boolean;
   selectable: boolean;
+  canSelectCandidate: boolean;
+  canMarkNoOffer: boolean;
 }
 export interface MatchResultReviewDiagnostic {
   code:
@@ -80,6 +89,11 @@ export interface MatchResultReviewView {
   selectedCount: number;
   selectableLineCount: number;
   unresolvedSelectableCount: number;
+  lineCount: number;
+  decidedCount: number;
+  undecidedCount: number;
+  noOfferCount: number;
+  feedbackCount: number;
   diagnostics: MatchResultReviewDiagnostic[];
 }
 type Obj = Record<string, unknown>;
@@ -230,7 +244,7 @@ export function buildMatchResultReviewView(input: {
           message: "Товар каталога не найден",
         });
       const selected = Boolean(
-        decision && equalOfferRefs(decision.offerRef, ref),
+        decision?.kind === "selected_offer" && equalOfferRefs(decision.offerRef, ref),
       );
       const base: CandidateReviewView = {
         key: offerRefKey(ref),
@@ -258,6 +272,7 @@ export function buildMatchResultReviewView(input: {
         selected,
         suggested: false,
         selectable: input.current && !excluded && Boolean(found),
+        resultPosition: 0,
       };
       return excluded
         ? {
@@ -268,12 +283,12 @@ export function buildMatchResultReviewView(input: {
         : base;
     };
     const candidates = array(raw.candidates)
-      .map((x) => mapCandidate(x, false))
+      .map((x, position) => { const candidate = mapCandidate(x, false); if (candidate) candidate.resultPosition = position + 1; return candidate; })
       .filter((x): x is CandidateReviewView => Boolean(x));
     const excluded = array(raw.excluded_candidates)
-      .map((x) => mapCandidate(x, true))
+      .map((x, position) => { const candidate = mapCandidate(x, true); if (candidate) candidate.resultPosition = position + 1; return candidate; })
       .filter((x): x is ExcludedCandidateReviewView => Boolean(x));
-    if (decision && !candidates.some((c) => c.selected)) {
+    if (decision?.kind === "selected_offer" && !candidates.some((c) => c.selected)) {
       brokenSelection = true;
       diagnostics.push({
         code: "SELECTION_CANDIDATE_MISSING",
@@ -309,20 +324,31 @@ export function buildMatchResultReviewView(input: {
           label: getReasonCodeLabel(text(r.code) ?? "UNKNOWN"),
           count: typeof r.count === "number" ? r.count : 0,
         })),
-      selectedOfferRef: decision?.offerRef,
-      hasSelection: Boolean(decision),
+      decision,
+      decisionKind: decision?.kind,
+      hasDecision: Boolean(decision),
+      feedback: selectionState.feedback?.[lineId],
+      selectedOfferRef: decision?.kind === "selected_offer" ? decision.offerRef : undefined,
+      hasSelection: decision?.kind === "selected_offer",
       selectable: !brokenSelection && candidates.some((c) => c.selectable),
+      canSelectCandidate: !brokenSelection && candidates.some((c) => c.selectable),
+      canMarkNoOffer: input.current,
     });
   });
   return {
     runId: run.id,
     current: input.current,
     lines,
-    selectedCount: lines.filter((x) => x.hasSelection).length,
+    selectedCount: lines.filter((x) => x.decisionKind === "selected_offer").length,
     selectableLineCount: lines.filter((x) => x.candidates.length > 0).length,
     unresolvedSelectableCount: lines.filter(
-      (x) => x.selectable && !x.hasSelection,
+      (x) => x.selectable && !x.hasDecision,
     ).length,
+    lineCount: lines.length,
+    decidedCount: lines.filter((x) => x.hasDecision).length,
+    undecidedCount: lines.filter((x) => !x.hasDecision).length,
+    noOfferCount: lines.filter((x) => x.decisionKind === "no_offer").length,
+    feedbackCount: lines.filter((x) => x.feedback).length,
     diagnostics,
   };
 }

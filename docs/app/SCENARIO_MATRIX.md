@@ -89,3 +89,12 @@
 | Export | Planned |
 
 The full end-to-end workflow remains unverified until B5.
+# B5a scenarios
+
+| Сценарий | B5a |
+| --- | --- |
+| Выбор candidate / `no_offer` / отсутствие решения | Реализовано |
+| Необязательные outcome/cause, comment и related OfferRef | Реализовано независимо от decision |
+| Восстановление решений и feedback из IndexedDB | Реализовано |
+| AI JSON после обработки всех строк текущего run | Реализовано |
+| Финальное подтверждение и human export | Planned: B5b |

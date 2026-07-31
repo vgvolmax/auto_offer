@@ -144,12 +144,12 @@ describe("SessionPage B4a matching state", () => {
       expect(screen.getByText(/Рекомендуется/)).toBeVisible();
       expect(screen.queryByText(/· Выбрано/)).not.toBeInTheDocument();
       await user.click(screen.getByRole("button", { name: "Выбрать" }));
-      await waitFor(() => expect(screen.getByText(/Выбрано 1 из 1/)).toBeVisible());
+      await waitFor(() => expect(screen.getByText(/Обработано 1 из 1/)).toBeVisible());
       expect(screen.getByRole("radio", { name: "Выбрано" })).toBeChecked();
 
       first.unmount(); resetDatabaseConnection();
       renderSession(session.sessionId);
-      expect(await screen.findByText(/Выбрано 1 из 1/)).toBeVisible();
+      expect(await screen.findByText(/Обработано 1 из 1/)).toBeVisible();
       expect(screen.queryByText("Выполняется подбор…")).not.toBeInTheDocument();
       expect((await appRepositories.matchRuns.getLatestForSession(session.sessionId))?.id).toBe(firstRun?.id);
       await user.click(screen.getByRole("button", { name: /request-valve\.ball/ }));
@@ -164,7 +164,7 @@ describe("SessionPage B4a matching state", () => {
       expect(screen.getByRole("button", { name: "Снять выбор" })).toBeEnabled();
       await user.click(screen.getByRole("radio", { name: "Только точные" }));
       await user.click(screen.getByRole("button", { name: "Запустить подбор" }));
-      await waitFor(() => expect(screen.getByText(/Выбрано 0 из 1/)).toBeVisible());
+      await waitFor(() => expect(screen.getByText(/Обработано 0 из 1/)).toBeVisible());
       const nextRun = await appRepositories.matchRuns.getLatestForSession(session.sessionId);
       expect(nextRun?.id).not.toBe(firstRun?.id);
       expect(await appRepositories.selectionStates.get(firstRun!.id)).toBeUndefined();
@@ -175,4 +175,30 @@ describe("SessionPage B4a matching state", () => {
         expect(screen.queryByText(label)).not.toBeInTheDocument();
     },
   );
+  it("opens feedback after no-offer and restores the decision after reload", async () => {
+    const user = userEvent.setup();
+    const catalog = createCatalogRecord(catalogFixture as CatalogBundle);
+    const session = createDraftSession(request as any, [catalog], "B5a no-offer");
+    await appRepositories.catalogs.save(catalog);
+    await appRepositories.sessions.save(session);
+    const first = renderSession(session.sessionId);
+    await user.click(await screen.findByRole("button", { name: "Запустить подбор" }));
+    await user.click(await screen.findByRole("button", { name: /request-valve\.ball/ }));
+    const feedbackToggle = screen.getByRole("button", { name: /Обратная связь для/ });
+    expect(feedbackToggle).toHaveAttribute("aria-expanded", "false");
+
+    await user.click(screen.getByRole("button", { name: "Оставить без предложения" }));
+    await waitFor(() => expect(screen.getByText(/Обработано 1 из 1/)).toBeVisible());
+    expect(screen.getByRole("radio", { name: "Решение: без предложения" })).toBeChecked();
+    expect(feedbackToggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByLabelText("Комментарий оператора")).toBeVisible();
+
+    first.unmount();
+    resetDatabaseConnection();
+    renderSession(session.sessionId);
+    expect(await screen.findByText(/Обработано 1 из 1/)).toBeVisible();
+    await user.click(screen.getByRole("button", { name: /request-valve\.ball/ }));
+    expect(screen.getByRole("radio", { name: "Решение: без предложения" })).toBeChecked();
+  });
+
 });

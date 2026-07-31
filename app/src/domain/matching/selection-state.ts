@@ -1,20 +1,39 @@
 import type { OfferRef } from "./offer-ref";
+import type { LineFeedback } from "./line-feedback";
 
 export interface SelectedOfferDecision {
   kind: "selected_offer";
   offerRef: OfferRef;
   confirmedAt: string;
 }
+export interface NoOfferDecision { kind: "no_offer"; confirmedAt: string }
+export type LineDecision = SelectedOfferDecision | NoOfferDecision;
 
 export interface SelectionStateRecord {
-  schemaVersion: "1.0.0";
+  schemaVersion: "1.1.0";
   matchRunId: string;
   sessionId: string;
   inputFingerprint: string;
   revision: number;
-  decisions: Record<string, SelectedOfferDecision>;
+  decisions: Record<string, LineDecision>;
+  feedback: Record<string, LineFeedback>;
   createdAt: string;
   updatedAt: string;
+}
+export type StoredSelectionStateRecord = SelectionStateRecord | (Omit<SelectionStateRecord, "schemaVersion" | "feedback" | "decisions"> & {
+  schemaVersion: "1.0.0"; decisions: Record<string, SelectedOfferDecision>;
+});
+
+export function normalizeSelectionStateRecord(record: StoredSelectionStateRecord): SelectionStateRecord {
+  const decisions: Record<string, LineDecision> = {};
+  for (const [lineId, decision] of Object.entries(record.decisions)) {
+    if (!decision || (decision.kind !== "selected_offer" && decision.kind !== "no_offer"))
+      throw new SelectionError(`Повреждено решение строки ${lineId}`, "SELECTION_STATE_RUN_MISMATCH");
+    decisions[lineId] = decision.kind === "selected_offer"
+      ? { ...decision, offerRef: { ...decision.offerRef } }
+      : { ...decision };
+  }
+  return { ...record, schemaVersion: "1.1.0", decisions, feedback: record.schemaVersion === "1.0.0" ? {} : { ...record.feedback } };
 }
 
 export type SelectionErrorCode =
@@ -45,12 +64,13 @@ export function createSelectionState(
   now = new Date().toISOString(),
 ): SelectionStateRecord {
   return {
-    schemaVersion: "1.0.0",
+    schemaVersion: "1.1.0",
     matchRunId: run.id,
     sessionId: run.sessionId,
     inputFingerprint: run.result.input_fingerprint,
     revision: 0,
     decisions: {},
+    feedback: {},
     createdAt: now,
     updatedAt: now,
   };
