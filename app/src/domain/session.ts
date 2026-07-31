@@ -20,11 +20,23 @@ export interface RequestBundle {
   };
   [key: string]: unknown;
 }
-export interface SessionRecord {
+export type SessionStatus = "draft" | "confirmed";
+export interface SessionConfirmation {
+  schemaVersion: "1.0.0";
+  matchRunId: string;
+  inputFingerprint: string;
+  matchingRevision: number;
+  selectionStateRevision: number;
+  lineCount: number;
+  selectedOfferCount: number;
+  noOfferCount: number;
+  feedbackCount: number;
+  confirmedAt: string;
+}
+interface SessionRecordBase {
   sessionId: string;
   name: string;
   comment: string;
-  status: "draft";
   requestId: string;
   requestFileName: string;
   requestBundle: RequestBundle;
@@ -43,8 +55,14 @@ export interface SessionRecord {
   createdAt: string;
   updatedAt: string;
 }
+export interface DraftSessionRecord extends SessionRecordBase { status: "draft"; confirmation?: undefined }
+export interface ConfirmedSessionRecord extends SessionRecordBase { status: "confirmed"; confirmation: SessionConfirmation }
+export type SessionRecord = DraftSessionRecord | ConfirmedSessionRecord;
+export class SessionRecordError extends Error {
+  constructor(message: string, public readonly code: "INVALID_SESSION_CONFIRMATION") { super(message); this.name = "SessionRecordError"; }
+}
 export type StoredSessionRecord = Omit<
-  SessionRecord,
+  SessionRecordBase,
   | "catalogRecordIds"
   | "matchingSettings"
   | "matchingRevision"
@@ -58,7 +76,16 @@ export type StoredSessionRecord = Omit<
       | "matchingRevision"
       | "latestMatchRunId"
     >
-  >;
+  > & { status?: SessionStatus; confirmation?: SessionConfirmation };
+
+function normalizeConfirmation(value: unknown): SessionConfirmation {
+  const confirmation = value as Record<string, unknown> | null;
+  const strings = ["matchRunId", "inputFingerprint", "confirmedAt"];
+  const numbers = ["matchingRevision", "selectionStateRevision", "lineCount", "selectedOfferCount", "noOfferCount", "feedbackCount"];
+  if (!confirmation || confirmation.schemaVersion !== "1.0.0" || strings.some((key) => typeof confirmation[key] !== "string") || numbers.some((key) => typeof confirmation[key] !== "number" || !Number.isInteger(confirmation[key]) || (confirmation[key] as number) < 0))
+    throw new SessionRecordError("Некорректные данные подтверждения сессии", "INVALID_SESSION_CONFIRMATION");
+  return { ...(confirmation as unknown as SessionConfirmation) };
+}
 
 export function normalizeSessionRecord(
   record: StoredSessionRecord,
@@ -66,7 +93,7 @@ export function normalizeSessionRecord(
   const catalogRecordIds = record.catalogRecordIds
     ? [...record.catalogRecordIds]
     : record.catalogRefs.map((ref) => ref.recordId);
-  return {
+  const base = {
     ...record,
     catalogRecordIds,
     matchingSettings: normalizeSessionMatchingSettings(
@@ -76,6 +103,8 @@ export function normalizeSessionRecord(
     matchingRevision: record.matchingRevision ?? 0,
     latestMatchRunId: record.latestMatchRunId ?? null,
   };
+  if (record.status === "confirmed") return { ...base, status: "confirmed", confirmation: normalizeConfirmation(record.confirmation) };
+  return { ...base, status: "draft", confirmation: undefined };
 }
 
 export function createDraftSession(
@@ -84,7 +113,7 @@ export function createDraftSession(
   name: string,
   comment = "",
   now = new Date().toISOString(),
-): SessionRecord {
+): DraftSessionRecord {
   const statuses = bundle.request_document.lines.map(
     (line) => line.annotation?.status,
   );

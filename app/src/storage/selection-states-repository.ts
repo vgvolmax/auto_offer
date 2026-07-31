@@ -67,6 +67,7 @@ export const selectionStatesRepository: SelectionStatesRepository = {
       if (!stored)
         throw new SelectionError("Сессия не найдена", "SESSION_NOT_FOUND");
       const session = normalizeSessionRecord(stored);
+      if (session.status === "confirmed") throw new SelectionError("Подтверждённый результат доступен только для просмотра", "SESSION_CONFIRMED");
       if (session.latestMatchRunId !== input.matchRunId)
         throw new SelectionError("Запуск заменён", "MATCH_RUN_REPLACED");
       const run = await tx.objectStore("matchRuns").get(input.matchRunId);
@@ -114,6 +115,7 @@ export const selectionStatesRepository: SelectionStatesRepository = {
       const storedSession = await tx.objectStore("sessions").get(input.sessionId);
       if (!storedSession) throw new SelectionError("Сессия не найдена", "SESSION_NOT_FOUND");
       const session = normalizeSessionRecord(storedSession);
+      if (session.status === "confirmed") throw new SelectionError("Подтверждённый результат доступен только для просмотра", "SESSION_CONFIRMED");
       if (session.latestMatchRunId !== input.matchRunId) throw new SelectionError("Запуск заменён", "MATCH_RUN_REPLACED");
       const run = await tx.objectStore("matchRuns").get(input.matchRunId);
       if (!run) throw new SelectionError("Запуск не найден", "MATCH_RUN_NOT_FOUND");

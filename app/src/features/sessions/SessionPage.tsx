@@ -5,9 +5,12 @@ import { MatchingPolicyForm } from "./matching/MatchingPolicyForm";
 import { MatchRunSummaryView } from "./matching/MatchRunSummary";
 import { useSessionMatching } from "./matching/useSessionMatching";
 import { MatchResultsPanel } from "./results/MatchResultsPanel";
+import { useEffect, useState } from "react";
 export function SessionPage() {
   const { id } = useParams(),
     matching = useSessionMatching(id);
+  const [reviewRefreshing, setReviewRefreshing] = useState(false);
+  useEffect(() => setReviewRefreshing(false), [id]);
   if (matching.state.kind === "loading")
     return <p role="status">Открываем черновик…</p>;
   if (!matching.state.session)
@@ -21,7 +24,11 @@ export function SessionPage() {
     <>
       <PageHeader
         title={session.name}
-        action={<StatusBadge>Черновик</StatusBadge>}
+        action={
+          <StatusBadge>
+            {session.status === "confirmed" ? "Подтверждено" : "Черновик"}
+          </StatusBadge>
+        }
       />
       <section className="card">
         <h2>Источники сессии</h2>
@@ -52,9 +59,29 @@ export function SessionPage() {
         onChange={matching.change}
         onSave={matching.save}
         onRun={matching.run}
+        locked={session.status === "confirmed"}
+        externalBusy={reviewRefreshing}
       />
       {run && <MatchRunSummaryView run={run} current={current} />}{" "}
-      {run && <MatchResultsPanel session={session} catalogs={catalogs} run={run} current={current} />}
+      {run && (
+        <MatchResultsPanel
+          session={session}
+          catalogs={catalogs}
+          run={run}
+          current={current}
+          locked={session.status === "confirmed"}
+          confirming={matching.state.kind === "confirming"}
+          reopening={matching.state.kind === "reopening"}
+          error={
+            matching.state.kind === "error" ? matching.state.message : undefined
+          }
+          onConfirm={matching.confirmReview}
+          onReopen={matching.reopenReview}
+          onRefreshSessionSnapshot={matching.refreshSessionSnapshot}
+          reviewRefreshing={reviewRefreshing}
+          onReviewRefreshingChange={setReviewRefreshing}
+        />
+      )}
       {matching.state.kind === "error" && (
         <p className="error-text" role="alert">
           {matching.state.message}

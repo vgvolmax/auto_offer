@@ -13,6 +13,29 @@ import {
   saveSessionMatchingSettings,
 } from "../../../domain/matching/run-session-matching";
 import { appRepositories } from "../../../storage/repositories";
+import {
+  confirmSessionReview,
+  reopenSessionReview,
+  SessionReviewError,
+} from "../../../domain/review/session-review";
+import type { SessionReviewErrorCode } from "../../../domain/review/session-review";
+export type ConfirmReviewResult =
+  | { ok: true }
+  | { ok: false; code: SessionReviewErrorCode | "UNKNOWN"; message: string };
+const writeBusy = (kind: State["kind"]) =>
+  ["saving", "running", "confirming", "reopening"].includes(kind);
+async function loadSessionSnapshot(sessionId: string) {
+  const session = await appRepositories.sessions.get(sessionId);
+  if (!session)
+    return { session: null, catalogs: [] as CatalogRecord[], run: undefined };
+  const catalogs = (
+    await Promise.all(
+      session.catalogRecordIds.map((x) => appRepositories.catalogs.get(x)),
+    )
+  ).filter((x): x is CatalogRecord => Boolean(x));
+  const run = await appRepositories.matchRuns.getLatestForSession(sessionId);
+  return { session, catalogs, run };
+}
 type Stable =
   | "ready-clean"
   | "ready-dirty"
@@ -25,7 +48,13 @@ interface StableSnapshot {
 type State =
   | { kind: "loading" }
   | {
-      kind: Stable | "saving" | "running" | "error";
+      kind:
+        | Stable
+        | "saving"
+        | "running"
+        | "confirming"
+        | "reopening"
+        | "error";
       session: SessionRecord | null;
       catalogs: CatalogRecord[];
       settings: SessionMatchingSettings;
@@ -41,7 +70,7 @@ type Action =
       run?: MatchRunRecord;
     }
   | { type: "change"; settings: SessionMatchingSettings }
-  | { type: "busy"; kind: "saving" | "running" }
+  | { type: "busy"; kind: "saving" | "running" | "confirming" | "reopening" }
   | { type: "saved"; session: SessionRecord; run?: MatchRunRecord }
   | { type: "failed"; message: string };
 function deriveStableSnapshot(input: {
@@ -128,16 +157,8 @@ export function useSessionMatching(id?: string) {
   useEffect(() => {
     if (!id) return;
     void (async () => {
-      const session = await appRepositories.sessions.get(id);
-      if (!session)
-        return dispatch({ type: "loaded", session: null, catalogs: [] });
-      const catalogs = (
-        await Promise.all(
-          session.catalogRecordIds.map((x) => appRepositories.catalogs.get(x)),
-        )
-      ).filter((x): x is CatalogRecord => Boolean(x));
-      const run = await appRepositories.matchRuns.getLatestForSession(id);
-      dispatch({ type: "loaded", session, catalogs, run });
+      const snapshot = await loadSessionSnapshot(id);
+      dispatch({ type: "loaded", ...snapshot });
     })();
   }, [id]);
   const issues = useMemo(
@@ -150,10 +171,23 @@ export function useSessionMatching(id?: string) {
           ),
     [state],
   );
-  const change = (settings: SessionMatchingSettings) =>
+  const change = (settings: SessionMatchingSettings) => {
+    if (
+      state.kind !== "loading" &&
+      (state.session?.status === "confirmed" || writeBusy(state.kind))
+    )
+      return;
     dispatch({ type: "change", settings });
+  };
   const save = async () => {
-    if (state.kind === "loading" || !state.session || issues.length) return;
+    if (
+      state.kind === "loading" ||
+      writeBusy(state.kind) ||
+      !state.session ||
+      state.session.status === "confirmed" ||
+      issues.length
+    )
+      return;
     dispatch({ type: "busy", kind: "saving" });
     try {
       dispatch({
@@ -172,7 +206,14 @@ export function useSessionMatching(id?: string) {
     }
   };
   const run = async () => {
-    if (state.kind === "loading" || !state.session || issues.length) return;
+    if (
+      state.kind === "loading" ||
+      writeBusy(state.kind) ||
+      !state.session ||
+      state.session.status === "confirmed" ||
+      issues.length
+    )
+      return;
     dispatch({ type: "busy", kind: "running" });
     try {
       const result = await runSessionMatching({
@@ -192,5 +233,109 @@ export function useSessionMatching(id?: string) {
       });
     }
   };
-  return { state, issues, change, save, run };
+  const reviewMessage = (e: unknown) => {
+    if (e instanceof SessionReviewError)
+      return (
+        (
+          {
+            REVIEW_INCOMPLETE: "Не по всем строкам принято решение.",
+            SELECTION_REVISION_CHANGED:
+              "Решения изменились в другой вкладке. Данные обновлены — проверьте результат ещё раз.",
+            REVIEW_NOT_CURRENT:
+              "Настройки или каталоги изменились. Запустите подбор заново.",
+            REVIEW_RESULT_INCONSISTENT:
+              "Не удалось подтвердить результат из-за несогласованных данных.",
+            SESSION_NOT_CONFIRMED: "Сессия уже возвращена к редактированию.",
+          } as Partial<Record<string, string>>
+        )[e.code] ?? "Не удалось изменить статус результата. Повторите попытку."
+      );
+    return "Не удалось изменить статус результата. Повторите попытку.";
+  };
+  const confirmReview = async (input: {
+    matchRunId: string;
+    expectedSelectionRevision: number;
+  }): Promise<ConfirmReviewResult> => {
+    if (
+      state.kind === "loading" ||
+      writeBusy(state.kind) ||
+      !state.session ||
+      state.session.status !== "draft"
+    )
+      return {
+        ok: false,
+        code: "UNKNOWN",
+        message: "Операция сейчас недоступна",
+      };
+    dispatch({ type: "busy", kind: "confirming" });
+    try {
+      const session = await confirmSessionReview({
+        ...input,
+        sessionId: state.session.sessionId,
+        repositories: appRepositories,
+      });
+      dispatch({ type: "saved", session });
+      return { ok: true };
+    } catch (e) {
+      const message = reviewMessage(e);
+      if (
+        !(
+          e instanceof SessionReviewError &&
+          e.code === "SELECTION_REVISION_CHANGED"
+        )
+      )
+        dispatch({ type: "failed", message });
+      else dispatch({ type: "saved", session: state.session, run: state.run });
+      return {
+        ok: false,
+        code: e instanceof SessionReviewError ? e.code : "UNKNOWN",
+        message,
+      };
+    }
+  };
+  const reopenReview = async () => {
+    if (
+      state.kind === "loading" ||
+      writeBusy(state.kind) ||
+      !state.session ||
+      state.session.status !== "confirmed"
+    )
+      return false;
+    dispatch({ type: "busy", kind: "reopening" });
+    try {
+      const session = await reopenSessionReview({
+        sessionId: state.session.sessionId,
+        expectedConfirmedAt: state.session.confirmation.confirmedAt,
+        repositories: appRepositories,
+      });
+      dispatch({ type: "saved", session });
+      return true;
+    } catch (e) {
+      dispatch({ type: "failed", message: reviewMessage(e) });
+      return false;
+    }
+  };
+  const refreshSessionSnapshot = async (): Promise<boolean> => {
+    if (!id) return false;
+    try {
+      dispatch({ type: "loaded", ...(await loadSessionSnapshot(id)) });
+      return true;
+    } catch (e) {
+      dispatch({
+        type: "failed",
+        message:
+          e instanceof Error ? e.message : "Не удалось обновить данные сессии",
+      });
+      return false;
+    }
+  };
+  return {
+    state,
+    issues,
+    change,
+    save,
+    run,
+    confirmReview,
+    reopenReview,
+    refreshSessionSnapshot,
+  };
 }

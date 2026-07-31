@@ -11,7 +11,10 @@ import {
   markNoOfferForLine,
   selectOfferForLine,
 } from "../../../domain/matching/update-selection";
-import { clearFeedbackForLine, saveFeedbackForLine } from "../../../domain/matching/update-line-feedback";
+import {
+  clearFeedbackForLine,
+  saveFeedbackForLine,
+} from "../../../domain/matching/update-line-feedback";
 import { appRepositories } from "../../../storage/repositories";
 export type ResultFilter =
   | "all"
@@ -36,12 +39,15 @@ export function useMatchResultReview(input: {
   catalogs: readonly CatalogRecord[];
   run: MatchRunRecord;
   current: boolean;
+  writeLocked: boolean;
 }) {
   const [state, setState] = useState<MatchReviewState>({ kind: "loading" });
   const [filter, setFilterValue] = useState<ResultFilter>("all");
   const [query, setQueryValue] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [feedbackExpanded, setFeedbackExpandedState] = useState<Set<string>>(new Set());
+  const [feedbackExpanded, setFeedbackExpandedState] = useState<Set<string>>(
+    new Set(),
+  );
   const [limit, setLimit] = useState(50);
   useEffect(() => {
     let active = true;
@@ -116,8 +122,23 @@ export function useMatchResultReview(input: {
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
     });
-  async function perform(lineId: string, operation: (common: { sessionId: string; matchRunId: string; lineId: string; expectedSelectionRevision: number; repositories: typeof appRepositories }) => Promise<SelectionStateRecord>): Promise<boolean> {
-    if (!selection || state.kind === "saving" || !input.current) return false;
+  async function perform(
+    lineId: string,
+    operation: (common: {
+      sessionId: string;
+      matchRunId: string;
+      lineId: string;
+      expectedSelectionRevision: number;
+      repositories: typeof appRepositories;
+    }) => Promise<SelectionStateRecord>,
+  ): Promise<boolean> {
+    if (
+      !selection ||
+      state.kind === "saving" ||
+      !input.current ||
+      input.writeLocked
+    )
+      return false;
     setState({
       kind: "saving",
       selectionState: selection,
@@ -155,10 +176,12 @@ export function useMatchResultReview(input: {
       return false;
     }
   }
-  const selectOffer = (lineId: string, offerRef: OfferRef) => perform(lineId, (common) => selectOfferForLine({ ...common, offerRef }));
+  const selectOffer = (lineId: string, offerRef: OfferRef) =>
+    perform(lineId, (common) => selectOfferForLine({ ...common, offerRef }));
   const markNoOffer = async (lineId: string): Promise<boolean> => {
     const saved = await perform(lineId, markNoOfferForLine);
-    if (saved) setFeedbackExpandedState((current) => new Set(current).add(lineId));
+    if (saved)
+      setFeedbackExpandedState((current) => new Set(current).add(lineId));
     return saved;
   };
   const setFeedbackExpanded = (lineId: string, open: boolean) =>
@@ -167,9 +190,27 @@ export function useMatchResultReview(input: {
       open ? next.add(lineId) : next.delete(lineId);
       return next;
     });
-  const clearDecision = (lineId: string) => perform(lineId, clearDecisionForLine);
-  const saveFeedback = (lineId: string, feedback: LineFeedback) => perform(lineId, (common) => saveFeedbackForLine({ ...common, feedback }));
-  const clearFeedback = (lineId: string) => perform(lineId, clearFeedbackForLine);
+  const clearDecision = (lineId: string) =>
+    perform(lineId, clearDecisionForLine);
+  const saveFeedback = (lineId: string, feedback: LineFeedback) =>
+    perform(lineId, (common) => saveFeedbackForLine({ ...common, feedback }));
+  const clearFeedback = (lineId: string) =>
+    perform(lineId, clearFeedbackForLine);
+  const reloadSelectionState = async (): Promise<boolean> => {
+    try {
+      const fresh = await appRepositories.selectionStates.get(input.run.id);
+      if (!fresh) throw new Error("Решения для запуска не найдены");
+      setState({ kind: "ready", selectionState: fresh });
+      return true;
+    } catch (e) {
+      setState({
+        kind: "error",
+        selectionState: selection,
+        message: e instanceof Error ? e.message : "Не удалось обновить решения",
+      });
+      return false;
+    }
+  };
   return {
     state,
     view,
@@ -184,6 +225,11 @@ export function useMatchResultReview(input: {
     feedbackExpanded,
     setFeedbackExpanded,
     toggle,
-    selectOffer, markNoOffer, clearDecision, saveFeedback, clearFeedback,
+    selectOffer,
+    markNoOffer,
+    clearDecision,
+    saveFeedback,
+    clearFeedback,
+    reloadSelectionState,
   };
 }

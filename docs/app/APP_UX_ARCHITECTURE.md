@@ -47,3 +47,7 @@ The session page composes a dedicated result-review feature. Search, filters, ex
 Строка результата образует radio-группу из доступных candidates и отдельной карточки «Оставить строку без предложения»; решение можно снять. Сводка считает все строки, включая строки без candidates. Feedback раскрывается внутри строки, сохраняется только явным действием и не трактуется как положительная оценка при отсутствии записи. Picker правильного товара работает inline, локально ищет среди candidates/excluded и проверяет полный OfferRef.
 
 AI export включается только для актуального run при полном наборе решений и совпадающем fingerprint. B5a не добавляет состояние confirmed; final review и human export остаются B5b.
+
+# B5b final review UX
+
+После списка строк панель «Завершение проверки» показывает progress и counts, объясняет incomplete/stale состояние и открывает inline-подтверждение. После atomic confirm интерфейс показывает badge «Подтверждено», блокирует все matching/review controls и оставляет просмотр и AI JSON. Inline reopen предупреждает о смене статуса и возвращает редактирование без потери решений или feedback; browser modal не используется.

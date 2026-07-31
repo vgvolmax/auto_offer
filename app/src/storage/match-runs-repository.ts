@@ -6,6 +6,7 @@ import { createSelectionState } from "../domain/matching/selection-state";
 export class StaleMatchRunError extends Error {
   code = "STALE_MATCH_RUN" as const;
 }
+export class ConfirmedSessionWriteError extends Error { readonly code = "SESSION_CONFIRMED"; }
 export interface MatchRunRepository {
   get(id: string): Promise<MatchRunRecord | undefined>;
   getLatestForSession(sessionId: string): Promise<MatchRunRecord | undefined>;
@@ -45,6 +46,7 @@ export function createMatchRunsRepository(dependencies: {
       const stored = await tx.objectStore("sessions").get(input.sessionId);
       if (!stored) throw new Error("SESSION_NOT_FOUND");
       const session = normalizeSessionRecord(stored);
+      if (session.status === "confirmed") throw new ConfirmedSessionWriteError("Подтверждённый результат доступен только для просмотра");
       if (session.matchingRevision !== input.expectedSessionRevision)
         throw new StaleMatchRunError();
       const previous = session.latestMatchRunId;
