@@ -5,6 +5,8 @@ import type { LineFeedback } from "../matching/line-feedback";
 import type { LineDecision, SelectionStateRecord } from "../matching/selection-state";
 import type { RequestBundle, SessionRecord } from "../session";
 import type { SessionMatchingSettings } from "../matching/session-policy";
+import { equalOfferRefs } from "../matching/offer-ref";
+import { getAllowedRelatedOfferSource } from "../matching/line-feedback-validation";
 
 export type AiFeedbackExportErrorCode = "AI_EXPORT_NOT_CURRENT" | "AI_EXPORT_STATE_MISMATCH" | "AI_EXPORT_INCOMPLETE" | "AI_EXPORT_RESULT_INCONSISTENT";
 export class AiFeedbackExportError extends Error {
@@ -26,12 +28,35 @@ export function buildAiFeedbackExport(input: { session: SessionRecord; catalogs:
     throw new AiFeedbackExportError("Состояние не соответствует запуску", "AI_EXPORT_STATE_MISMATCH");
   const requestLines = session.requestBundle.request_document.lines;
   const ids = new Set(requestLines.map((line) => line.line_id));
+  if (ids.size !== requestLines.length)
+    throw new AiFeedbackExportError("Заявка содержит повторяющиеся строки", "AI_EXPORT_RESULT_INCONSISTENT");
   if (Object.keys(selectionState.decisions).some((id) => !ids.has(id)) || Object.keys(selectionState.feedback).some((id) => !ids.has(id)))
     throw new AiFeedbackExportError("Состояние содержит неизвестные строки", "AI_EXPORT_RESULT_INCONSISTENT");
-  const resultIds = new Set((run.result.lines as unknown[]).filter(object).map((line) => String(line.line_id)));
-  if (requestLines.some((line) => !resultIds.has(line.line_id))) throw new AiFeedbackExportError("Результат не содержит строку заявки", "AI_EXPORT_RESULT_INCONSISTENT");
+  const rawResultLines = run.result.lines as unknown[];
+  const validResultLines = rawResultLines.filter((line): line is Obj => object(line) && typeof line.line_id === "string");
+  const resultIds = new Set(validResultLines.map((line) => line.line_id as string));
+  if (validResultLines.length !== rawResultLines.length || resultIds.size !== rawResultLines.length || resultIds.size !== ids.size || [...resultIds].some((id) => !ids.has(id)) || requestLines.some((line) => !resultIds.has(line.line_id)))
+    throw new AiFeedbackExportError("Набор строк результата не соответствует заявке", "AI_EXPORT_RESULT_INCONSISTENT");
+  const resultById = new Map(validResultLines.map((line) => [line.line_id as string, line]));
   const missing = requestLines.filter((line) => !selectionState.decisions[line.line_id]).map((line) => line.line_id);
   if (missing.length) throw new AiFeedbackExportError("Не по всем строкам принято решение", "AI_EXPORT_INCOMPLETE", missing);
+  for (const requestLine of requestLines) {
+    const lineId = requestLine.line_id;
+    const resultLine = resultById.get(lineId)!;
+    const candidates = Array.isArray(resultLine.candidates) ? resultLine.candidates : [];
+    const excludedCandidates = Array.isArray(resultLine.excluded_candidates) ? resultLine.excluded_candidates : [];
+    const decision = selectionState.decisions[lineId] as LineDecision | undefined;
+    if (!decision || (decision.kind !== "selected_offer" && decision.kind !== "no_offer"))
+      throw new AiFeedbackExportError("Решение по строке повреждено", "AI_EXPORT_RESULT_INCONSISTENT");
+    if (decision.kind === "selected_offer") {
+      const decisionRef = ref(decision.offerRef);
+      const belongs = decisionRef && candidates.some((candidate) => object(candidate) && ref(candidate.offer_ref) && equalOfferRefs(ref(candidate.offer_ref)!, decisionRef));
+      if (!belongs) throw new AiFeedbackExportError("Выбранный товар не принадлежит строке", "AI_EXPORT_RESULT_INCONSISTENT");
+    }
+    const feedback = selectionState.feedback[lineId];
+    if (feedback?.relatedOfferRef && !getAllowedRelatedOfferSource({ outcome: feedback.outcome, relatedOfferRef: feedback.relatedOfferRef, candidates, excludedCandidates }))
+      throw new AiFeedbackExportError("Связанный товар обратной связи не принадлежит строке", "AI_EXPORT_RESULT_INCONSISTENT");
+  }
   const lines = requestLines.map(({ line_id }) => ({ line_id, decision: selectionState.decisions[line_id]!, ...(selectionState.feedback[line_id] && { feedback: selectionState.feedback[line_id] }) }));
   const refs = new Map<string, OfferRef>();
   for (const raw of run.result.lines as unknown[]) if (object(raw)) for (const list of [raw.candidates, raw.excluded_candidates]) for (const value of Array.isArray(list) ? list : []) { const offer = object(value) && ref(value.offer_ref); if (offer) refs.set(offerRefKey(offer), offer); }
