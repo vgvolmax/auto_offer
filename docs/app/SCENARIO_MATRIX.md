@@ -75,3 +75,17 @@
 | B4b candidate review | planned |
 | B4b manual selection | planned |
 | Export | planned |
+# B4b status
+
+| Capability | Status |
+| --- | --- |
+| Result line review | Implemented |
+| Candidate details | Implemented |
+| Checks and differences | Implemented |
+| Excluded candidate review | Implemented |
+| Manual candidate selection | Implemented |
+| Selection persistence | Implemented |
+| Final review | Planned |
+| Export | Planned |
+
+The full end-to-end workflow remains unverified until B5.

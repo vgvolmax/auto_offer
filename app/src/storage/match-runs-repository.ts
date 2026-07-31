@@ -2,6 +2,7 @@ import type { MatchResult } from "../domain/matching";
 import type { MatchRunRecord } from "../domain/matching/match-run";
 import { normalizeSessionRecord } from "../domain/session";
 import { getDatabase } from "./database";
+import { createSelectionState } from "../domain/matching/selection-state";
 export class StaleMatchRunError extends Error {
   code = "STALE_MATCH_RUN" as const;
 }
@@ -28,7 +29,7 @@ export const matchRunsRepository: MatchRunRepository = {
   },
   async saveLatest(input) {
     const db = await getDatabase();
-    const tx = db.transaction(["sessions", "matchRuns"], "readwrite");
+    const tx = db.transaction(["sessions", "matchRuns", "selectionStates"], "readwrite");
     try {
       const stored = await tx.objectStore("sessions").get(input.sessionId);
       if (!stored) throw new Error("SESSION_NOT_FOUND");
@@ -46,11 +47,14 @@ export const matchRunsRepository: MatchRunRepository = {
         result: input.result,
       };
       await tx.objectStore("matchRuns").put(record);
+      await tx.objectStore("selectionStates").put(createSelectionState(record));
       await tx
         .objectStore("sessions")
         .put({ ...session, latestMatchRunId: id, updatedAt: createdAt });
-      if (previous && previous !== id)
+      if (previous && previous !== id) {
+        await tx.objectStore("selectionStates").delete(previous);
         await tx.objectStore("matchRuns").delete(previous);
+      }
       await tx.done;
       return record;
     } catch (error) {

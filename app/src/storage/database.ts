@@ -2,6 +2,7 @@ import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type { CatalogRecord } from "../domain/catalog";
 import type { MatchRunRecord } from "../domain/matching/match-run";
 import type { StoredSessionRecord } from "../domain/session";
+import type { SelectionStateRecord } from "../domain/matching/selection-state";
 
 export interface AutoOfferDB extends DBSchema {
   catalogs: {
@@ -25,12 +26,13 @@ export interface AutoOfferDB extends DBSchema {
     value: MatchRunRecord;
     indexes: { "by-session": string };
   };
+  selectionStates: { key: string; value: SelectionStateRecord; indexes: { "by-session": string } };
 }
 let dbPromise: Promise<IDBPDatabase<AutoOfferDB>> | undefined;
 let dbInstance: IDBPDatabase<AutoOfferDB> | undefined;
 export const getDatabase = () => {
   if (!dbPromise)
-    dbPromise = openDB<AutoOfferDB>("auto-offer", 2, {
+    dbPromise = openDB<AutoOfferDB>("auto-offer", 3, {
       upgrade(db, oldVersion) {
         if (oldVersion < 1) {
           const catalogs = db.createObjectStore("catalogs", {
@@ -51,6 +53,10 @@ export const getDatabase = () => {
         if (oldVersion < 2) {
           const runs = db.createObjectStore("matchRuns", { keyPath: "id" });
           runs.createIndex("by-session", "sessionId");
+        }
+        if (oldVersion < 3) {
+          const selections = db.createObjectStore("selectionStates", { keyPath: "matchRunId" });
+          selections.createIndex("by-session", "sessionId");
         }
       },
     }).then((database) => {

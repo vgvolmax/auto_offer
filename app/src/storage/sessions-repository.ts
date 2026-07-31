@@ -26,14 +26,14 @@ export const sessionsRepository = {
   },
   async remove(id: string) {
     const db = await getDatabase();
-    const tx = db.transaction(["sessions", "matchRuns"], "readwrite");
+    const tx = db.transaction(["sessions", "matchRuns", "selectionStates"], "readwrite");
     const session = await tx.objectStore("sessions").get(id);
     if (session) {
       for (const key of await tx
         .objectStore("matchRuns")
         .index("by-session")
         .getAllKeys(id))
-        await tx.objectStore("matchRuns").delete(key);
+        { await tx.objectStore("selectionStates").delete(key); await tx.objectStore("matchRuns").delete(key); }
       await tx.objectStore("sessions").delete(id);
     }
     await tx.done;
