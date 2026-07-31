@@ -43,3 +43,6 @@
 ## Что делать при ошибке
 
 Запишите текст ошибки, название session, pilot release ID, session ID, match run ID, fingerprint и шаг, на котором возникла ошибка.
+# Полный автоматический gate
+
+Запустите `npm run test:pilot`. Canonical bundles и влияние `catalogPriority` проверяет `src/test/pilot/pilot-fixtures.test.ts`; workflow confirm/export/reload/reopen — `src/features/pilot/PilotWorkflow.test.tsx`; recovery, conflict и stale run — `src/features/sessions/SessionPage.pilot.test.tsx`; snapshot — `src/storage/catalog-snapshot.pilot.test.ts`; 500 строк и pagination — `src/features/pilot/PilotVolume.test.tsx`.

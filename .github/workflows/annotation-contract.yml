@@ -31,6 +31,8 @@ jobs:
         run: npm run test:annotation-golden
       - name: Run full test suite
         run: npm test
+      - name: Run pilot readiness gate
+        run: npm run test:pilot
       - name: Build browser app
         run: npm run app:build
       - name: Ensure generated contracts are committed

@@ -14,3 +14,6 @@
 Matcher и taxonomy заморожены на первую серию разметки. Изменение любой версии матрицы требует отдельного PR, а изменение поведения matcher-а — нового release ID. Старые AI exports не переписываются.
 
 Human final document не входит в Pilot 1.0. Pilot 1.0 предназначен для оценки качества подбора и сбора operator feedback и не является коммерческим production release.
+# Release readiness gate
+
+Release `auto-offer-pilot-1.0.0` считается зафиксированным только после успешного выполнения полного `npm run test:pilot`. Gate явно перечисляет canonical fixture, runtime diagnostics, сквозной workflow, recovery/conflict/stale сценарии, неизменяемый catalog snapshot и volume/pagination smoke.

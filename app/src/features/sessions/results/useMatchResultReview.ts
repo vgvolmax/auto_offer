@@ -25,6 +25,7 @@ export type ResultFilter =
   | "no_match"
   | "review_required"
   | "excluded_by_policy";
+export const MATCH_RESULTS_BATCH_SIZE = 50;
 export type MatchReviewState =
   | { kind: "loading" }
   | { kind: "ready"; selectionState: SelectionStateRecord }
@@ -48,7 +49,7 @@ export function useMatchResultReview(input: {
   const [feedbackExpanded, setFeedbackExpandedState] = useState<Set<string>>(
     new Set(),
   );
-  const [limit, setLimit] = useState(50);
+  const [limit, setLimit] = useState(MATCH_RESULTS_BATCH_SIZE);
   useEffect(() => {
     let active = true;
     setState({ kind: "loading" });
@@ -110,11 +111,11 @@ export function useMatchResultReview(input: {
   }, [view, filter, query]);
   const setFilter = (x: ResultFilter) => {
       setFilterValue(x);
-      setLimit(50);
+      setLimit(MATCH_RESULTS_BATCH_SIZE);
     },
     setQuery = (x: string) => {
       setQueryValue(x);
-      setLimit(50);
+      setLimit(MATCH_RESULTS_BATCH_SIZE);
     };
   const toggle = (id: string) =>
     setExpanded((s) => {
@@ -216,7 +217,7 @@ export function useMatchResultReview(input: {
     view,
     lines: filtered.slice(0, limit),
     hasMore: filtered.length > limit,
-    showMore: () => setLimit((x) => x + 50),
+    showMore: () => setLimit((x) => x + MATCH_RESULTS_BATCH_SIZE),
     filter,
     setFilter,
     query,
