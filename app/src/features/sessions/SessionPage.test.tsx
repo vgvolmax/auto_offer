@@ -136,6 +136,8 @@ describe("SessionPage B4a matching state", () => {
       const first = renderSession(session.sessionId);
       await user.click(await screen.findByRole("button", { name: "Запустить подбор" }));
       expect(await screen.findByText("Результаты подбора")).toBeVisible();
+      const firstRun = await appRepositories.matchRuns.getLatestForSession(session.sessionId);
+      expect(firstRun).toBeDefined();
       await user.click(await screen.findByRole("button", { name: /request-valve\.ball/ }));
       expect(screen.getByText("Синтетический кран шаровой")).toBeVisible();
       expect(screen.getAllByText(/Volmax/).some((element) => element.textContent?.includes("synthetic-valve.ball-1"))).toBe(true);
@@ -149,16 +151,24 @@ describe("SessionPage B4a matching state", () => {
       renderSession(session.sessionId);
       expect(await screen.findByText(/Выбрано 1 из 1/)).toBeVisible();
       expect(screen.queryByText("Выполняется подбор…")).not.toBeInTheDocument();
+      expect((await appRepositories.matchRuns.getLatestForSession(session.sessionId))?.id).toBe(firstRun?.id);
       await user.click(screen.getByRole("button", { name: /request-valve\.ball/ }));
       expect(screen.getByRole("radio", { name: "Выбрано" })).toBeChecked();
       await user.click(screen.getByRole("radio", { name: "Только точные" }));
       expect(screen.getByText(/Результат построен по другим настройкам/)).toBeVisible();
       expect(screen.getByRole("button", { name: "Снять выбор" })).toBeDisabled();
+      expect(screen.getByRole("radio", { name: "Выбрано" })).toBeDisabled();
+      await user.click(screen.getByText(/Совпало:/));
+      expect(screen.getByText("Все проверки")).toBeVisible();
       await user.click(screen.getByRole("radio", { name: "Все варианты, включая альтернативные" }));
       expect(screen.getByRole("button", { name: "Снять выбор" })).toBeEnabled();
       await user.click(screen.getByRole("radio", { name: "Только точные" }));
       await user.click(screen.getByRole("button", { name: "Запустить подбор" }));
       await waitFor(() => expect(screen.getByText(/Выбрано 0 из 1/)).toBeVisible());
+      const nextRun = await appRepositories.matchRuns.getLatestForSession(session.sessionId);
+      expect(nextRun?.id).not.toBe(firstRun?.id);
+      expect(await appRepositories.selectionStates.get(firstRun!.id)).toBeUndefined();
+      expect(await appRepositories.selectionStates.get(nextRun!.id)).toMatchObject({ revision: 0, decisions: {} });
       expect(screen.queryByText(/· Выбрано/)).not.toBeInTheDocument();
       expect(screen.getByRole("radio", { name: "Не выбрано" })).not.toBeChecked();
       for (const label of ["Экспортировать", "Скачать Excel", "Завершить сессию", "Создать заказ"])
