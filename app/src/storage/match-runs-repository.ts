@@ -16,7 +16,15 @@ export interface MatchRunRepository {
   }): Promise<MatchRunRecord>;
   deleteForSession(sessionId: string): Promise<void>;
 }
-export const matchRunsRepository: MatchRunRepository = {
+export function createMatchRunsRepository(dependencies: {
+  createId?: () => string;
+  now?: () => string;
+  createSelectionStateForRun?: typeof createSelectionState;
+} = {}): MatchRunRepository {
+  const createId = dependencies.createId ?? (() => crypto.randomUUID());
+  const now = dependencies.now ?? (() => new Date().toISOString());
+  const createSelectionStateForRun = dependencies.createSelectionStateForRun ?? createSelectionState;
+  return {
   async get(id) {
     return (await getDatabase()).get("matchRuns", id);
   },
@@ -40,8 +48,8 @@ export const matchRunsRepository: MatchRunRepository = {
       if (session.matchingRevision !== input.expectedSessionRevision)
         throw new StaleMatchRunError();
       const previous = session.latestMatchRunId;
-      const id = crypto.randomUUID();
-      const createdAt = new Date().toISOString();
+      const id = createId();
+      const createdAt = now();
       const record = {
         id,
         sessionId: input.sessionId,
@@ -50,7 +58,7 @@ export const matchRunsRepository: MatchRunRepository = {
         result: input.result,
       };
       await tx.objectStore("matchRuns").put(record);
-      await tx.objectStore("selectionStates").put(createSelectionState(record));
+      await tx.objectStore("selectionStates").put(createSelectionStateForRun(record));
       await tx
         .objectStore("sessions")
         .put({ ...session, latestMatchRunId: id, updatedAt: createdAt });
@@ -62,6 +70,7 @@ export const matchRunsRepository: MatchRunRepository = {
       return record;
     } catch (error) {
       tx.abort();
+      await tx.done.catch(() => undefined);
       throw error;
     }
   },
@@ -72,4 +81,6 @@ export const matchRunsRepository: MatchRunRepository = {
       await tx.store.delete(key);
     await tx.done;
   },
-};
+  };
+}
+export const matchRunsRepository = createMatchRunsRepository();

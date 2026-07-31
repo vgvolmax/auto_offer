@@ -124,4 +124,45 @@ describe("SessionPage B4a matching state", () => {
       ]);
     });
   });
+  it(
+    "persists a manual selection but starts empty after a new matcher run",
+    async () => {
+      const user = userEvent.setup();
+      const bundle = structuredClone(catalogFixture) as CatalogBundle;
+      (bundle.items[0] as any).catalog_item.identity.brand = "Volmax";
+      const catalog = createCatalogRecord(bundle);
+      const session = createDraftSession(request as any, [catalog], "B4b regression");
+      await appRepositories.catalogs.save(catalog); await appRepositories.sessions.save(session);
+      const first = renderSession(session.sessionId);
+      await user.click(await screen.findByRole("button", { name: "Запустить подбор" }));
+      expect(await screen.findByText("Результаты подбора")).toBeVisible();
+      await user.click(await screen.findByRole("button", { name: /request-valve\.ball/ }));
+      expect(screen.getByText("Синтетический кран шаровой")).toBeVisible();
+      expect(screen.getAllByText(/Volmax/).some((element) => element.textContent?.includes("synthetic-valve.ball-1"))).toBe(true);
+      expect(screen.getByText(/Рекомендуется/)).toBeVisible();
+      expect(screen.queryByText(/· Выбрано/)).not.toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Выбрать" }));
+      await waitFor(() => expect(screen.getByText(/Выбрано 1 из 1/)).toBeVisible());
+      expect(screen.getByRole("radio", { name: "Выбрано" })).toBeChecked();
+
+      first.unmount(); resetDatabaseConnection();
+      renderSession(session.sessionId);
+      expect(await screen.findByText(/Выбрано 1 из 1/)).toBeVisible();
+      expect(screen.queryByText("Выполняется подбор…")).not.toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: /request-valve\.ball/ }));
+      expect(screen.getByRole("radio", { name: "Выбрано" })).toBeChecked();
+      await user.click(screen.getByRole("radio", { name: "Только точные" }));
+      expect(screen.getByText(/Результат построен по другим настройкам/)).toBeVisible();
+      expect(screen.getByRole("button", { name: "Снять выбор" })).toBeDisabled();
+      await user.click(screen.getByRole("radio", { name: "Все варианты, включая альтернативные" }));
+      expect(screen.getByRole("button", { name: "Снять выбор" })).toBeEnabled();
+      await user.click(screen.getByRole("radio", { name: "Только точные" }));
+      await user.click(screen.getByRole("button", { name: "Запустить подбор" }));
+      await waitFor(() => expect(screen.getByText(/Выбрано 0 из 1/)).toBeVisible());
+      expect(screen.queryByText(/· Выбрано/)).not.toBeInTheDocument();
+      expect(screen.getByRole("radio", { name: "Не выбрано" })).not.toBeChecked();
+      for (const label of ["Экспортировать", "Скачать Excel", "Завершить сессию", "Создать заказ"])
+        expect(screen.queryByText(label)).not.toBeInTheDocument();
+    },
+  );
 });
