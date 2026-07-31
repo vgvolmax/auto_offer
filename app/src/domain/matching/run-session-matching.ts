@@ -17,7 +17,10 @@ import {
   PILOT_MATCHING_ENGINE_VERSION,
   pilotPolicyRegistry,
 } from "./pilot-config";
-import { StaleMatchRunError } from "../../storage/match-runs-repository";
+import {
+  ConfirmedSessionWriteError,
+  StaleMatchRunError,
+} from "../../storage/match-runs-repository";
 import { SessionSettingsWriteError } from "../../storage/sessions-repository";
 export type SessionMatchingErrorCode =
   | "SESSION_NOT_FOUND"
@@ -119,6 +122,18 @@ export async function runSessionMatching(input: {
     } as unknown as MatcherInput);
   } catch (error) {
     if (
+      error instanceof ConfirmedSessionWriteError ||
+      (error instanceof Error &&
+        "code" in error &&
+        error.code === "SESSION_CONFIRMED")
+    )
+      throw new SessionMatchingError(
+        "Результат уже подтверждён и доступен только для просмотра.",
+        "SESSION_CONFIRMED",
+        undefined,
+        { cause: error },
+      );
+    if (
       error instanceof Error &&
       "code" in error &&
       error.code === "SESSION_CONFIRMED"
@@ -153,6 +168,18 @@ export async function runSessionMatching(input: {
     };
     return { session, runRecord, summary: summarizeMatchResult(result) };
   } catch (error) {
+    if (
+      error instanceof ConfirmedSessionWriteError ||
+      (error instanceof Error &&
+        "code" in error &&
+        error.code === "SESSION_CONFIRMED")
+    )
+      throw new SessionMatchingError(
+        "Результат уже подтверждён и доступен только для просмотра.",
+        "SESSION_CONFIRMED",
+        undefined,
+        { cause: error },
+      );
     if (
       error instanceof StaleMatchRunError ||
       (error instanceof Error &&

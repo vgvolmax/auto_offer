@@ -52,4 +52,23 @@ describe("AI feedback export", () => {
     const feedback = fixture(); feedback.selectionState.feedback.unknown = { comment: "x" };
     expect(() => buildAiFeedbackExport(feedback)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
   });
+  it("exports an immutable confirmed snapshot even when the live run is not current", () => {
+    const input: any = fixture();
+    input.session.status = "confirmed";
+    input.session.confirmation = { matchRunId: "run", inputFingerprint: "fingerprint", matchingRevision: 2, selectionStateRevision: 1, lineCount: 1, selectedOfferCount: 0, noOfferCount: 1, feedbackCount: 0, confirmedAt: "2026-07-31T09:00:00.000Z" };
+    input.current = false;
+    const before = structuredClone(input);
+    const output = buildAiFeedbackExport(input);
+    expect(output).toMatchObject({ schema_version: "1.1.0", session: { status: "confirmed", confirmation: expect.any(Object) } });
+    expect(output.session.confirmation).not.toBe(input.session.confirmation);
+    expect(output.referenced_catalog_items).toEqual([expect.objectContaining({ missing: true })]);
+    expect(input).toEqual(before);
+  });
+  it.each(["selectionStateRevision", "matchRunId", "lineCount"])("rejects confirmed snapshots with wrong %s", (field) => {
+    const input: any = fixture();
+    input.session.status = "confirmed";
+    input.session.confirmation = { matchRunId: "run", inputFingerprint: "fingerprint", matchingRevision: 2, selectionStateRevision: 1, lineCount: 1, selectedOfferCount: 0, noOfferCount: 1, feedbackCount: 0, confirmedAt: "2026-07-31T09:00:00.000Z", [field]: "matchRunId" === field ? "other" : 999 };
+    input.current = false;
+    expect(() => buildAiFeedbackExport(input)).toThrow(expect.objectContaining({ code: "AI_EXPORT_STATE_MISMATCH" }));
+  });
 });

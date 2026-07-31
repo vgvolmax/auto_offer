@@ -31,10 +31,11 @@ export function MatchResultsPanel(input: {
   }) => Promise<ConfirmReviewResult>;
   onReopen: () => Promise<boolean>;
   onRefreshSessionSnapshot: () => Promise<boolean>;
+  reviewRefreshing: boolean;
+  onReviewRefreshingChange: (value: boolean) => void;
 }) {
-  const [refreshingAfterConflict, setRefreshingAfterConflict] = useState(false);
   const transitionBusy =
-    input.confirming || input.reopening || refreshingAfterConflict;
+    input.confirming || input.reopening || input.reviewRefreshing;
   const writeLocked = input.locked || transitionBusy;
   const review = useMatchResultReview({ ...input, writeLocked });
   const [exportStatus, setExportStatus] = useState<ExportStatus>({
@@ -79,17 +80,20 @@ export function MatchResultsPanel(input: {
       setReviewError(result.message);
       return false;
     }
-    setRefreshingAfterConflict(true);
-    const [snapshotOk, selectionOk] = await Promise.all([
-      input.onRefreshSessionSnapshot(),
-      review.reloadSelectionState(),
-    ]);
-    setRefreshingAfterConflict(false);
-    setReviewError(
-      snapshotOk && selectionOk
-        ? "Решения изменились в другой вкладке. Данные обновлены — проверьте результат ещё раз."
-        : "Решения изменились в другой вкладке, но обновить данные не удалось. Перезагрузите страницу.",
-    );
+    input.onReviewRefreshingChange(true);
+    try {
+      const [snapshotOk, selectionOk] = await Promise.all([
+        input.onRefreshSessionSnapshot(),
+        review.reloadSelectionState(),
+      ]);
+      setReviewError(
+        snapshotOk && selectionOk
+          ? "Решения изменились в другой вкладке. Данные обновлены — проверьте результат ещё раз."
+          : "Решения изменились в другой вкладке, но обновить данные не удалось. Перезагрузите страницу.",
+      );
+    } finally {
+      input.onReviewRefreshingChange(false);
+    }
     return false;
   };
   return (
@@ -224,7 +228,7 @@ export function MatchResultsPanel(input: {
           summary={review.view}
           selectionStateRevision={selectionRevision}
           busy={
-            refreshingAfterConflict
+            input.reviewRefreshing
               ? "refreshing"
               : busy
                 ? "saving"

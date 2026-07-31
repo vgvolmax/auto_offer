@@ -13,6 +13,7 @@ import { appRepositories } from "../../storage/repositories";
 import { resetDatabaseConnection } from "../../storage/database";
 import { runSessionMatching } from "./run-session-matching";
 import type { MatchResult } from "./index";
+import { ConfirmedSessionWriteError } from "../../storage/match-runs-repository";
 describe("B4a session matching", () => {
   beforeEach(async () => {
     resetDatabaseConnection();
@@ -100,5 +101,34 @@ describe("B4a session matching", () => {
     expect(
       await appRepositories.matchRuns.getLatestForSession(session.sessionId),
     ).toEqual(second.runRecord);
+  });
+  it("reports confirmation that races with persisting a completed matcher run", async () => {
+    const c = createCatalogRecord(catalog as any);
+    const session = createDraftSession(request as any, [c], "concurrent");
+    await appRepositories.catalogs.save(c);
+    await appRepositories.sessions.save(session);
+    const saveLatest = vi.fn().mockRejectedValue(
+      new ConfirmedSessionWriteError(
+        "Подтверждённый результат доступен только для просмотра",
+      ),
+    );
+    const operation = runSessionMatching({
+      sessionId: session.sessionId,
+      settings: session.matchingSettings,
+      repositories: {
+        ...appRepositories,
+        matchRuns: { ...appRepositories.matchRuns, saveLatest },
+      },
+      runMatcher: vi.fn().mockResolvedValue(expected as unknown as MatchResult),
+    });
+
+    await expect(operation).rejects.toMatchObject({
+      code: "SESSION_CONFIRMED",
+      message: expect.stringMatching(/подтверждён/i),
+    });
+    await expect(operation).rejects.not.toMatchObject({
+      code: "MATCH_RUN_PERSIST_FAILED",
+    });
+    expect(saveLatest).toHaveBeenCalledOnce();
   });
 });
