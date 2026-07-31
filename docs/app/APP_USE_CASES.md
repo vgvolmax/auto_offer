@@ -615,3 +615,7 @@
 | E1 | UI в будущем читает resolution и structured checks без скрытого score. |
 | E3 | UI в будущем отдельно показывает excluded candidates и причины policy. |
 | E4 | Ручной выбор в будущем сохраняется в SelectionState, не в MatchResult. |
+
+## B4a — session matching (implemented)
+
+Настройка policy, запуск matcher из draft-сессии, сохранение последнего `MatchResult` и derived summary реализованы. Просмотр кандидатов, ручной выбор и экспорт остаются planned.

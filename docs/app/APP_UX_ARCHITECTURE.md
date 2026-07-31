@@ -35,3 +35,7 @@
 ## Доступность и визуальный язык
 
 Спокойный рабочий интерфейс использует системный шрифт, минимальную высоту контролов 40 px, контрастные поверхности и единый focus ring. Все основные потоки доступны клавиатурой, динамические сообщения объявляются через `aria-live`, модальные поверхности имеют доступные названия, а reduced-motion отключает движение.
+
+## B4a matching workspace
+
+Draft route содержит неизменяемые источники, focused policy form (match level, needs_review, catalog priority и brand policy) и сводку последнего запуска. Application hook управляет явными состояниями loading/clean/dirty/saving/running/current/stale/error. Candidate review, manual selection и export planned и на этом экране отсутствуют.
