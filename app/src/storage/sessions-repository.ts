@@ -20,8 +20,7 @@ export const sessionsRepository = {
   },
   async countUsingCatalog(id: string) {
     return (await this.all()).filter(
-      (session) =>
-        session.status === "draft" && session.catalogRecordIds.includes(id),
+      (session) => session.catalogRecordIds.includes(id),
     ).length;
   },
   async remove(id: string) {

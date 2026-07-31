@@ -50,10 +50,10 @@
 | E8 | planned | — | — | — | 23 |
 | E9 | planned | — | — | — | 23 |
 | E10 | planned | — | — | — | 23 |
-| F1 | planned | — | — | — | 23 |
-| F2 | planned | — | — | — | 23 |
-| F3 | planned | — | — | — | 23 |
-| F4 | planned | — | — | — | 23 |
+| F1 | verified | B5b | automated | completed-review validator and UI flow | 23 |
+| F2 | verified | B5b | automated | integrity validation | 23 |
+| F3 | verified | B5b | automated | atomic confirmation | 23 |
+| F4 | verified | B5b | automated | lossless reopen | 23 |
 | G1 | planned | — | — | — | 23 |
 | G2 | planned | — | — | — | 23 |
 | G3 | planned | — | — | — | 23 |
@@ -85,8 +85,8 @@
 | Excluded candidate review | Implemented |
 | Manual candidate selection | Implemented |
 | Selection persistence | Implemented |
-| Final review | Planned |
-| Export | Planned |
+| Final review | Verified (B5b) |
+| AI feedback export | Verified; human export planned |
 
 The full end-to-end workflow remains unverified until B5.
 # B5a scenarios
@@ -97,4 +97,9 @@ The full end-to-end workflow remains unverified until B5.
 | Необязательные outcome/cause, comment и related OfferRef | Реализовано независимо от decision |
 | Восстановление решений и feedback из IndexedDB | Реализовано |
 | AI JSON после обработки всех строк текущего run | Реализовано |
-| Финальное подтверждение и human export | Planned: B5b |
+
+# B5b final review
+
+F1–F4 verified: end-to-end review workflow завершён. B5a AI feedback export verified в составе полного flow и поддерживает draft/confirmed snapshots. AI JSON не является основным человеческим итоговым документом; human export (G1–G4) остаётся отдельным будущим PR. Полная pilot readiness всё ещё требует B6.
+| Финальное подтверждение | Verified: B5b |
+| Human export | Planned: future PR |

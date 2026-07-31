@@ -25,7 +25,8 @@ export type SessionMatchingErrorCode =
   | "INVALID_MATCHING_SETTINGS"
   | "MATCHING_INPUT_INVALID"
   | "STALE_MATCH_RUN"
-  | "MATCH_RUN_PERSIST_FAILED";
+  | "MATCH_RUN_PERSIST_FAILED"
+  | "SESSION_CONFIRMED";
 export class SessionMatchingError extends Error {
   constructor(
     message: string,
@@ -50,6 +51,8 @@ export async function saveSessionMatchingSettings(input: {
   const session = await input.repositories.sessions.get(input.sessionId);
   if (!session)
     throw new SessionMatchingError("Сессия не найдена", "SESSION_NOT_FOUND");
+  if (session.status === "confirmed")
+    throw new SessionMatchingError("Подтверждённый результат доступен только для просмотра", "SESSION_CONFIRMED");
   const issue = validateSessionMatchingSettings(
     input.settings,
     session.catalogRecordIds,

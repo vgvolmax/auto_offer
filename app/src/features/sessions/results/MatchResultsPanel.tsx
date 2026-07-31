@@ -7,12 +7,19 @@ import { useMatchResultReview } from "./useMatchResultReview";
 import { buildAiFeedbackExport } from "../../../domain/export/ai-feedback-export";
 import { createAiFeedbackFilename, downloadAiFeedback } from "./download-ai-feedback";
 import { useEffect, useState } from "react";
+import { SessionReviewPanel } from "../review/SessionReviewPanel";
 type ExportStatus = { kind: "idle" } | { kind: "success" } | { kind: "error"; message: string };
 export function MatchResultsPanel(input: {
   session: SessionRecord;
   catalogs: readonly CatalogRecord[];
   run: MatchRunRecord;
   current: boolean;
+  locked: boolean;
+  confirming: boolean;
+  reopening: boolean;
+  error?: string;
+  onConfirm: (input: { matchRunId: string; expectedSelectionRevision: number }) => Promise<boolean>;
+  onReopen: () => Promise<boolean>;
 }) {
   const review = useMatchResultReview(input);
   const [exportStatus, setExportStatus] = useState<ExportStatus>({ kind: "idle" });
@@ -41,7 +48,7 @@ export function MatchResultsPanel(input: {
       <p>
         Обработано {review.view.decidedCount} из {review.view.lineCount} · выбрано товаров {review.view.selectedCount} · без предложения {review.view.noOfferCount} · осталось {review.view.undecidedCount}
       </p>
-      {!input.current && (
+      {input.locked ? <p className="warning-text">Это зафиксированный результат. Решения и обратная связь доступны только для просмотра.</p> : !input.current && (
         <p className="warning-text">
           Результат построен по другим настройкам. Решения сохранены, но
           редактирование недоступно. Верните настройки или запустите подбор
@@ -52,7 +59,7 @@ export function MatchResultsPanel(input: {
         <p role="alert">{review.state.message}</p>
       )}
       <section className="ai-export"><h3>Экспорт для улучшения системы</h3><p>JSON содержит исходную заявку, результат подбора, решения оператора и необязательную обратную связь.</p>
-        <button disabled={!input.current || review.view.undecidedCount > 0 || busy || review.state.kind === "error"} onClick={() => {
+        <button disabled={(input.session.status === "draft" && !input.current) || review.view.undecidedCount > 0 || busy || input.confirming || input.reopening || review.state.kind === "error"} onClick={() => {
           setExportStatus({ kind: "idle" });
           const selectionState = "selectionState" in review.state ? review.state.selectionState : undefined;
           if (!selectionState) return;
@@ -65,7 +72,7 @@ export function MatchResultsPanel(input: {
             setExportStatus({ kind: "error", message: "Не удалось подготовить JSON-файл. Проверьте решения по строкам и повторите попытку." });
           }
         }}>Скачать JSON для анализа ИИ</button>
-        {!input.current ? <p>Экспорт доступен только для текущего результата подбора.</p> : review.view.undecidedCount > 0 ? <p>Для экспорта примите решение ещё по {review.view.undecidedCount} строкам.</p> : null}{exportStatus.kind === "success" && <p role="status">JSON-файл подготовлен</p>}{exportStatus.kind === "error" && <p role="alert">{exportStatus.message}</p>}
+        {input.session.status === "draft" && !input.current ? <p>Экспорт доступен только для текущего результата подбора.</p> : review.view.undecidedCount > 0 ? <p>Для экспорта примите решение ещё по {review.view.undecidedCount} строкам.</p> : null}{exportStatus.kind === "success" && <p role="status">JSON-файл подготовлен</p>}{exportStatus.kind === "error" && <p role="alert">{exportStatus.message}</p>}
       </section>
       <MatchResultsToolbar
         query={review.query}
@@ -79,7 +86,7 @@ export function MatchResultsPanel(input: {
           line={line}
           expanded={review.expanded.has(line.lineId)}
           feedbackOpen={review.feedbackExpanded.has(line.lineId)}
-          disabled={!input.current || busy}
+          disabled={!input.current || input.locked || busy}
           saving={
             busy &&
             review.state.kind === "saving" &&
@@ -99,6 +106,7 @@ export function MatchResultsPanel(input: {
       {review.hasMore && (
         <button onClick={review.showMore}>Показать ещё</button>
       )}
+      {selectionRevision !== undefined && <SessionReviewPanel session={input.session} run={input.run} current={input.current} summary={review.view} selectionStateRevision={selectionRevision} busy={input.confirming ? "confirming" : input.reopening ? "reopening" : undefined} error={input.error} onConfirm={input.onConfirm} onReopen={input.onReopen} />}
     </section>
   );
 }

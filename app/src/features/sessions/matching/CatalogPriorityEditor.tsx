@@ -3,10 +3,12 @@ export function CatalogPriorityEditor({
   ids,
   catalogs,
   onChange,
+  locked,
 }: {
   ids: string[];
   catalogs: CatalogRecord[];
   onChange: (ids: string[]) => void;
+  locked: boolean;
 }) {
   const move = (i: number, d: number) => {
     const next = [...ids],
@@ -15,7 +17,7 @@ export function CatalogPriorityEditor({
     onChange(next);
   };
   return (
-    <fieldset>
+    <fieldset disabled={locked}>
       <legend>Приоритет каталогов</legend>
       {ids.map((id, i) => (
         <div className="policy-row" key={id}>

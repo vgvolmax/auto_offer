@@ -46,7 +46,8 @@ export type SelectionErrorCode =
   | "CANDIDATE_NOT_FOUND"
   | "CANDIDATE_NOT_SELECTABLE"
   | "STALE_SELECTION_STATE"
-  | "SELECTION_PERSIST_FAILED";
+  | "SELECTION_PERSIST_FAILED"
+  | "SESSION_CONFIRMED";
 
 export class SelectionError extends Error {
   constructor(

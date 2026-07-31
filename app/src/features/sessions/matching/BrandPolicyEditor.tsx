@@ -3,10 +3,12 @@ export function BrandPolicyEditor({
   brands,
   available,
   onChange,
+  locked,
 }: {
   brands: SessionMatchingSettings["brands"];
   available: string[];
   onChange: (v: SessionMatchingSettings["brands"]) => void;
+  locked: boolean;
 }) {
   const all = [
     ...new Set([
@@ -45,7 +47,7 @@ export function BrandPolicyEditor({
     onChange({ ...brands, preferred });
   };
   return (
-    <fieldset>
+    <fieldset disabled={locked}>
       <legend>Правила брендов</legend>
       {all.length === 0 && <p>В каталогах нет известных брендов.</p>}
       {all.map((brand) => {

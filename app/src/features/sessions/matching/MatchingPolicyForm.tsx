@@ -14,6 +14,7 @@ export function MatchingPolicyForm({
   onChange,
   onSave,
   onRun,
+  locked,
 }: {
   settings: SessionMatchingSettings;
   catalogs: CatalogRecord[];
@@ -22,6 +23,7 @@ export function MatchingPolicyForm({
   onChange: (s: SessionMatchingSettings) => void;
   onSave: () => void;
   onRun: () => void;
+  locked: boolean;
 }) {
   const busy = state === "saving" || state === "running";
   const dirty = state === "ready-dirty";
@@ -32,7 +34,8 @@ export function MatchingPolicyForm({
   return (
     <section className="card">
       <h2>Настройка правил подбора</h2>
-      <fieldset>
+      {locked && <p className="warning-text">Результат подтверждён. Верните его к редактированию, чтобы изменить правила или запустить подбор заново.</p>}
+      <fieldset disabled={locked}>
         <legend>Максимальный уровень подбора</legend>
         {[
           ["exact", "Только точные"],
@@ -60,7 +63,7 @@ export function MatchingPolicyForm({
           автоматически.
         </p>
       </fieldset>
-      <fieldset>
+      <fieldset disabled={locked}>
         <legend>Товары needs_review</legend>
         <label className="inline-check">
           <input
@@ -86,6 +89,7 @@ export function MatchingPolicyForm({
         </label>
       </fieldset>
       <CatalogPriorityEditor
+        locked={locked}
         ids={settings.catalogPriority}
         catalogs={catalogs}
         onChange={(catalogPriority) =>
@@ -93,6 +97,7 @@ export function MatchingPolicyForm({
         }
       />
       <BrandPolicyEditor
+        locked={locked}
         brands={settings.brands}
         available={collectAvailableBrandIds(catalogs)}
         onChange={(brands) => onChange({ ...settings, brands })}
@@ -105,14 +110,14 @@ export function MatchingPolicyForm({
       <div className="actions">
         <button
           className="button button--secondary"
-          disabled={!dirty || issues.length > 0 || busy}
+          disabled={locked || !dirty || issues.length > 0 || busy}
           onClick={onSave}
         >
           {state === "saving" ? "Сохранение…" : "Сохранить настройки"}
         </button>
         <button
           className="button"
-          disabled={busy || issues.length > 0}
+          disabled={locked || busy || issues.length > 0}
           onClick={onRun}
         >
           {state === "running" ? "Выполняется подбор…" : "Запустить подбор"}
