@@ -5,9 +5,12 @@ import { MatchingPolicyForm } from "./matching/MatchingPolicyForm";
 import { MatchRunSummaryView } from "./matching/MatchRunSummary";
 import { useSessionMatching } from "./matching/useSessionMatching";
 import { MatchResultsPanel } from "./results/MatchResultsPanel";
+import { useEffect, useState } from "react";
 export function SessionPage() {
   const { id } = useParams(),
     matching = useSessionMatching(id);
+  const [reviewRefreshing, setReviewRefreshing] = useState(false);
+  useEffect(() => setReviewRefreshing(false), [id]);
   if (matching.state.kind === "loading")
     return <p role="status">Открываем черновик…</p>;
   if (!matching.state.session)
@@ -57,6 +60,7 @@ export function SessionPage() {
         onSave={matching.save}
         onRun={matching.run}
         locked={session.status === "confirmed"}
+        externalBusy={reviewRefreshing}
       />
       {run && <MatchRunSummaryView run={run} current={current} />}{" "}
       {run && (
@@ -74,6 +78,8 @@ export function SessionPage() {
           onConfirm={matching.confirmReview}
           onReopen={matching.reopenReview}
           onRefreshSessionSnapshot={matching.refreshSessionSnapshot}
+          reviewRefreshing={reviewRefreshing}
+          onReviewRefreshingChange={setReviewRefreshing}
         />
       )}
       {matching.state.kind === "error" && (

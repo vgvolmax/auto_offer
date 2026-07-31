@@ -15,6 +15,7 @@ export function MatchingPolicyForm({
   onSave,
   onRun,
   locked,
+  externalBusy,
 }: {
   settings: SessionMatchingSettings;
   catalogs: CatalogRecord[];
@@ -24,8 +25,11 @@ export function MatchingPolicyForm({
   onSave: () => void;
   onRun: () => void;
   locked: boolean;
+  externalBusy: boolean;
 }) {
-  const busy = ["saving", "running", "confirming", "reopening"].includes(state);
+  const busy =
+    externalBusy ||
+    ["saving", "running", "confirming", "reopening"].includes(state);
   const interactionDisabled = locked || busy;
   const dirty = state === "ready-dirty";
   const clean =
@@ -128,7 +132,11 @@ export function MatchingPolicyForm({
         >
           {state === "running" ? "Выполняется подбор…" : "Запустить подбор"}
         </button>
-        {busy && <span role="status">Подождите…</span>}
+        {busy && (
+          <span role="status">
+            {externalBusy ? "Обновляем данные…" : "Подождите…"}
+          </span>
+        )}
         {clean && <span>Сохранено</span>}
       </div>
     </section>
