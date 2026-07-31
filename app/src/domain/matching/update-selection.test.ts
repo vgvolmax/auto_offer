@@ -6,7 +6,7 @@ import { createCatalogRecord, type CatalogBundle } from "../catalog";
 import { createDraftSession } from "../session";
 import { appRepositories } from "../../storage/repositories";
 import { resetDatabaseConnection } from "../../storage/database";
-import { clearDecisionForLine, selectOfferForLine } from "./update-selection";
+import { clearDecisionForLine, markNoOfferForLine, selectOfferForLine } from "./update-selection";
 import { runSessionMatching } from "./run-session-matching";
 import { getDatabase } from "../../storage/database";
 
@@ -60,4 +60,32 @@ describe("selection application service", () => {
       await expect(select(original.line_id, refs[0], 4)).rejects.toMatchObject({ code: "MATCH_RUN_STALE" });
     },
   );
+  it("persists no-offer idempotently and preserves feedback across decision transitions", async () => {
+    const catalog = createCatalogRecord(catalogFixture as CatalogBundle);
+    const session = createDraftSession(request as any, [catalog], "no-offer");
+    await appRepositories.catalogs.save(catalog);
+    await appRepositories.sessions.save(session);
+    const generated = await runSessionMatching({ sessionId: session.sessionId, settings: session.matchingSettings, repositories: appRepositories });
+    const run = generated.runRecord;
+    const line = run.result.lines[0] as any;
+    const offerRef = line.candidates[0].offer_ref;
+    const initial = await appRepositories.selectionStates.getOrCreateForRun(run);
+    const withFeedback = await appRepositories.selectionStates.saveFeedback({
+      sessionId: session.sessionId, matchRunId: run.id, lineId: line.line_id,
+      expectedRevision: initial.revision, feedback: { comment: "сохранить" },
+    });
+    const selected = await selectOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId: line.line_id, offerRef, expectedSelectionRevision: withFeedback.revision, repositories: appRepositories });
+    const noOffer = await markNoOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId: line.line_id, expectedSelectionRevision: selected.revision, repositories: appRepositories });
+    expect(noOffer.decisions[line.line_id]).toMatchObject({ kind: "no_offer" });
+    expect(noOffer.feedback[line.line_id]).toEqual({ comment: "сохранить" });
+
+    const repeated = await markNoOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId: line.line_id, expectedSelectionRevision: selected.revision, repositories: appRepositories });
+    expect(repeated.revision).toBe(noOffer.revision);
+    expect(repeated.decisions[line.line_id].confirmedAt).toBe(noOffer.decisions[line.line_id].confirmedAt);
+
+    const selectedAgain = await selectOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId: line.line_id, offerRef, expectedSelectionRevision: noOffer.revision, repositories: appRepositories });
+    expect(selectedAgain.decisions[line.line_id]).toMatchObject({ kind: "selected_offer", offerRef });
+    expect(selectedAgain.feedback[line.line_id]).toEqual({ comment: "сохранить" });
+    await expect(markNoOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId: line.line_id, expectedSelectionRevision: noOffer.revision, repositories: appRepositories })).rejects.toMatchObject({ code: "STALE_SELECTION_STATE" });
+  });
 });
