@@ -26,7 +26,11 @@ export interface AutoOfferDB extends DBSchema {
     value: MatchRunRecord;
     indexes: { "by-session": string };
   };
-  selectionStates: { key: string; value: SelectionStateRecord; indexes: { "by-session": string } };
+  selectionStates: {
+    key: string;
+    value: SelectionStateRecord;
+    indexes: { "by-session": string };
+  };
 }
 let dbPromise: Promise<IDBPDatabase<AutoOfferDB>> | undefined;
 let dbInstance: IDBPDatabase<AutoOfferDB> | undefined;
@@ -55,7 +59,9 @@ export const getDatabase = () => {
           runs.createIndex("by-session", "sessionId");
         }
         if (oldVersion < 3) {
-          const selections = db.createObjectStore("selectionStates", { keyPath: "matchRunId" });
+          const selections = db.createObjectStore("selectionStates", {
+            keyPath: "matchRunId",
+          });
           selections.createIndex("by-session", "sessionId");
         }
       },

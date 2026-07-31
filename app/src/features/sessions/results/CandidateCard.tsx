@@ -1,2 +1,57 @@
-import { getMatchLevelLabel } from "../../../domain/matching/match-result-labels";import type { CandidateReviewView } from "../../../domain/matching/match-result-review";import { CandidateChecks } from "./CandidateChecks";
-export function CandidateCard({candidate,lineId,disabled,onSelect,onClear}:{candidate:CandidateReviewView;lineId:string;disabled:boolean;onSelect:()=>void;onClear:()=>void}){return <article className="candidate-card"><h4>{candidate.productLabel}</h4><p>{candidate.sourceItemId} · {candidate.offerRef.catalog_id}{candidate.brand&&` · ${candidate.brand}`}</p><p>{getMatchLevelLabel(candidate.matchLevel)} · {candidate.availability}{candidate.suggested&&<strong> · Рекомендуется</strong>}{candidate.selected&&<strong> · Выбрано</strong>}</p>{candidate.availability==="manual_only"&&<p>Каталог требует ручной проверки</p>}<label><input type="radio" name={`selection-${lineId}`} checked={candidate.selected} disabled={disabled||!candidate.selectable} readOnly/> {candidate.selected?"Выбрано":"Не выбрано"}</label> {candidate.selected?<button disabled={disabled} onClick={onClear}>Снять выбор</button>:<button disabled={disabled||!candidate.selectable} onClick={onSelect}>Выбрать</button>}<CandidateChecks checks={candidate.checks} differences={candidate.differences}/></article>}
+import { getMatchLevelLabel } from "../../../domain/matching/match-result-labels";
+import type { CandidateReviewView } from "../../../domain/matching/match-result-review";
+import { CandidateChecks } from "./CandidateChecks";
+export function CandidateCard({
+  candidate,
+  lineId,
+  disabled,
+  onSelect,
+  onClear,
+}: {
+  candidate: CandidateReviewView;
+  lineId: string;
+  disabled: boolean;
+  onSelect: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <article className="candidate-card">
+      <h4>{candidate.productLabel}</h4>
+      <p>
+        {candidate.sourceItemId} · {candidate.offerRef.catalog_id}
+        {candidate.brand && ` · ${candidate.brand}`}
+      </p>
+      <p>
+        {getMatchLevelLabel(candidate.matchLevel)} · {candidate.availability}
+        {candidate.suggested && <strong> · Рекомендуется</strong>}
+        {candidate.selected && <strong> · Выбрано</strong>}
+      </p>
+      {candidate.availability === "manual_only" && (
+        <p>Каталог требует ручной проверки</p>
+      )}
+      <label>
+        <input
+          type="radio"
+          name={`selection-${lineId}`}
+          checked={candidate.selected}
+          disabled={disabled || !candidate.selectable}
+          readOnly
+        />{" "}
+        {candidate.selected ? "Выбрано" : "Не выбрано"}
+      </label>{" "}
+      {candidate.selected ? (
+        <button disabled={disabled} onClick={onClear}>
+          Снять выбор
+        </button>
+      ) : (
+        <button disabled={disabled || !candidate.selectable} onClick={onSelect}>
+          Выбрать
+        </button>
+      )}
+      <CandidateChecks
+        checks={candidate.checks}
+        differences={candidate.differences}
+      />
+    </article>
+  );
+}

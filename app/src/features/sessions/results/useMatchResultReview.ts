@@ -1,15 +1,164 @@
 import { useEffect, useMemo, useState } from "react";
-import type { CatalogRecord } from "../../../domain/catalog"; import type { SessionRecord } from "../../../domain/session"; import type { MatchRunRecord } from "../../../domain/matching/match-run";
-import { buildMatchResultReviewView } from "../../../domain/matching/match-result-review"; import type { OfferRef } from "../../../domain/matching/offer-ref"; import type { SelectionStateRecord } from "../../../domain/matching/selection-state";
-import { clearOfferForLine, selectOfferForLine } from "../../../domain/matching/update-selection"; import { appRepositories } from "../../../storage/repositories";
-export type ResultFilter="all"|"unresolved"|"selected"|"no_match"|"review_required"|"excluded_by_policy";
-export type MatchReviewState={kind:"loading"}|{kind:"ready";selectionState:SelectionStateRecord}|{kind:"saving";selectionState:SelectionStateRecord;savingLineId:string}|{kind:"error";selectionState?:SelectionStateRecord;message:string};
-export function useMatchResultReview(input:{session:SessionRecord;catalogs:readonly CatalogRecord[];run:MatchRunRecord;current:boolean}){
- const [state,setState]=useState<MatchReviewState>({kind:"loading"});const [filter,setFilterValue]=useState<ResultFilter>("all");const [query,setQueryValue]=useState("");const [expanded,setExpanded]=useState<Set<string>>(new Set());const [limit,setLimit]=useState(50);
- useEffect(()=>{let active=true;setState({kind:"loading"});void appRepositories.selectionStates.getOrCreateForRun(input.run).then(s=>active&&setState({kind:"ready",selectionState:s})).catch(e=>active&&setState({kind:"error",message:e instanceof Error?e.message:"Не удалось загрузить решения"}));return()=>{active=false}},[input.run]);
- const selection=state.kind==="loading"||state.selectionState?.matchRunId!==input.run.id?undefined:state.selectionState;const view=useMemo(()=>selection?buildMatchResultReviewView({...input,selectionState:selection}):undefined,[input,selection]);
- const filtered=useMemo(()=>{if(!view)return[];const q=query.trim().toLowerCase();return view.lines.filter(l=>{const matches=!q||[l.lineId,l.requestText,...l.candidates.map(c=>c.productLabel),l.selectedOfferRef?.source_item_id??""].some(x=>x.toLowerCase().includes(q));const f=filter==="all"||(filter==="unresolved"&&l.selectable&&!l.hasSelection)||(filter==="selected"&&l.hasSelection)||(filter==="no_match"&&l.resolution==="no_match")||(filter==="review_required"&&["request_review_required","request_invalid"].includes(l.resolution))||(filter==="excluded_by_policy"&&l.resolution==="excluded_by_policy");return matches&&f})},[view,filter,query]);
- const setFilter=(x:ResultFilter)=>{setFilterValue(x);setLimit(50)},setQuery=(x:string)=>{setQueryValue(x);setLimit(50)};const toggle=(id:string)=>setExpanded(s=>{const n=new Set(s);n.has(id)?n.delete(id):n.add(id);return n});
- async function save(lineId:string,offerRef?:OfferRef){if(!selection||state.kind==="saving")return;setState({kind:"saving",selectionState:selection,savingLineId:lineId});try{const common={sessionId:input.session.sessionId,matchRunId:input.run.id,lineId,expectedSelectionRevision:selection.revision,repositories:appRepositories};const next=offerRef?await selectOfferForLine({...common,offerRef}):await clearOfferForLine(common);setState({kind:"ready",selectionState:next})}catch(e){if(e instanceof Error&&"code" in e&&e.code==="STALE_SELECTION_STATE"){const fresh=await appRepositories.selectionStates.get(input.run.id);setState({kind:"error",selectionState:fresh,message:"Решение изменилось в другой вкладке. Данные обновлены."})}else setState({kind:"error",selectionState:selection,message:e instanceof Error?e.message:"Ошибка сохранения"})}}
- return{state,view,lines:filtered.slice(0,limit),hasMore:filtered.length>limit,showMore:()=>setLimit(x=>x+50),filter,setFilter,query,setQuery,expanded,toggle,save};
+import type { CatalogRecord } from "../../../domain/catalog";
+import type { SessionRecord } from "../../../domain/session";
+import type { MatchRunRecord } from "../../../domain/matching/match-run";
+import { buildMatchResultReviewView } from "../../../domain/matching/match-result-review";
+import type { OfferRef } from "../../../domain/matching/offer-ref";
+import type { SelectionStateRecord } from "../../../domain/matching/selection-state";
+import {
+  clearOfferForLine,
+  selectOfferForLine,
+} from "../../../domain/matching/update-selection";
+import { appRepositories } from "../../../storage/repositories";
+export type ResultFilter =
+  | "all"
+  | "unresolved"
+  | "selected"
+  | "no_match"
+  | "review_required"
+  | "excluded_by_policy";
+export type MatchReviewState =
+  | { kind: "loading" }
+  | { kind: "ready"; selectionState: SelectionStateRecord }
+  | {
+      kind: "saving";
+      selectionState: SelectionStateRecord;
+      savingLineId: string;
+    }
+  | { kind: "error"; selectionState?: SelectionStateRecord; message: string };
+export function useMatchResultReview(input: {
+  session: SessionRecord;
+  catalogs: readonly CatalogRecord[];
+  run: MatchRunRecord;
+  current: boolean;
+}) {
+  const [state, setState] = useState<MatchReviewState>({ kind: "loading" });
+  const [filter, setFilterValue] = useState<ResultFilter>("all");
+  const [query, setQueryValue] = useState("");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [limit, setLimit] = useState(50);
+  useEffect(() => {
+    let active = true;
+    setState({ kind: "loading" });
+    void appRepositories.selectionStates
+      .getOrCreateForRun(input.run)
+      .then((s) => active && setState({ kind: "ready", selectionState: s }))
+      .catch(
+        (e) =>
+          active &&
+          setState({
+            kind: "error",
+            message:
+              e instanceof Error ? e.message : "Не удалось загрузить решения",
+          }),
+      );
+    return () => {
+      active = false;
+    };
+  }, [input.run]);
+  const selection =
+    state.kind === "loading" ||
+    state.selectionState?.matchRunId !== input.run.id
+      ? undefined
+      : state.selectionState;
+  const view = useMemo(
+    () =>
+      selection
+        ? buildMatchResultReviewView({ ...input, selectionState: selection })
+        : undefined,
+    [input, selection],
+  );
+  const filtered = useMemo(() => {
+    if (!view) return [];
+    const q = query.trim().toLowerCase();
+    return view.lines.filter((l) => {
+      const matches =
+        !q ||
+        [
+          l.lineId,
+          l.requestText,
+          ...l.candidates.map((c) => c.productLabel),
+          l.selectedOfferRef?.source_item_id ?? "",
+        ].some((x) => x.toLowerCase().includes(q));
+      const f =
+        filter === "all" ||
+        (filter === "unresolved" && l.selectable && !l.hasSelection) ||
+        (filter === "selected" && l.hasSelection) ||
+        (filter === "no_match" && l.resolution === "no_match") ||
+        (filter === "review_required" &&
+          ["request_review_required", "request_invalid"].includes(
+            l.resolution,
+          )) ||
+        (filter === "excluded_by_policy" &&
+          l.resolution === "excluded_by_policy");
+      return matches && f;
+    });
+  }, [view, filter, query]);
+  const setFilter = (x: ResultFilter) => {
+      setFilterValue(x);
+      setLimit(50);
+    },
+    setQuery = (x: string) => {
+      setQueryValue(x);
+      setLimit(50);
+    };
+  const toggle = (id: string) =>
+    setExpanded((s) => {
+      const n = new Set(s);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  async function save(lineId: string, offerRef?: OfferRef) {
+    if (!selection || state.kind === "saving") return;
+    setState({
+      kind: "saving",
+      selectionState: selection,
+      savingLineId: lineId,
+    });
+    try {
+      const common = {
+        sessionId: input.session.sessionId,
+        matchRunId: input.run.id,
+        lineId,
+        expectedSelectionRevision: selection.revision,
+        repositories: appRepositories,
+      };
+      const next = offerRef
+        ? await selectOfferForLine({ ...common, offerRef })
+        : await clearOfferForLine(common);
+      setState({ kind: "ready", selectionState: next });
+    } catch (e) {
+      if (
+        e instanceof Error &&
+        "code" in e &&
+        e.code === "STALE_SELECTION_STATE"
+      ) {
+        const fresh = await appRepositories.selectionStates.get(input.run.id);
+        setState({
+          kind: "error",
+          selectionState: fresh,
+          message: "Решение изменилось в другой вкладке. Данные обновлены.",
+        });
+      } else
+        setState({
+          kind: "error",
+          selectionState: selection,
+          message: e instanceof Error ? e.message : "Ошибка сохранения",
+        });
+    }
+  }
+  return {
+    state,
+    view,
+    lines: filtered.slice(0, limit),
+    hasMore: filtered.length > limit,
+    showMore: () => setLimit((x) => x + 50),
+    filter,
+    setFilter,
+    query,
+    setQuery,
+    expanded,
+    toggle,
+    save,
+  };
 }
