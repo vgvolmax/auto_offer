@@ -92,6 +92,7 @@ export const selectionStatesRepository: SelectionStatesRepository = {
       return next;
     } catch (e) {
       tx.abort();
+      await tx.done.catch(() => undefined);
       throw e;
     }
   },
