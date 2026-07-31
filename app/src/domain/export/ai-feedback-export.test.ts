@@ -22,4 +22,31 @@ describe("AI feedback export", () => {
     try { buildAiFeedbackExport(fixture(null)); throw new Error("expected"); } catch (error) { expect(error).toBeInstanceOf(AiFeedbackExportError); expect(error).toMatchObject({ code: "AI_EXPORT_INCOMPLETE", missingLineIds: ["line"] }); }
     expect(() => buildAiFeedbackExport({ ...fixture(), current: false })).toThrow(expect.objectContaining({ code: "AI_EXPORT_NOT_CURRENT" }));
   });
+  it("rejects selected offers that do not belong to the same line", () => {
+    const input = fixture({ kind: "selected_offer", offerRef: { ...ref, source_item_id: "foreign" }, confirmedAt: "now" });
+    expect(() => buildAiFeedbackExport(input)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
+  });
+  it("rejects duplicate, missing, and extra result lines", () => {
+    const duplicate = fixture();
+    duplicate.run.result.lines.push(structuredClone(duplicate.run.result.lines[0]));
+    expect(() => buildAiFeedbackExport(duplicate)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
+    const missing = fixture(); missing.run.result.lines = [];
+    expect(() => buildAiFeedbackExport(missing)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
+    const extra = fixture(); extra.run.result.lines.push({ line_id: "extra", candidates: [], excluded_candidates: [] });
+    expect(() => buildAiFeedbackExport(extra)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
+  });
+  it("rejects foreign and outcome-incompatible feedback references", () => {
+    const foreign = fixture();
+    foreign.selectionState.feedback.line = { outcome: "other_outcome", relatedOfferRef: { ...ref, catalog_id: "altered" } };
+    expect(() => buildAiFeedbackExport(foreign)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
+    const incompatible = fixture();
+    incompatible.selectionState.feedback.line = { outcome: "correct_candidate_excluded", relatedOfferRef: ref };
+    expect(() => buildAiFeedbackExport(incompatible)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
+  });
+  it("rejects unknown decision and feedback line ids", () => {
+    const decision = fixture(); decision.selectionState.decisions.unknown = decision.selectionState.decisions.line;
+    expect(() => buildAiFeedbackExport(decision)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
+    const feedback = fixture(); feedback.selectionState.feedback.unknown = { comment: "x" };
+    expect(() => buildAiFeedbackExport(feedback)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
+  });
 });

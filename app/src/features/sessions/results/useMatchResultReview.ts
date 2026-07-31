@@ -41,6 +41,7 @@ export function useMatchResultReview(input: {
   const [filter, setFilterValue] = useState<ResultFilter>("all");
   const [query, setQueryValue] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [feedbackExpanded, setFeedbackExpandedState] = useState<Set<string>>(new Set());
   const [limit, setLimit] = useState(50);
   useEffect(() => {
     let active = true;
@@ -115,8 +116,8 @@ export function useMatchResultReview(input: {
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
     });
-  async function perform(lineId: string, operation: (common: { sessionId: string; matchRunId: string; lineId: string; expectedSelectionRevision: number; repositories: typeof appRepositories }) => Promise<SelectionStateRecord>) {
-    if (!selection || state.kind === "saving") return;
+  async function perform(lineId: string, operation: (common: { sessionId: string; matchRunId: string; lineId: string; expectedSelectionRevision: number; repositories: typeof appRepositories }) => Promise<SelectionStateRecord>): Promise<boolean> {
+    if (!selection || state.kind === "saving" || !input.current) return false;
     setState({
       kind: "saving",
       selectionState: selection,
@@ -132,6 +133,7 @@ export function useMatchResultReview(input: {
       };
       const next = await operation(common);
       setState({ kind: "ready", selectionState: next });
+      return true;
     } catch (e) {
       if (
         e instanceof Error &&
@@ -150,10 +152,21 @@ export function useMatchResultReview(input: {
           selectionState: selection,
           message: e instanceof Error ? e.message : "Ошибка сохранения",
         });
+      return false;
     }
   }
   const selectOffer = (lineId: string, offerRef: OfferRef) => perform(lineId, (common) => selectOfferForLine({ ...common, offerRef }));
-  const markNoOffer = async (lineId: string) => { await perform(lineId, markNoOfferForLine); setExpanded((current) => new Set(current).add(lineId)); };
+  const markNoOffer = async (lineId: string): Promise<boolean> => {
+    const saved = await perform(lineId, markNoOfferForLine);
+    if (saved) setFeedbackExpandedState((current) => new Set(current).add(lineId));
+    return saved;
+  };
+  const setFeedbackExpanded = (lineId: string, open: boolean) =>
+    setFeedbackExpandedState((current) => {
+      const next = new Set(current);
+      open ? next.add(lineId) : next.delete(lineId);
+      return next;
+    });
   const clearDecision = (lineId: string) => perform(lineId, clearDecisionForLine);
   const saveFeedback = (lineId: string, feedback: LineFeedback) => perform(lineId, (common) => saveFeedbackForLine({ ...common, feedback }));
   const clearFeedback = (lineId: string) => perform(lineId, clearFeedbackForLine);
@@ -168,6 +181,8 @@ export function useMatchResultReview(input: {
     query,
     setQuery,
     expanded,
+    feedbackExpanded,
+    setFeedbackExpanded,
     toggle,
     selectOffer, markNoOffer, clearDecision, saveFeedback, clearFeedback,
   };

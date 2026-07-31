@@ -8,14 +8,16 @@ import { LineFeedbackEditor } from "./LineFeedbackEditor";
 export function MatchLineCard(p: {
   line: MatchLineReviewView;
   expanded: boolean;
+  feedbackOpen: boolean;
   disabled: boolean;
   saving: boolean;
   onToggle: () => void;
   onSelect: (key: number) => void;
   onClear: () => void;
-  onNoOffer: () => void;
-  onSaveFeedback: (feedback: LineFeedback) => Promise<void>;
-  onClearFeedback: () => Promise<void>;
+  onNoOffer: () => Promise<boolean>;
+  onFeedbackOpenChange: (open: boolean) => void;
+  onSaveFeedback: (feedback: LineFeedback) => Promise<boolean>;
+  onClearFeedback: () => Promise<boolean>;
 }) {
   const { line } = p,
     id = `result-line-${line.lineId}`;
@@ -71,7 +73,7 @@ export function MatchLineCard(p: {
             </section>
           )}
           <ExcludedCandidates items={line.excludedCandidates} />
-          <LineFeedbackEditor line={line} disabled={p.disabled} initiallyOpen={line.decisionKind === "no_offer"} onSave={p.onSaveFeedback} onClear={p.onClearFeedback} />
+          <LineFeedbackEditor line={line} disabled={p.disabled} open={p.feedbackOpen} onOpenChange={p.onFeedbackOpenChange} onSave={p.onSaveFeedback} onClear={p.onClearFeedback} />
         </div>
       )}
     </article>

@@ -31,6 +31,8 @@ jobs:
         run: npm run test:annotation-golden
       - name: Run full test suite
         run: npm test
+      - name: Build browser app
+        run: npm run app:build
       - name: Ensure generated contracts are committed
         run: git diff --exit-code -- schemas/annotation/class-specific schemas/annotation/generated schemas/annotation/class-schema-registry.json
       - name: Check formatting

@@ -2,16 +2,12 @@ import type { AppRepositories } from "../../storage/repositories";
 import { StaleSelectionStateError } from "../../storage/selection-states-repository";
 import { normalizeLineFeedback, type LineFeedback } from "./line-feedback";
 import { isMatchRunCurrent } from "./match-run-current";
-import { equalOfferRefs, type OfferRef } from "./offer-ref";
+import { equalOfferRefs } from "./offer-ref";
+import { getAllowedRelatedOfferSource } from "./line-feedback-validation";
 import { SelectionError, type SelectionStateRecord } from "./selection-state";
 
 type Obj = Record<string, unknown>;
 const object = (x: unknown): x is Obj => typeof x === "object" && x !== null && !Array.isArray(x);
-function ref(x: unknown): OfferRef | undefined {
-  if (!object(x)) return;
-  const fields = [x.catalog_record_id, x.catalog_id, x.source_sha256, x.source_item_id];
-  return fields.every((v) => typeof v === "string") ? x as unknown as OfferRef : undefined;
-}
 async function context(input: { sessionId: string; matchRunId: string; lineId: string; expectedSelectionRevision: number; repositories: AppRepositories }) {
   const session = await input.repositories.sessions.get(input.sessionId);
   if (!session) throw new SelectionError("Сессия не найдена", "SESSION_NOT_FOUND");
@@ -27,12 +23,12 @@ async function context(input: { sessionId: string; matchRunId: string; lineId: s
   return { line, state };
 }
 function allowed(line: Obj, feedback: LineFeedback): boolean {
-  if (!feedback.relatedOfferRef) return true;
-  const inList = (name: string) => (Array.isArray(line[name]) ? line[name] : []).some((x) => object(x) && ref(x.offer_ref) && equalOfferRefs(ref(x.offer_ref)!, feedback.relatedOfferRef!));
-  const candidate = inList("candidates"), excluded = inList("excluded_candidates");
-  if (feedback.outcome === "correct_candidate_ranked_low") return candidate;
-  if (feedback.outcome === "correct_candidate_excluded") return excluded;
-  return ["suggested_candidate_incorrect", "other_outcome"].includes(feedback.outcome ?? "") && (candidate || excluded);
+  return !feedback.relatedOfferRef || Boolean(getAllowedRelatedOfferSource({
+    outcome: feedback.outcome,
+    relatedOfferRef: feedback.relatedOfferRef,
+    candidates: Array.isArray(line.candidates) ? line.candidates : [],
+    excludedCandidates: Array.isArray(line.excluded_candidates) ? line.excluded_candidates : [],
+  }));
 }
 function persistenceError(error: unknown): never {
   if (error instanceof SelectionError) throw error;
