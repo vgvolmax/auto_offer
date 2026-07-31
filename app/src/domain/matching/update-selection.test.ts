@@ -19,7 +19,7 @@ describe("selection application service", () => {
     "enforces candidate ownership, availability and optimistic concurrency",
     async () => {
       const bundle = structuredClone(catalogFixture) as any;
-      for (const id of ["manual-item", "other-item"]) {
+      for (const id of ["manual-item", "excluded-item", "foreign-item"]) {
         const item = structuredClone(bundle.items[0]);
         item.catalog_item.source_item_id = id;
         bundle.items.push(item);
@@ -28,15 +28,16 @@ describe("selection application service", () => {
       const catalog = { ...base, recordId: "record-main" };
       const session = createDraftSession(request as any, [catalog], "selection");
       await appRepositories.catalogs.save(catalog); await appRepositories.sessions.save(session);
-      const refs = bundle.items.slice(0, 3).map((x: any) => ({ catalog_record_id: catalog.recordId, catalog_id: catalog.catalogId, source_sha256: catalog.sourceSha256, source_item_id: x.catalog_item.source_item_id }));
+      const refs = bundle.items.slice(0, 4).map((x: any) => ({ catalog_record_id: catalog.recordId, catalog_id: catalog.catalogId, source_sha256: catalog.sourceSha256, source_item_id: x.catalog_item.source_item_id }));
       const generated = await runSessionMatching({ sessionId: session.sessionId, settings: session.matchingSettings, repositories: appRepositories });
       const original = (expected as any).lines[0];
       const result: any = { ...structuredClone(generated.runRecord.result), lines: [{ ...original, candidates: [
         { ...original.candidates[0], offer_ref: refs[0], availability: "eligible" },
         { ...original.candidates[0], offer_ref: refs[1], availability: "manual_only" },
-      ], excluded_candidates: [{ ...original.candidates[0], offer_ref: refs[2], availability: "eligible" }] }, { ...original, line_id: "other-line", candidates: [{ ...original.candidates[0], offer_ref: refs[2] }], excluded_candidates: [] }] };
+      ], excluded_candidates: [{ ...original.candidates[0], offer_ref: refs[2], availability: "eligible" }] }, { ...original, line_id: "other-line", candidates: [{ ...original.candidates[0], offer_ref: refs[3] }], excluded_candidates: [] }] };
       const run = { ...generated.runRecord, result };
       await (await getDatabase()).put("matchRuns", run);
+      const matchResultBeforeSelections = structuredClone(run.result);
       const select = (lineId: string, offerRef: any, revision: number) => selectOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId, offerRef, expectedSelectionRevision: revision, repositories: appRepositories });
       const first = await select(original.line_id, refs[0], 0);
       expect(first.revision).toBe(1); expect(first.decisions[original.line_id].offerRef).toEqual(refs[0]);
@@ -45,14 +46,15 @@ describe("selection application service", () => {
       const manual = await select(original.line_id, refs[1], 1);
       expect(manual.revision).toBe(2); expect(Object.keys(manual.decisions)).toEqual([original.line_id]); expect(manual.decisions[original.line_id].offerRef).toEqual(refs[1]);
       await expect(select(original.line_id, refs[2], 2)).rejects.toMatchObject({ code: "CANDIDATE_NOT_FOUND" });
+      await expect(select(original.line_id, refs[3], 2)).rejects.toMatchObject({ code: "CANDIDATE_NOT_FOUND" });
       await expect(select(original.line_id, { ...refs[0], catalog_record_id: "changed" }, 2)).rejects.toMatchObject({ code: "CANDIDATE_NOT_FOUND" });
       await expect(select(original.line_id, { ...refs[0], source_sha256: "changed" }, 2)).rejects.toMatchObject({ code: "CANDIDATE_NOT_FOUND" });
-      await expect(select(original.line_id, refs[2], 2)).rejects.toMatchObject({ code: "CANDIDATE_NOT_FOUND" });
-      const fresh = await select("other-line", refs[2], 2);
+      const fresh = await select("other-line", refs[3], 2);
       await expect(select(original.line_id, refs[0], 2)).rejects.toMatchObject({ code: "STALE_SELECTION_STATE" });
       expect(await appRepositories.selectionStates.get(run.id)).toEqual(fresh);
       const cleared = await clearOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId: "other-line", expectedSelectionRevision: 3, repositories: appRepositories });
       expect(cleared.revision).toBe(4); expect(cleared.decisions["other-line"]).toBeUndefined();
+      expect((await appRepositories.matchRuns.get(run.id))?.result).toEqual(matchResultBeforeSelections);
       const stored = await appRepositories.sessions.get(session.sessionId);
       await appRepositories.sessions.save({ ...stored!, matchingRevision: 1 });
       await expect(select(original.line_id, refs[0], 4)).rejects.toMatchObject({ code: "MATCH_RUN_STALE" });
