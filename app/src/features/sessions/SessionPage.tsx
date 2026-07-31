@@ -21,7 +21,11 @@ export function SessionPage() {
     <>
       <PageHeader
         title={session.name}
-        action={<StatusBadge>{session.status === "confirmed" ? "Подтверждено" : "Черновик"}</StatusBadge>}
+        action={
+          <StatusBadge>
+            {session.status === "confirmed" ? "Подтверждено" : "Черновик"}
+          </StatusBadge>
+        }
       />
       <section className="card">
         <h2>Источники сессии</h2>
@@ -55,7 +59,23 @@ export function SessionPage() {
         locked={session.status === "confirmed"}
       />
       {run && <MatchRunSummaryView run={run} current={current} />}{" "}
-      {run && <MatchResultsPanel session={session} catalogs={catalogs} run={run} current={current} locked={session.status === "confirmed"} confirming={matching.state.kind === "confirming"} reopening={matching.state.kind === "reopening"} error={matching.state.kind === "error" ? matching.state.message : undefined} onConfirm={matching.confirmReview} onReopen={matching.reopenReview} />}
+      {run && (
+        <MatchResultsPanel
+          session={session}
+          catalogs={catalogs}
+          run={run}
+          current={current}
+          locked={session.status === "confirmed"}
+          confirming={matching.state.kind === "confirming"}
+          reopening={matching.state.kind === "reopening"}
+          error={
+            matching.state.kind === "error" ? matching.state.message : undefined
+          }
+          onConfirm={matching.confirmReview}
+          onReopen={matching.reopenReview}
+          onRefreshSessionSnapshot={matching.refreshSessionSnapshot}
+        />
+      )}
       {matching.state.kind === "error" && (
         <p className="error-text" role="alert">
           {matching.state.message}

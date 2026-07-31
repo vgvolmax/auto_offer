@@ -10,7 +10,6 @@ import type { MatchRunRecord, MatchRunSummary } from "./match-run";
 import { summarizeMatchResult } from "./match-run";
 import {
   buildSessionMatchingPolicy,
-  equalSessionMatchingSettings,
   validateSessionMatchingSettings,
   type SessionMatchingSettings,
 } from "./session-policy";
@@ -19,6 +18,7 @@ import {
   pilotPolicyRegistry,
 } from "./pilot-config";
 import { StaleMatchRunError } from "../../storage/match-runs-repository";
+import { SessionSettingsWriteError } from "../../storage/sessions-repository";
 export type SessionMatchingErrorCode =
   | "SESSION_NOT_FOUND"
   | "CATALOG_RECORD_MISSING"
@@ -26,7 +26,8 @@ export type SessionMatchingErrorCode =
   | "MATCHING_INPUT_INVALID"
   | "STALE_MATCH_RUN"
   | "MATCH_RUN_PERSIST_FAILED"
-  | "SESSION_CONFIRMED";
+  | "SESSION_CONFIRMED"
+  | "SESSION_REVISION_CHANGED";
 export class SessionMatchingError extends Error {
   constructor(
     message: string,
@@ -51,8 +52,6 @@ export async function saveSessionMatchingSettings(input: {
   const session = await input.repositories.sessions.get(input.sessionId);
   if (!session)
     throw new SessionMatchingError("Сессия не найдена", "SESSION_NOT_FOUND");
-  if (session.status === "confirmed")
-    throw new SessionMatchingError("Подтверждённый результат доступен только для просмотра", "SESSION_CONFIRMED");
   const issue = validateSessionMatchingSettings(
     input.settings,
     session.catalogRecordIds,
@@ -63,24 +62,24 @@ export async function saveSessionMatchingSettings(input: {
       "INVALID_MATCHING_SETTINGS",
       issue.path,
     );
-  if (equalSessionMatchingSettings(session.matchingSettings, input.settings))
-    return session;
-  const next = {
-    ...session,
-    matchingSettings: {
-      ...input.settings,
-      brands: {
-        ...input.settings.brands,
-        include: [...input.settings.brands.include],
-        exclude: [...input.settings.brands.exclude],
-        preferred: [...input.settings.brands.preferred],
-      },
-      catalogPriority: [...input.settings.catalogPriority],
-    },
-    matchingRevision: session.matchingRevision + 1,
-    updatedAt: new Date().toISOString(),
-  };
-  return input.repositories.sessions.save(next);
+  try {
+    return await input.repositories.sessions.updateMatchingSettings({
+      sessionId: session.sessionId,
+      expectedMatchingRevision: session.matchingRevision,
+      settings: input.settings,
+    });
+  } catch (error) {
+    if (error instanceof SessionSettingsWriteError)
+      throw new SessionMatchingError(
+        error.code === "SESSION_REVISION_CHANGED"
+          ? "Настройки сессии изменились в другой вкладке. Обновите данные и повторите действие."
+          : error.message,
+        error.code,
+        undefined,
+        { cause: error },
+      );
+    throw error;
+  }
 }
 export async function runSessionMatching(input: {
   sessionId: string;
@@ -119,6 +118,17 @@ export async function runSessionMatching(input: {
       engineVersion: PILOT_MATCHING_ENGINE_VERSION,
     } as unknown as MatcherInput);
   } catch (error) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      error.code === "SESSION_CONFIRMED"
+    )
+      throw new SessionMatchingError(
+        error.message,
+        "SESSION_CONFIRMED",
+        undefined,
+        { cause: error },
+      );
     if (error instanceof MatchingInputError)
       throw new SessionMatchingError(
         error.message,
