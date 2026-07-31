@@ -1,8 +1,10 @@
 import type { ResultFilter } from "./useMatchResultReview";
 const options: Record<ResultFilter, string> = {
   all: "Все",
-  unresolved: "Требуют выбора",
-  selected: "Выбранные",
+  undecided: "Без решения",
+  selected: "С выбранным товаром",
+  no_offer: "Без предложения",
+  with_feedback: "С обратной связью",
   no_match: "Без совпадений",
   review_required: "Требуют проверки заявки",
   excluded_by_policy: "Исключены правилами",

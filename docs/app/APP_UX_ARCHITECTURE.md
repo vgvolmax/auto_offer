@@ -42,3 +42,8 @@ Draft route содержит неизменяемые источники, focuse
 # B4b result review
 
 The session page composes a dedicated result-review feature. Search, filters, expansion, and the 50-row display limit are local UI state. Selection is persisted separately; stale results remain inspectable while all decision controls are read-only. Final review and export remain planned.
+# B5a review UX
+
+Строка результата образует radio-группу из доступных candidates и отдельной карточки «Оставить строку без предложения»; решение можно снять. Сводка считает все строки, включая строки без candidates. Feedback раскрывается внутри строки, сохраняется только явным действием и не трактуется как положительная оценка при отсутствии записи. Picker правильного товара работает inline, локально ищет среди candidates/excluded и проверяет полный OfferRef.
+
+AI export включается только для актуального run при полном наборе решений и совпадающем fingerprint. B5a не добавляет состояние confirmed; final review и human export остаются B5b.

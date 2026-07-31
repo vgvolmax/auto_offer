@@ -622,3 +622,8 @@
 # B4b implementation status
 
 Result line review, candidate details, checks and differences, excluded candidate review, manual candidate selection, and selection persistence are implemented. Final review and export are planned for B5; the complete end-to-end flow is not yet verified.
+# B5a: решения и обратная связь
+
+Оператор явно обрабатывает **каждую** строку: выбирает конкретный товар (`selected_offer`) либо осознанно оставляет её без предложения (`no_offer`). Отсутствующая запись означает, что решение ещё не принято. Необязательная обратная связь хранится независимо от решения: outcome/cause, комментарий и, для совместимых outcome, полный `OfferRef` правильного товара.
+
+После решений по всем строкам текущего запуска доступен AI JSON с исходной заявкой, полным результатом matcher, operator review и снимками упомянутых товаров. Feedback для экспорта не обязателен. Финальное подтверждение и пользовательский итоговый документ не входят в B5a и запланированы для B5b.

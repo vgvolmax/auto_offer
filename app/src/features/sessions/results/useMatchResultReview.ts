@@ -5,15 +5,20 @@ import type { MatchRunRecord } from "../../../domain/matching/match-run";
 import { buildMatchResultReviewView } from "../../../domain/matching/match-result-review";
 import type { OfferRef } from "../../../domain/matching/offer-ref";
 import type { SelectionStateRecord } from "../../../domain/matching/selection-state";
+import type { LineFeedback } from "../../../domain/matching/line-feedback";
 import {
-  clearOfferForLine,
+  clearDecisionForLine,
+  markNoOfferForLine,
   selectOfferForLine,
 } from "../../../domain/matching/update-selection";
+import { clearFeedbackForLine, saveFeedbackForLine } from "../../../domain/matching/update-line-feedback";
 import { appRepositories } from "../../../storage/repositories";
 export type ResultFilter =
   | "all"
-  | "unresolved"
+  | "undecided"
   | "selected"
+  | "no_offer"
+  | "with_feedback"
   | "no_match"
   | "review_required"
   | "excluded_by_policy";
@@ -82,8 +87,10 @@ export function useMatchResultReview(input: {
         ].some((x) => x.toLowerCase().includes(q));
       const f =
         filter === "all" ||
-        (filter === "unresolved" && l.selectable && !l.hasSelection) ||
-        (filter === "selected" && l.hasSelection) ||
+        (filter === "undecided" && !l.hasDecision) ||
+        (filter === "selected" && l.decisionKind === "selected_offer") ||
+        (filter === "no_offer" && l.decisionKind === "no_offer") ||
+        (filter === "with_feedback" && Boolean(l.feedback)) ||
         (filter === "no_match" && l.resolution === "no_match") ||
         (filter === "review_required" &&
           ["request_review_required", "request_invalid"].includes(
@@ -108,7 +115,7 @@ export function useMatchResultReview(input: {
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
     });
-  async function save(lineId: string, offerRef?: OfferRef) {
+  async function perform(lineId: string, operation: (common: { sessionId: string; matchRunId: string; lineId: string; expectedSelectionRevision: number; repositories: typeof appRepositories }) => Promise<SelectionStateRecord>) {
     if (!selection || state.kind === "saving") return;
     setState({
       kind: "saving",
@@ -123,9 +130,7 @@ export function useMatchResultReview(input: {
         expectedSelectionRevision: selection.revision,
         repositories: appRepositories,
       };
-      const next = offerRef
-        ? await selectOfferForLine({ ...common, offerRef })
-        : await clearOfferForLine(common);
+      const next = await operation(common);
       setState({ kind: "ready", selectionState: next });
     } catch (e) {
       if (
@@ -147,6 +152,11 @@ export function useMatchResultReview(input: {
         });
     }
   }
+  const selectOffer = (lineId: string, offerRef: OfferRef) => perform(lineId, (common) => selectOfferForLine({ ...common, offerRef }));
+  const markNoOffer = async (lineId: string) => { await perform(lineId, markNoOfferForLine); setExpanded((current) => new Set(current).add(lineId)); };
+  const clearDecision = (lineId: string) => perform(lineId, clearDecisionForLine);
+  const saveFeedback = (lineId: string, feedback: LineFeedback) => perform(lineId, (common) => saveFeedbackForLine({ ...common, feedback }));
+  const clearFeedback = (lineId: string) => perform(lineId, clearFeedbackForLine);
   return {
     state,
     view,
@@ -159,6 +169,6 @@ export function useMatchResultReview(input: {
     setQuery,
     expanded,
     toggle,
-    save,
+    selectOffer, markNoOffer, clearDecision, saveFeedback, clearFeedback,
   };
 }

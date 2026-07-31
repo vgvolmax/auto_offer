@@ -144,12 +144,12 @@ describe("SessionPage B4a matching state", () => {
       expect(screen.getByText(/Рекомендуется/)).toBeVisible();
       expect(screen.queryByText(/· Выбрано/)).not.toBeInTheDocument();
       await user.click(screen.getByRole("button", { name: "Выбрать" }));
-      await waitFor(() => expect(screen.getByText(/Выбрано 1 из 1/)).toBeVisible());
+      await waitFor(() => expect(screen.getByText(/Обработано 1 из 1/)).toBeVisible());
       expect(screen.getByRole("radio", { name: "Выбрано" })).toBeChecked();
 
       first.unmount(); resetDatabaseConnection();
       renderSession(session.sessionId);
-      expect(await screen.findByText(/Выбрано 1 из 1/)).toBeVisible();
+      expect(await screen.findByText(/Обработано 1 из 1/)).toBeVisible();
       expect(screen.queryByText("Выполняется подбор…")).not.toBeInTheDocument();
       expect((await appRepositories.matchRuns.getLatestForSession(session.sessionId))?.id).toBe(firstRun?.id);
       await user.click(screen.getByRole("button", { name: /request-valve\.ball/ }));
@@ -164,7 +164,7 @@ describe("SessionPage B4a matching state", () => {
       expect(screen.getByRole("button", { name: "Снять выбор" })).toBeEnabled();
       await user.click(screen.getByRole("radio", { name: "Только точные" }));
       await user.click(screen.getByRole("button", { name: "Запустить подбор" }));
-      await waitFor(() => expect(screen.getByText(/Выбрано 0 из 1/)).toBeVisible());
+      await waitFor(() => expect(screen.getByText(/Обработано 0 из 1/)).toBeVisible());
       const nextRun = await appRepositories.matchRuns.getLatestForSession(session.sessionId);
       expect(nextRun?.id).not.toBe(firstRun?.id);
       expect(await appRepositories.selectionStates.get(firstRun!.id)).toBeUndefined();

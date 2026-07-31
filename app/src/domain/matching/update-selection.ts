@@ -72,7 +72,7 @@ export async function selectOfferForLine(input: {
     ctx.run,
   );
   const existing = state.decisions[input.lineId];
-  if (existing && equalOfferRefs(existing.offerRef, input.offerRef))
+  if (existing?.kind === "selected_offer" && equalOfferRefs(existing.offerRef, input.offerRef))
     return state;
   const candidate = (
     Array.isArray(ctx.line.candidates) ? ctx.line.candidates : []
@@ -125,14 +125,28 @@ export async function selectOfferForLine(input: {
     return mapPersistenceError(e);
   }
 }
-export async function clearOfferForLine(input: {
+export async function markNoOfferForLine(input: {
+  sessionId: string; matchRunId: string; lineId: string; expectedSelectionRevision: number; repositories: AppRepositories;
+}): Promise<SelectionStateRecord> {
+  const ctx = await context(input);
+  const state = await input.repositories.selectionStates.getOrCreateForRun(ctx.run);
+  if (state.decisions[input.lineId]?.kind === "no_offer") return state;
+  try { return await input.repositories.selectionStates.saveDecision({
+    sessionId: input.sessionId, matchRunId: input.matchRunId, lineId: input.lineId,
+    expectedRevision: input.expectedSelectionRevision,
+    decision: { kind: "no_offer", confirmedAt: new Date().toISOString() },
+  }); } catch (e) { return mapPersistenceError(e); }
+}
+export async function clearDecisionForLine(input: {
   sessionId: string;
   matchRunId: string;
   lineId: string;
   expectedSelectionRevision: number;
   repositories: AppRepositories;
 }): Promise<SelectionStateRecord> {
-  await context(input);
+  const ctx = await context(input);
+  const state = await input.repositories.selectionStates.getOrCreateForRun(ctx.run);
+  if (!state.decisions[input.lineId]) return state;
   try {
     return await input.repositories.selectionStates.saveDecision({
       sessionId: input.sessionId,

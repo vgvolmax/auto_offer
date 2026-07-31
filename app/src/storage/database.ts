@@ -2,7 +2,7 @@ import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type { CatalogRecord } from "../domain/catalog";
 import type { MatchRunRecord } from "../domain/matching/match-run";
 import type { StoredSessionRecord } from "../domain/session";
-import type { SelectionStateRecord } from "../domain/matching/selection-state";
+import type { StoredSelectionStateRecord } from "../domain/matching/selection-state";
 
 export interface AutoOfferDB extends DBSchema {
   catalogs: {
@@ -28,7 +28,7 @@ export interface AutoOfferDB extends DBSchema {
   };
   selectionStates: {
     key: string;
-    value: SelectionStateRecord;
+    value: StoredSelectionStateRecord;
     indexes: { "by-session": string };
   };
 }

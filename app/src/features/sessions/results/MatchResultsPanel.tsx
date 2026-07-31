@@ -4,6 +4,9 @@ import type { SessionRecord } from "../../../domain/session";
 import { MatchLineCard } from "./MatchLineCard";
 import { MatchResultsToolbar } from "./MatchResultsToolbar";
 import { useMatchResultReview } from "./useMatchResultReview";
+import { buildAiFeedbackExport } from "../../../domain/export/ai-feedback-export";
+import { createAiFeedbackFilename, downloadAiFeedback } from "./download-ai-feedback";
+import { useState } from "react";
 export function MatchResultsPanel(input: {
   session: SessionRecord;
   catalogs: readonly CatalogRecord[];
@@ -11,6 +14,7 @@ export function MatchResultsPanel(input: {
   current: boolean;
 }) {
   const review = useMatchResultReview(input);
+  const [exported, setExported] = useState(false);
   if (review.state.kind === "loading")
     return (
       <section className="card">
@@ -32,8 +36,7 @@ export function MatchResultsPanel(input: {
     <section className="card">
       <h2>Результаты подбора</h2>
       <p>
-        Выбрано {review.view.selectedCount} из {review.view.selectableLineCount}{" "}
-        строк с предложениями · осталось {review.view.unresolvedSelectableCount}
+        Обработано {review.view.decidedCount} из {review.view.lineCount} · выбрано товаров {review.view.selectedCount} · без предложения {review.view.noOfferCount} · осталось {review.view.undecidedCount}
       </p>
       {!input.current && (
         <p className="warning-text">
@@ -45,6 +48,15 @@ export function MatchResultsPanel(input: {
       {review.state.kind === "error" && (
         <p role="alert">{review.state.message}</p>
       )}
+      <section className="ai-export"><h3>Экспорт для улучшения системы</h3><p>JSON содержит исходную заявку, результат подбора, решения оператора и необязательную обратную связь.</p>
+        <button disabled={!input.current || review.view.undecidedCount > 0 || busy || review.state.kind === "error"} onClick={() => {
+          const selectionState = "selectionState" in review.state ? review.state.selectionState : undefined;
+          if (!selectionState) return;
+          const now = new Date().toISOString();
+          downloadAiFeedback(buildAiFeedbackExport({ ...input, selectionState, exportedAt: now }), createAiFeedbackFilename(input.session.name, input.session.sessionId, now)); setExported(true);
+        }}>Скачать JSON для анализа ИИ</button>
+        {!input.current ? <p>Экспорт доступен только для текущего результата подбора.</p> : review.view.undecidedCount > 0 ? <p>Для экспорта примите решение ещё по {review.view.undecidedCount} строкам.</p> : null}{exported && <p role="status">JSON-файл подготовлен</p>}
+      </section>
       <MatchResultsToolbar
         query={review.query}
         filter={review.filter}
@@ -56,7 +68,7 @@ export function MatchResultsPanel(input: {
           key={line.lineId}
           line={line}
           expanded={review.expanded.has(line.lineId)}
-          disabled={!input.current || busy || !line.selectable}
+          disabled={!input.current || busy}
           saving={
             busy &&
             review.state.kind === "saving" &&
@@ -64,9 +76,12 @@ export function MatchResultsPanel(input: {
           }
           onToggle={() => review.toggle(line.lineId)}
           onSelect={(i) =>
-            void review.save(line.lineId, line.candidates[i].offerRef)
+            void review.selectOffer(line.lineId, line.candidates[i].offerRef)
           }
-          onClear={() => void review.save(line.lineId)}
+          onNoOffer={() => void review.markNoOffer(line.lineId)}
+          onClear={() => void review.clearDecision(line.lineId)}
+          onSaveFeedback={(feedback) => review.saveFeedback(line.lineId, feedback)}
+          onClearFeedback={() => review.clearFeedback(line.lineId)}
         />
       ))}
       {review.hasMore && (

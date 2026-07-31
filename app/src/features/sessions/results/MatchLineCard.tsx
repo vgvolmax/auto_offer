@@ -2,6 +2,9 @@ import { getResolutionLabel } from "../../../domain/matching/match-result-labels
 import type { MatchLineReviewView } from "../../../domain/matching/match-result-review";
 import { CandidateCard } from "./CandidateCard";
 import { ExcludedCandidates } from "./ExcludedCandidates";
+import type { LineFeedback } from "../../../domain/matching/line-feedback";
+import { NoOfferDecisionCard } from "./NoOfferDecisionCard";
+import { LineFeedbackEditor } from "./LineFeedbackEditor";
 export function MatchLineCard(p: {
   line: MatchLineReviewView;
   expanded: boolean;
@@ -10,6 +13,9 @@ export function MatchLineCard(p: {
   onToggle: () => void;
   onSelect: (key: number) => void;
   onClear: () => void;
+  onNoOffer: () => void;
+  onSaveFeedback: (feedback: LineFeedback) => Promise<void>;
+  onClearFeedback: () => Promise<void>;
 }) {
   const { line } = p,
     id = `result-line-${line.lineId}`;
@@ -30,7 +36,7 @@ export function MatchLineCard(p: {
         {line.classId && ` · ${line.classId}`} ·{" "}
         {getResolutionLabel(line.resolution)} · Предложений:{" "}
         {line.candidates.length} ·{" "}
-        {line.selectedOfferRef?.source_item_id ?? "Не выбрано"}
+        {line.decisionKind === "selected_offer" ? `Выбран: ${line.selectedOfferRef?.source_item_id}` : line.decisionKind === "no_offer" ? "Без предложения" : "Решение не принято"}
       </p>
       {p.expanded && (
         <div id={id}>
@@ -51,6 +57,7 @@ export function MatchLineCard(p: {
               onClear={p.onClear}
             />
           ))}
+          <NoOfferDecisionCard lineId={line.lineId} selected={line.decisionKind === "no_offer"} disabled={p.disabled || !line.canMarkNoOffer} onSelect={p.onNoOffer} onClear={p.onClear} />
           {!line.candidates.length && line.rejectionSummary.length > 0 && (
             <section>
               <h4>Почему предложения не подошли</h4>
@@ -64,6 +71,7 @@ export function MatchLineCard(p: {
             </section>
           )}
           <ExcludedCandidates items={line.excludedCandidates} />
+          <LineFeedbackEditor line={line} disabled={p.disabled} initiallyOpen={line.decisionKind === "no_offer"} onSave={p.onSaveFeedback} onClear={p.onClearFeedback} />
         </div>
       )}
     </article>
