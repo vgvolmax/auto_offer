@@ -25,7 +25,8 @@ export function MatchingPolicyForm({
   onRun: () => void;
   locked: boolean;
 }) {
-  const busy = state === "saving" || state === "running";
+  const busy = ["saving", "running", "confirming", "reopening"].includes(state);
+  const interactionDisabled = locked || busy;
   const dirty = state === "ready-dirty";
   const clean =
     state === "ready-clean" ||
@@ -34,8 +35,13 @@ export function MatchingPolicyForm({
   return (
     <section className="card">
       <h2>Настройка правил подбора</h2>
-      {locked && <p className="warning-text">Результат подтверждён. Верните его к редактированию, чтобы изменить правила или запустить подбор заново.</p>}
-      <fieldset disabled={locked}>
+      {locked && (
+        <p className="warning-text">
+          Результат подтверждён. Верните его к редактированию, чтобы изменить
+          правила или запустить подбор заново.
+        </p>
+      )}
+      <fieldset disabled={interactionDisabled}>
         <legend>Максимальный уровень подбора</legend>
         {[
           ["exact", "Только точные"],
@@ -63,7 +69,7 @@ export function MatchingPolicyForm({
           автоматически.
         </p>
       </fieldset>
-      <fieldset disabled={locked}>
+      <fieldset disabled={interactionDisabled}>
         <legend>Товары needs_review</legend>
         <label className="inline-check">
           <input
@@ -89,7 +95,7 @@ export function MatchingPolicyForm({
         </label>
       </fieldset>
       <CatalogPriorityEditor
-        locked={locked}
+        locked={interactionDisabled}
         ids={settings.catalogPriority}
         catalogs={catalogs}
         onChange={(catalogPriority) =>
@@ -97,7 +103,7 @@ export function MatchingPolicyForm({
         }
       />
       <BrandPolicyEditor
-        locked={locked}
+        locked={interactionDisabled}
         brands={settings.brands}
         available={collectAvailableBrandIds(catalogs)}
         onChange={(brands) => onChange({ ...settings, brands })}
@@ -110,14 +116,14 @@ export function MatchingPolicyForm({
       <div className="actions">
         <button
           className="button button--secondary"
-          disabled={locked || !dirty || issues.length > 0 || busy}
+          disabled={interactionDisabled || !dirty || issues.length > 0}
           onClick={onSave}
         >
           {state === "saving" ? "Сохранение…" : "Сохранить настройки"}
         </button>
         <button
           className="button"
-          disabled={locked || busy || issues.length > 0}
+          disabled={interactionDisabled || issues.length > 0}
           onClick={onRun}
         >
           {state === "running" ? "Выполняется подбор…" : "Запустить подбор"}
