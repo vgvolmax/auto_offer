@@ -631,3 +631,7 @@ Result line review, candidate details, checks and differences, excluded candidat
 # B5b: завершение проверки
 
 Сессия проходит из `draft` в `confirmed` только после общей проверки полноты и целостности latest run и SelectionState. Подтверждение фиксирует fingerprint, matching/selection revisions, counts и время. Confirmed-сессия доступна только для чтения; возврат в draft очищает confirmation, сохраняя run, решения и feedback. AI JSON 1.1.0 доступен для завершённого актуального draft и подтверждённого snapshot. Основной человеческий документ остаётся сценарием G1 будущего PR.
+
+## Pilot 1.0 gate (B6)
+
+F1–F4 остаются verified; AI feedback export входит в pilot flow. B6 gate покрывает full workflow, reload/recovery, concurrent revision refresh, multi-catalog priority, confirmed export и volume smoke. G1 human final document остаётся planned. Pilot 1.0 не является коммерческим production release.

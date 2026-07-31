@@ -1,5 +1,6 @@
 import type { OfferRef } from "./offer-ref";
 import type { LineFeedback } from "./line-feedback";
+export const SELECTION_STATE_SCHEMA_VERSION = "1.1.0" as const;
 
 export interface SelectedOfferDecision {
   kind: "selected_offer";
@@ -10,7 +11,7 @@ export interface NoOfferDecision { kind: "no_offer"; confirmedAt: string }
 export type LineDecision = SelectedOfferDecision | NoOfferDecision;
 
 export interface SelectionStateRecord {
-  schemaVersion: "1.1.0";
+  schemaVersion: typeof SELECTION_STATE_SCHEMA_VERSION;
   matchRunId: string;
   sessionId: string;
   inputFingerprint: string;
@@ -33,7 +34,7 @@ export function normalizeSelectionStateRecord(record: StoredSelectionStateRecord
       ? { ...decision, offerRef: { ...decision.offerRef } }
       : { ...decision };
   }
-  return { ...record, schemaVersion: "1.1.0", decisions, feedback: record.schemaVersion === "1.0.0" ? {} : { ...record.feedback } };
+  return { ...record, schemaVersion: SELECTION_STATE_SCHEMA_VERSION, decisions, feedback: record.schemaVersion === "1.0.0" ? {} : { ...record.feedback } };
 }
 
 export type SelectionErrorCode =
@@ -65,7 +66,7 @@ export function createSelectionState(
   now = new Date().toISOString(),
 ): SelectionStateRecord {
   return {
-    schemaVersion: "1.1.0",
+    schemaVersion: SELECTION_STATE_SCHEMA_VERSION,
     matchRunId: run.id,
     sessionId: run.sessionId,
     inputFingerprint: run.result.input_fingerprint,

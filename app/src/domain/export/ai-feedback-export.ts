@@ -2,7 +2,7 @@ import type { CatalogRecord } from "../catalog";
 import type { MatchRunRecord } from "../matching/match-run";
 import { offerRefKey, type OfferRef } from "../matching/offer-ref";
 import type { LineFeedback } from "../matching/line-feedback";
-import type { LineDecision, SelectionStateRecord } from "../matching/selection-state";
+import { SELECTION_STATE_SCHEMA_VERSION, type LineDecision, type SelectionStateRecord } from "../matching/selection-state";
 import type { RequestBundle, SessionConfirmation, SessionRecord, SessionStatus } from "../session";
 import type { SessionMatchingSettings } from "../matching/session-policy";
 import { equalOfferRefs } from "../matching/offer-ref";
@@ -13,11 +13,12 @@ export type AiFeedbackExportErrorCode = "AI_EXPORT_NOT_CURRENT" | "AI_EXPORT_STA
 export class AiFeedbackExportError extends Error {
   constructor(message: string, public readonly code: AiFeedbackExportErrorCode, public readonly missingLineIds: string[] = []) { super(message); this.name = "AiFeedbackExportError"; }
 }
+export const AI_FEEDBACK_EXPORT_SCHEMA_VERSION = "1.1.0" as const;
 export interface ReferencedCatalogItem { offer_ref: OfferRef; catalog: { record_id: string; catalog_id: string; source_sha256: string; source_file_name: string } | null; source: unknown | null; catalog_item: unknown | null; missing: boolean }
 export interface AiFeedbackSession { session_id: string; name: string; comment: string; status: SessionStatus; confirmation?: SessionConfirmation; request_id: string; request_file_name: string; matching_revision: number; matching_settings: SessionMatchingSettings; catalog_refs: SessionRecord["catalogRefs"]; created_at: string; updated_at: string }
 export interface AiFeedbackMatchRun { id: string; session_revision: number; created_at: string; input_fingerprint: string; result: MatchRunRecord["result"] }
-export interface AiFeedbackOperatorReview { selection_state_schema_version: "1.1.0"; selection_state_revision: number; decided_count: number; selected_offer_count: number; no_offer_count: number; feedback_count: number; lines: Array<{ line_id: string; decision: LineDecision; feedback?: LineFeedback }> }
-export interface AiFeedbackExportV1 { schema_version: "1.1.0"; export_type: "auto_offer_ai_feedback"; exported_at: string; session: AiFeedbackSession; request_bundle: RequestBundle; match_run: AiFeedbackMatchRun; operator_review: AiFeedbackOperatorReview; referenced_catalog_items: ReferencedCatalogItem[] }
+export interface AiFeedbackOperatorReview { selection_state_schema_version: typeof SELECTION_STATE_SCHEMA_VERSION; selection_state_revision: number; decided_count: number; selected_offer_count: number; no_offer_count: number; feedback_count: number; lines: Array<{ line_id: string; decision: LineDecision; feedback?: LineFeedback }> }
+export interface AiFeedbackExportV1 { schema_version: typeof AI_FEEDBACK_EXPORT_SCHEMA_VERSION; export_type: "auto_offer_ai_feedback"; exported_at: string; session: AiFeedbackSession; request_bundle: RequestBundle; match_run: AiFeedbackMatchRun; operator_review: AiFeedbackOperatorReview; referenced_catalog_items: ReferencedCatalogItem[] }
 type Obj = Record<string, unknown>;
 const object = (x: unknown): x is Obj => typeof x === "object" && x !== null && !Array.isArray(x);
 function ref(x: unknown): OfferRef | undefined { if (!object(x)) return; const f = [x.catalog_record_id,x.catalog_id,x.source_sha256,x.source_item_id]; return f.every((v) => typeof v === "string") ? x as unknown as OfferRef : undefined; }
@@ -77,11 +78,11 @@ export function buildAiFeedbackExport(input: { session: SessionRecord; catalogs:
     return { offer_ref: offer, catalog: catalog ? { record_id: catalog.recordId, catalog_id: catalog.catalogId, source_sha256: catalog.sourceSha256, source_file_name: catalog.sourceFileName } : null, source: raw?.source ?? null, catalog_item: raw?.catalog_item ?? null, missing: !catalog || !raw };
   });
   return {
-    schema_version: "1.1.0", export_type: "auto_offer_ai_feedback", exported_at: input.exportedAt ?? new Date().toISOString(),
+    schema_version: AI_FEEDBACK_EXPORT_SCHEMA_VERSION, export_type: "auto_offer_ai_feedback", exported_at: input.exportedAt ?? new Date().toISOString(),
     session: { session_id: session.sessionId, name: session.name, comment: session.comment, status: session.status, ...(session.status === "confirmed" && { confirmation: { ...session.confirmation } }), request_id: session.requestId, request_file_name: session.requestFileName, matching_revision: session.matchingRevision, matching_settings: session.matchingSettings, catalog_refs: session.catalogRefs, created_at: session.createdAt, updated_at: session.updatedAt },
     request_bundle: session.requestBundle,
     match_run: { id: run.id, session_revision: run.sessionRevision, created_at: run.createdAt, input_fingerprint: run.result.input_fingerprint, result: run.result },
-    operator_review: { selection_state_schema_version: "1.1.0", selection_state_revision: selectionState.revision, decided_count: lines.length, selected_offer_count: lines.filter((x) => x.decision.kind === "selected_offer").length, no_offer_count: lines.filter((x) => x.decision.kind === "no_offer").length, feedback_count: lines.filter((x) => x.feedback).length, lines },
+    operator_review: { selection_state_schema_version: SELECTION_STATE_SCHEMA_VERSION, selection_state_revision: selectionState.revision, decided_count: lines.length, selected_offer_count: lines.filter((x) => x.decision.kind === "selected_offer").length, no_offer_count: lines.filter((x) => x.decision.kind === "no_offer").length, feedback_count: lines.filter((x) => x.feedback).length, lines },
     referenced_catalog_items,
   };
 }

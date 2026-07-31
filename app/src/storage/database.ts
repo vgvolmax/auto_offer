@@ -34,9 +34,11 @@ export interface AutoOfferDB extends DBSchema {
 }
 let dbPromise: Promise<IDBPDatabase<AutoOfferDB>> | undefined;
 let dbInstance: IDBPDatabase<AutoOfferDB> | undefined;
+export const DATABASE_NAME = "auto-offer" as const;
+export const DATABASE_VERSION = 3 as const;
 export const getDatabase = () => {
   if (!dbPromise)
-    dbPromise = openDB<AutoOfferDB>("auto-offer", 3, {
+    dbPromise = openDB<AutoOfferDB>(DATABASE_NAME, DATABASE_VERSION, {
       upgrade(db, oldVersion) {
         if (oldVersion < 1) {
           const catalogs = db.createObjectStore("catalogs", {
