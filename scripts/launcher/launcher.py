@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, contextlib, json, logging, logging.handlers, os, subprocess, sys, tempfile, time, webbrowser
+import argparse, contextlib, json, logging, logging.handlers, os, subprocess, sys, time, webbrowser
 from datetime import datetime, timezone
 from pathlib import Path
 
 HERE=Path(__file__).resolve().parent; ROOT=HERE.parent.parent
 sys.path.insert(0,str(HERE))
-from auto_offer_launcher.build import build_current, build_fingerprint, dependencies_current, publish_build, run_activity
+from auto_offer_launcher.build import build_current, build_fingerprint, dependencies_current, make_build_staging, publish_build, run_activity
 from auto_offer_launcher.config import ConfigError, atomic_json, load_manifest, load_state, sha256_file
 from auto_offer_launcher.download import download, extract_atomic
 from auto_offer_launcher.environment import validate_windows
@@ -81,7 +81,7 @@ def command_start(manifest,args):
                 fingerprint=build_fingerprint(ROOT,manifest["build_settings"])
                 if not build_current(ROOT,state,fingerprint):
                     run_activity([npm,"run","typecheck:app"],ROOT,output,4,"TypeScript")
-                    temp=Path(tempfile.mkdtemp(prefix="app.new-",dir=p["build"].parent));
+                    temp=make_build_staging(p["build"])
                     try:
                         run_activity([npm,"run","app:build","--","--outDir",str(temp)],ROOT,output,5,"Сборка"); publish_build(temp,p["build"])
                     finally:
