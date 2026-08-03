@@ -66,6 +66,7 @@ start, импорт тестового bundle, draft, stop, offline start и п�
 GitHub Actions `Windows portable release` выполняет автоматическую ZIP-проверку на
 Windows 2022, включая Unicode/space path, два конкурентных BAT-запуска, health/root,
 все referenced assets, согласованность PID/instance state, единственный server
-process, отсутствие token в argv/logs и временных install-файлов, stop и
-offline-ready restart без переустановки runtime. Эта CI-проверка не заменяет указанную выше ручную
-приёмку на чистой пользовательской Windows.
+process, отсутствие token в argv/logs и временных install-файлов, stop, repair
+изменённого/лишнего runtime-файла, offline recovery из `python.previous` и
+offline-ready restart без переустановки runtime. Эта CI-проверка не заменяет
+указанную выше ручную приёмку на чистой пользовательской Windows.
