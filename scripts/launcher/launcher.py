@@ -7,7 +7,7 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent; ROOT=HERE.parent.parent
 sys.path.insert(0,str(HERE))
 from auto_offer_launcher import APP_IDENTITY
-from auto_offer_launcher.build import build_current, build_fingerprint, dependencies_current, make_build_staging, publish_build, run_activity
+from auto_offer_launcher.build import build_current, build_fingerprint, dependencies_current, dependencies_usable, make_build_staging, publish_build, run_activity
 from auto_offer_launcher.config import ConfigError, atomic_json, load_manifest, load_state, sha256_file
 from auto_offer_launcher.download import download, extract_atomic
 from auto_offer_launcher.environment import validate_windows
@@ -100,7 +100,8 @@ def command_start(manifest,args):
             ensure_node(manifest,p,state,report); state=load_state(p["state"])
             npm=p["node"]/"npm.cmd"
             with p["log"].open("a",encoding="utf-8") as output:
-                if not dependencies_current(ROOT,state,manifest["node"]["version"]):
+                node=p["node"]/manifest["node"]["executable"]
+                if not dependencies_current(ROOT,state,manifest["node"]["version"]) or not dependencies_usable(ROOT,node):
                     run_activity([npm,"ci","--no-audit","--no-fund"],ROOT,output,3,"npm-зависимости")
                     state["package_lock_sha256"]=sha256_file(ROOT/"package-lock.json"); atomic_json(p["state"],state)
                 else: report.stage(3,"npm-зависимости","без изменений")
