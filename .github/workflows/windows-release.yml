@@ -76,6 +76,17 @@ jobs:
           } finally {
             [IO.File]::WriteAllBytes($manifestPath, $original)
           }
+          try {
+            $bad = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+            $bad.python.url = 'https://user:secret@www.python.org/ftp/python/runtime.zip'
+            [IO.File]::WriteAllText($manifestPath, ($bad | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
+            & "$env:E2E_ROOT\start.bat" --no-browser
+            if ($LASTEXITCODE -eq 0) { throw 'credential-bearing runtime URL was accepted' }
+            if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python") { throw 'credential-bearing URL installed a runtime before rejection' }
+            if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python-download.part") { throw 'credential-bearing URL started a download before rejection' }
+          } finally {
+            [IO.File]::WriteAllBytes($manifestPath, $original)
+          }
 
       - name: BAT-level first start, concurrency, health and stop
         shell: pwsh
@@ -146,6 +157,32 @@ jobs:
           if ($runningAfter.pid -eq $runningBefore.pid) { throw 'runtime repair reused the process that still owned the damaged runtime' }
           & "$env:E2E_ROOT\stop.bat"
           if ($LASTEXITCODE) { throw 'stop after runtime repair failed' }
+
+      - name: Recycled stale PID does not block runtime repair
+        shell: pwsh
+        working-directory: C:\Windows\Temp
+        run: |
+          $runtime = "$env:E2E_ROOT\.runtime"
+          Set-Content -LiteralPath (Join-Path $runtime 'python\unexpected-runtime-file.txt') -Value 'force repair'
+          $stale = [ordered]@{
+            app_identity = 'auto-offer'
+            app_version = 'stale'
+            release_fingerprint = 'stale'
+            launcher_version = '1.0.0'
+            host = '127.0.0.1'
+            port = 8765
+            pid = $PID
+            instance_id = 'stale-recycled-pid'
+            start_time = [DateTime]::UtcNow.ToString('o')
+            shutdown_token = 'ci-only-stale-token'
+          }
+          [IO.File]::WriteAllText((Join-Path $runtime 'server.json'), ($stale | ConvertTo-Json), [Text.UTF8Encoding]::new($false))
+          & "$env:E2E_ROOT\start.bat" --no-browser
+          if ($LASTEXITCODE) { throw 'stale recycled PID blocked runtime repair' }
+          if (Test-Path -LiteralPath (Join-Path $runtime 'python\unexpected-runtime-file.txt')) { throw 'runtime was not repaired after stale state' }
+          Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health | Out-Null
+          & "$env:E2E_ROOT\stop.bat"
+          if ($LASTEXITCODE) { throw 'stop after stale-state repair failed' }
 
       - name: Interrupted publication recovers offline
         shell: pwsh
