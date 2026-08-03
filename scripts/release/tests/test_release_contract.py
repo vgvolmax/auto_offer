@@ -20,6 +20,10 @@ class ReleaseContractTests(unittest.TestCase):
     def tearDown(self): self.tmp.cleanup()
     def verify(self): return load_release(self.stage/"release-manifest.json",self.stage)
 
+    def test_bootstrap_has_utf8_bom_for_windows_powershell(self):
+        bootstrap = self.stage/"scripts/launcher/bootstrap.ps1"
+        self.assertTrue(bootstrap.read_bytes().startswith(b"\xef\xbb\xbf"))
+
     def test_manifest_exact_hashes_and_unicode_path(self): self.verify(); audit(self.stage)
     def test_changed_file_is_rejected(self):
         (self.stage/"dist/app/index.html").write_text("changed")
