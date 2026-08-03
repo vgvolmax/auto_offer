@@ -89,6 +89,15 @@ class ManifestTests(unittest.TestCase):
         self.file["path"] = "dist/../x"
         self.assert_invalid_release()
 
+    def test_dot_path_is_rejected_as_manifest_error(self):
+        self.file["path"] = "."
+        self.assert_invalid_release()
+
+    def test_dot_slash_path_is_rejected_as_manifest_error(self):
+        self.file["path"] = "./"
+        self.assert_invalid_release()
+
+
     def test_missing_file(self):
         (self.root / "dist/app/index.html").unlink()
         self.assert_invalid_release()
@@ -132,6 +141,22 @@ class ManifestTests(unittest.TestCase):
         data = self.runtime()
         data["python"]["url"] = "http://www.python.org/x"
         self.assert_invalid_runtime(data)
+
+    def test_runtime_malformed_url_is_manifest_error(self):
+        data = self.runtime()
+        data["python"]["url"] = "https://[/"
+        self.assert_invalid_runtime(data)
+
+    def test_runtime_url_rejects_invalid_port(self):
+        data = self.runtime()
+        data["python"]["url"] = "https://www.python.org:bad/x"
+        self.assert_invalid_runtime(data)
+
+    def test_runtime_url_rejects_non_https_port(self):
+        data = self.runtime()
+        data["python"]["url"] = "https://www.python.org:444/x"
+        self.assert_invalid_runtime(data)
+
 
     def test_runtime_unknown_field(self):
         data = self.runtime()
