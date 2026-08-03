@@ -9,8 +9,5 @@ node_modules/
 .DS_Store
 dist/
 .runtime/
-release-staging/
-Auto-Offer-*-windows-x64.zip
 scripts/launcher/**/__pycache__/
 
-scripts/release/__pycache__/
