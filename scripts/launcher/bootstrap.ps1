@@ -266,9 +266,18 @@ try {
       if ($hadActive) { Move-Item -LiteralPath $pythonDir -Destination $backupDir }
       try {
         Move-Item -LiteralPath $temp -Destination $pythonDir
+        if (-not (Test-InstalledRuntime $pythonDir $m)) { throw 'Published Portable Python verification failed' }
       } catch {
-        if ($hadActive -and (Test-Path -LiteralPath $backupDir) -and -not (Test-Path -LiteralPath $pythonDir)) {
+        $failedPublication = $null
+        if (Test-Path -LiteralPath $pythonDir) {
+          $failedPublication = Join-Path $runtime ('python.failed-' + [guid]::NewGuid().ToString('N'))
+          Move-Item -LiteralPath $pythonDir -Destination $failedPublication
+        }
+        if ($hadActive -and (Test-Path -LiteralPath $backupDir)) {
           Move-Item -LiteralPath $backupDir -Destination $pythonDir
+        }
+        if ($failedPublication -and (Test-Path -LiteralPath $failedPublication)) {
+          Remove-Item -LiteralPath $failedPublication -Recurse -Force
         }
         throw
       }
