@@ -1,7 +1,7 @@
 import tempfile,time,unittest
 from pathlib import Path
-from unittest.mock import patch
-from scripts.launcher.auto_offer_launcher.build import build_current,build_fingerprint,dependencies_current,make_build_staging,publish_build
+from unittest.mock import Mock,patch
+from scripts.launcher.auto_offer_launcher.build import build_current,build_fingerprint,dependencies_current,dependencies_usable,make_build_staging,publish_build
 class BuildTests(unittest.TestCase):
  def root(self,d):
   r=Path(d); (r/'app').mkdir(); (r/'app/x').write_text('x'); (r/'package.json').write_text('{}'); (r/'package-lock.json').write_text('{}'); return r
@@ -25,6 +25,15 @@ class BuildTests(unittest.TestCase):
    self.assertFalse(build_current(r,state,'same'))
    (app/'assets').mkdir(); (app/'assets/app.js').write_text('ok')
    self.assertTrue(build_current(r,state,'same'))
+ def test_dependency_probe_uses_portable_node_and_detects_damage(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=self.root(d); node=Path(d)/'node.exe'; node.write_text('')
+   with patch('scripts.launcher.auto_offer_launcher.build.subprocess.run',return_value=Mock(returncode=0)) as run:
+    self.assertTrue(dependencies_usable(root,node))
+    self.assertEqual(run.call_args.args[0][0],str(node))
+    self.assertFalse(run.call_args.kwargs['shell'])
+   with patch('scripts.launcher.auto_offer_launcher.build.subprocess.run',return_value=Mock(returncode=1)):
+    self.assertFalse(dependencies_usable(root,node))
  def test_failed_build_preserves_artifact(self):
   with tempfile.TemporaryDirectory() as d:
    r=Path(d); final=r/'app'; final.mkdir(); (final/'index.html').write_text('old'); temp=r/'new'; temp.mkdir(); (temp/'index.html').write_text('<script src="/missing.js"></script>')
