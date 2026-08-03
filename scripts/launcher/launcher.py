@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import argparse, json, socket, subprocess, sys, time, webbrowser
+sys.dont_write_bytecode = True
+
 from pathlib import Path
 from urllib.request import Request, urlopen
 
