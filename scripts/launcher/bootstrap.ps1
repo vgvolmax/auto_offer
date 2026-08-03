@@ -1,4 +1,4 @@
-param([switch]$NoBrowser)
+param([Alias('no-browser')][switch]$NoBrowser)
 $ErrorActionPreference = 'Stop'
 $Root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $ManifestPath = Join-Path $PSScriptRoot 'runtime-manifest.json'
@@ -11,6 +11,25 @@ $Downloads = Join-Path $Runtime 'downloads'
 $Archive = Join-Path $Downloads 'python.zip'
 $AllowedHosts = @($Manifest.download_hosts | ForEach-Object { $_.ToLowerInvariant() })
 Add-Type -AssemblyName System.Net.Http
+
+# This OS-owned byte-range lock covers the complete mutation window, including the
+# first Python download.  The persistent file is metadata, never a sentinel.
+New-Item -ItemType Directory -Force -Path $Runtime | Out-Null
+$LockPath = Join-Path $Runtime 'launcher.lock'
+$Lock = [IO.File]::Open($LockPath,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::ReadWrite)
+$Deadline = [DateTime]::UtcNow.AddMinutes(20)
+while ($true) {
+  try { $Lock.Lock(0,1); break }
+  catch [IO.IOException] {
+    if ([DateTime]::UtcNow -ge $Deadline) { $Lock.Dispose(); throw 'Another launcher is still preparing Auto Offer after 20 minutes.' }
+    Write-Host '[lock] Another launcher is preparing Auto Offer; waiting...'
+    Start-Sleep -Milliseconds 500
+  }
+}
+try {
+$Lock.SetLength(0)
+$Metadata = [Text.Encoding]::UTF8.GetBytes((@{pid=$PID;acquired=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json -Compress))
+$Lock.Write($Metadata,0,$Metadata.Length); $Lock.Flush()
 
 function Assert-AllowedUri([Uri]$Uri) {
   if ($Uri.Scheme -ne 'https') { throw 'Download blocked: HTTPS is required (HTTP downgrade is forbidden).' }
@@ -67,7 +86,9 @@ if (-not (Test-PortablePython $PythonDir)) {
   try {
     Get-AllowedDownload ([Uri]$Manifest.python.url) $Part
     $Actual = (Get-FileHash -LiteralPath $Part -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($Actual -ne $Manifest.python.sha256) { throw 'Python SHA-256 mismatch; downloaded archive was not installed.' }
+    if ($Actual -ne $Manifest.python.sha256) {
+      throw "Python SHA-256 mismatch; expected $($Manifest.python.sha256), actual $Actual; downloaded archive was not installed."
+    }
     Move-Item -LiteralPath $Part -Destination $Archive -Force
     New-Item -ItemType Directory -Path $Temp | Out-Null
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -95,5 +116,10 @@ if (-not (Test-PortablePython $PythonDir)) {
 } else { Write-Host '[1/7] Portable Python: verified and ready' }
 $LauncherArgs = @((Join-Path $PSScriptRoot 'launcher.py'),'start')
 if ($NoBrowser) { $LauncherArgs += '--no-browser' }
+$env:AUTO_OFFER_BOOTSTRAP_LOCK_HELD = '1'
 & $Python @LauncherArgs
 exit $LASTEXITCODE
+} finally {
+  Remove-Item Env:AUTO_OFFER_BOOTSTRAP_LOCK_HELD -ErrorAction SilentlyContinue
+  try { $Lock.Unlock(0,1) } finally { $Lock.Dispose() }
+}

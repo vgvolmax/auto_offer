@@ -5,13 +5,13 @@
   "python": {
     "version": "3.13.7",
     "url": "https://www.python.org/ftp/python/3.13.7/python-3.13.7-embed-amd64.zip",
-    "sha256": "9e4e003d13be5d4a8a3e88f1e40b2550d0e492bd647a2c0f1a5e1aa30cb60d87",
+    "sha256": "f6cca216a359be84797cabb54149ce5e062afb16cc7567eb7fc51cacb2d86b65",
     "executable": "python.exe"
   },
   "node": {
     "version": "22.19.0",
     "url": "https://nodejs.org/dist/v22.19.0/node-v22.19.0-win-x64.zip",
-    "sha256": "8f22f8261a70476b8143756a03a9a6bf25f73d1beabbf949ea57b0f17d7f2c77",
+    "sha256": "ea3fad0e67a991d8477d8c01344b56e69c676ccb733f065b22436994b1253f86",
     "executable": "node.exe"
   },
   "host": "127.0.0.1",

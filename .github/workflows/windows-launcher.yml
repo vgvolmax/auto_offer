@@ -1,71 +1,98 @@
 name: Windows portable launcher
 on:
   pull_request:
-    paths: ['start.bat', 'stop.bat', 'scripts/launcher/**', '.github/workflows/windows-launcher.yml', 'app/**', 'package*.json']
+    paths: ['start.bat', 'stop.bat', 'scripts/launcher/**', '.github/workflows/windows-launcher.yml', 'docs/app/WINDOWS_PORTABLE_LAUNCH.md', 'package*.json', 'app/**']
   workflow_dispatch:
 jobs:
   windows-launcher:
     runs-on: windows-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-      - name: Unit and fixture integration tests
+      - name: Launcher unit tests
         run: python -m unittest discover -s scripts/launcher/tests -p "test_*.py" -v
-      - name: Path with spaces and Cyrillic
+      - name: BAT-level fresh, concurrent, offline-ready E2E
         shell: pwsh
         run: |
-          $target = Join-Path $env:RUNNER_TEMP 'Тест Auto Offer\auto_offer'
-          New-Item -ItemType Directory -Force $target | Out-Null
-          Copy-Item scripts,start.bat,stop.bat,package.json,package-lock.json,app -Destination $target -Recurse
-          python "$target\scripts\launcher\launcher.py" doctor
-      - name: Fresh end-to-end portable bootstrap
-        shell: pwsh
-        run: |
-          Remove-Item .runtime,node_modules,dist -Recurse -Force -ErrorAction SilentlyContinue
-          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/launcher/bootstrap.ps1 -NoBrowser
-          $health = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
-          if ($health.app_identity -ne 'auto-offer-windows-portable') { throw 'health identity failed' }
-          if ((Invoke-WebRequest http://127.0.0.1:8765/ -UseBasicParsing).StatusCode -ne 200) { throw 'root failed' }
-          $firstPid = $health.pid
-          $pythonTime = (Get-Item .runtime/python/python.exe).LastWriteTimeUtc
-          $nodeTime = (Get-Item .runtime/node/node.exe).LastWriteTimeUtc
-          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/launcher/bootstrap.ps1 -NoBrowser
-          $again = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
-          if ($again.pid -ne $firstPid) { throw 'second server was created' }
-          if ((Get-Item .runtime/python/python.exe).LastWriteTimeUtc -ne $pythonTime -or (Get-Item .runtime/node/node.exe).LastWriteTimeUtc -ne $nodeTime) { throw 'runtime was downloaded again' }
-          .runtime/python/python.exe scripts/launcher/launcher.py stop
-          if (Test-Path .runtime/server.json) { throw 'server state was not cleaned' }
-          $env:HTTP_PROXY='http://127.0.0.1:1'; $env:HTTPS_PROXY='http://127.0.0.1:1'
-          .runtime/python/python.exe scripts/launcher/launcher.py start --no-browser
-          .runtime/python/python.exe scripts/launcher/launcher.py stop
-      - name: Recover damaged and partial Python runtime
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force .runtime/python.new-interrupted | Out-Null
-          Set-Content .runtime/python.new-interrupted/python.exe 'partial'
-          Remove-Item .runtime/python/install-receipt.json -Force
-          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/launcher/bootstrap.ps1 -NoBrowser
-          $version = & .runtime/python/python.exe -c 'import platform; print(platform.python_version())'
-          if ($version.Trim() -ne '3.13.7') { throw 'Python repair/version validation failed' }
-          if (Test-Path .runtime/python.new-interrupted) { throw 'partial install was not cleaned' }
-          .runtime/python/python.exe scripts/launcher/launcher.py stop
-      - name: Full launch from path with spaces and Cyrillic
-        shell: pwsh
-        run: |
-          $target = Join-Path $env:RUNNER_TEMP 'Тест Auto Offer\auto_offer'
+          $source = (Get-Location).Path
+          $target = Join-Path $env:RUNNER_TEMP 'CI Work\Тест Auto Offer\auto_offer'
           Remove-Item $target -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force $target | Out-Null
-          Copy-Item scripts,start.bat,stop.bat,package.json,package-lock.json,app,.runtime,node_modules,dist -Destination $target -Recurse
-          & "$target\.runtime\python\python.exe" "$target\scripts\launcher\launcher.py" start --no-browser
-          if ((Invoke-WebRequest http://127.0.0.1:8765/ -UseBasicParsing).StatusCode -ne 200) { throw 'Cyrillic path root failed' }
-          & "$target\.runtime\python\python.exe" "$target\scripts\launcher\launcher.py" stop
+          Copy-Item "$source\*" -Destination $target -Recurse -Force
+          Remove-Item "$target\.runtime","$target\node_modules","$target\dist\app" -Recurse -Force -ErrorAction SilentlyContinue
+          # Verify the two official artifacts independently before the bootstrap
+          # gets any opportunity to extract or publish them.
+          $manifest = Get-Content "$target\scripts\launcher\runtime-manifest.json" -Raw | ConvertFrom-Json
+          $verification = Join-Path $env:RUNNER_TEMP 'runtime checksum verification'
+          New-Item -ItemType Directory -Force $verification | Out-Null
+          foreach ($name in @('python','node')) {
+            $item=$manifest.$name; $archive=Join-Path $verification (Split-Path $item.url -Leaf)
+            Invoke-WebRequest $item.url -OutFile $archive -UseBasicParsing
+            $actual=(Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actual -ne $item.sha256) { throw "$name official ZIP mismatch: expected $($item.sha256), actual $actual" }
+          }
+          $outside = Join-Path $env:RUNNER_TEMP 'arbitrary cwd'; New-Item -ItemType Directory -Force $outside | Out-Null
+          Push-Location $outside
+          try {
+            $one = Start-Process cmd.exe -ArgumentList '/d','/c',('"{0}" --no-browser > "{1}" 2>&1' -f "$target\start.bat","$target\first.log") -PassThru
+            $two = Start-Process cmd.exe -ArgumentList '/d','/c',('"{0}" --no-browser > "{1}" 2>&1' -f "$target\start.bat","$target\second.log") -PassThru
+            $one.WaitForExit(); $two.WaitForExit()
+            if ($one.ExitCode -ne 0 -or $two.ExitCode -ne 0) { Get-Content "$target\*.log"; throw "concurrent start.bat failed: $($one.ExitCode), $($two.ExitCode)" }
+          } finally { Pop-Location }
+          foreach ($runtime in @(@('python','python.zip'),@('node','node.zip'))) {
+            $item = $manifest.($runtime[0]); $archive = Join-Path "$target\.runtime\downloads" $runtime[1]
+            if ((Split-Path $item.url -Leaf) -notin @('python-3.13.7-embed-amd64.zip','node-v22.19.0-win-x64.zip')) { throw 'wrong pinned archive filename' }
+            $actual = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actual -ne $item.sha256) { throw "$($runtime[0]) independent SHA-256 mismatch: expected $($item.sha256), actual $actual" }
+          }
+          $health = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          if ($health.app_identity -ne 'auto-offer-windows-portable') { throw 'health identity failed' }
+          $root = Invoke-WebRequest http://127.0.0.1:8765/ -UseBasicParsing
+          if ($root.StatusCode -ne 200 -or [string]::IsNullOrWhiteSpace($root.Content)) { throw 'root/index.html failed' }
+          $serverPid = $health.pid
+          if (@(Get-Process -Id $serverPid -ErrorAction SilentlyContinue).Count -ne 1) { throw 'exactly one server was not found' }
+          Push-Location $outside; try { & cmd.exe /d /c "`"$target\stop.bat`""; if ($LASTEXITCODE -ne 0) { throw 'stop.bat failed' } } finally { Pop-Location }
+          if (Test-Path "$target\.runtime\server.json") { throw 'server.json was not removed' }
+          if (Get-Process -Id $serverPid -ErrorAction SilentlyContinue) { throw 'server process remains' }
+
+          $pythonTime=(Get-Item "$target\.runtime\python\python.exe").LastWriteTimeUtc
+          $nodeTime=(Get-Item "$target\.runtime\node\node.exe").LastWriteTimeUtc
+          $modulesTime=(Get-Item "$target\node_modules").LastWriteTimeUtc
+          $buildTime=(Get-Item "$target\dist\app").LastWriteTimeUtc
+          $env:HTTP_PROXY='http://127.0.0.1:1'; $env:HTTPS_PROXY='http://127.0.0.1:1'; $env:NO_PROXY='127.0.0.1'
+          Push-Location $outside; try { & cmd.exe /d /c "`"$target\start.bat`" --no-browser"; if ($LASTEXITCODE -ne 0) { throw 'offline start.bat failed' } } finally { Pop-Location }
+          if ((Get-Item "$target\.runtime\python\python.exe").LastWriteTimeUtc -ne $pythonTime -or (Get-Item "$target\.runtime\node\node.exe").LastWriteTimeUtc -ne $nodeTime) { throw 'offline run changed runtime' }
+          if ((Get-Item "$target\node_modules").LastWriteTimeUtc -ne $modulesTime) { throw 'offline run repeated npm ci' }
+          if ((Get-Item "$target\dist\app").LastWriteTimeUtc -ne $buildTime) { throw 'offline run repeated build' }
+          $health=Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          if ($health.app_identity -ne 'auto-offer-windows-portable') { throw 'offline health failed' }
+          & cmd.exe /d /c "`"$target\stop.bat`""; if ($LASTEXITCODE -ne 0) { throw 'offline stop.bat failed' }
+      - name: Bootstrap lock crash recovery and stale metadata
+        shell: pwsh
+        run: |
+          $target = Join-Path $env:RUNNER_TEMP 'CI Work\Тест Auto Offer\auto_offer'
+          $holder = Start-Process powershell.exe -ArgumentList '-NoProfile','-Command',("`$f=[IO.File]::Open('{0}', 'OpenOrCreate', 'ReadWrite', 'ReadWrite'); `$f.Lock(0,1); Start-Sleep 300" -f "$target\.runtime\launcher.lock") -PassThru
+          Start-Sleep 2
+          Stop-Process -Id $holder.Id -Force; $holder.WaitForExit()
+          & cmd.exe /d /c "echo stale metadata> `"$target\.runtime\launcher.lock`""
+          & cmd.exe /d /c "`"$target\start.bat`" --no-browser"; if ($LASTEXITCODE -ne 0) { throw 'stale metadata blocked start' }
+          & cmd.exe /d /c "`"$target\stop.bat`""; if ($LASTEXITCODE -ne 0) { throw 'stop failed' }
+      - name: Repository regression
+        shell: bash
+        run: |
+          npm run typecheck:app
+          npm run test:app
+          npm run test:pilot
+          npm run app:build
+          npm test
+          git diff --check
+          if rg -n "(?:skip|only)\(" scripts/launcher app/src tests; then exit 1; fi
       - name: Upload sanitized launcher log on failure
         if: failure()
         shell: pwsh
         run: |
-          if (Test-Path .runtime/logs/launcher.log) {
-            (Get-Content .runtime/logs/launcher.log) -replace '(?i)(shutdown.?token|authorization|cookie)(\s*[:=]\s*)\S+','$1$2[REDACTED]' | Set-Content launcher-sanitized.log
-          }
+          $log = Join-Path $env:RUNNER_TEMP 'CI Work\Тест Auto Offer\auto_offer\.runtime\logs\launcher.log'
+          if (Test-Path $log) { (Get-Content $log) -replace '(?i)(shutdown.?token|authorization|cookie)(\s*[:=]\s*)\S+','$1$2[REDACTED]' | Set-Content launcher-sanitized.log }
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

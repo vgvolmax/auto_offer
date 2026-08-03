@@ -46,7 +46,8 @@ def download(url: str, destination: Path, checksum: str, stage=2, attempts=3, op
                     print("\r"+download_line(stage,"Portable runtime",received,total,time.monotonic()-started,unicode_supported()),end="",flush=True)
             print()
             if total and received != total: raise urllib.error.ContentTooShortError("interrupted download", None)
-            if h.hexdigest() != checksum: raise DownloadError("SHA-256 checksum mismatch; archive was not installed")
+            actual=h.hexdigest()
+            if actual != checksum: raise DownloadError(f"SHA-256 checksum mismatch; expected {checksum}, actual {actual}; archive was not installed")
             os.replace(part,destination); return destination
         except DownloadError: part.unlink(missing_ok=True); raise
         except (OSError, urllib.error.URLError, TimeoutError) as exc:
