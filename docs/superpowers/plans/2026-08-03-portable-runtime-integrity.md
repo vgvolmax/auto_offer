@@ -14,7 +14,7 @@
 
 **Files:**
 - Modify: `scripts/launcher/tests/test_manifests.py`
-- Modify: `scripts/launcher/config.py`
+- Modify: `scripts/launcher/auto_offer_launcher/config.py`
 
 - [ ] Add failing tests proving that booleans are not integers and collection/string fields reject the wrong JSON type.
 
@@ -48,7 +48,7 @@ Also cover non-list `allowed_hosts`, non-object runtime entries, empty/non-strin
 ### Task 2: Add RED Windows acceptance tests for runtime integrity
 
 **Files:**
-- Modify: `.github/workflows/windows-launcher.yml`
+- Modify: `.github/workflows/windows-release.yml`
 
 - [ ] After the successful online bootstrap and stop, record the receipt's `installed_at`, tamper with an installed regular file listed in the receipt, launch online, and assert:
   - launch succeeds;
@@ -110,7 +110,7 @@ function Get-RuntimeFiles([string]$Root) {
 
 **Files:**
 - Modify: `scripts/launcher/bootstrap.ps1`
-- Modify: `.github/workflows/windows-launcher.yml`
+- Modify: `.github/workflows/windows-release.yml`
 
 - [ ] Under the existing launcher mutex, call recovery before any download:
   - if active is absent and `python.previous` is valid, atomically restore it;
