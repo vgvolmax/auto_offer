@@ -15,8 +15,12 @@ ZIP и тестирует именно повторно распакованны
 **3.13.7 x64** с
 `https://www.python.org/ftp/python/3.13.7/python-3.13.7-embed-amd64.zip` и проверяет
 SHA-256 `f6cca216a359be84797cabb54149ce5e062afb16cc7567eb7fc51cacb2d86b65`.
-Runtime атомарно публикуется в `.runtime/python`; системные Python, pip, PATH,
-пакеты и права администратора не используются.
+Runtime публикуется в `.runtime/python` через проверенный staging-каталог;
+системные Python, pip, PATH, пакеты и права администратора не используются.
+`install-receipt.json` schema v2 фиксирует точный сортированный набор каждого
+regular file (нормализованный path, size и SHA-256), pinned Python/archive и launcher
+version. Повторное использование разрешено только при полном совпадении receipt,
+фактического набора файлов, их хешей и запускаемой версии Python.
 
 Mutex удерживается до подтверждённого health нового сервера (либо подтверждения
 уже работающего экземпляра). Поэтому конкурентные первые запуски последовательно
@@ -39,6 +43,12 @@ Token существует только в этом локальном state, н
 Закрытый port со state считается stale; foreign или временно не отвечающий listener
 не останавливается и не перезаписывается.
 
+Публикация runtime сохраняет sibling-каталог `.runtime/python.previous` до
+успешного запуска launcher. Если процесс прерван после переименования, следующий
+`start.bat` под mutex восстанавливает проверенный previous runtime до сетевой
+загрузки. Повреждённый, неполный или содержащий лишний файл runtime не считается
+готовым и заменяется только после полной проверки нового staging-каталога.
+
 Логи находятся в `.runtime/logs/launcher.log` и `server.log`, ротируются и не должны
 содержать shutdown token. Повреждённый release следует скачать и полностью
 распаковать заново; исправный Python runtime сохраняется.
@@ -56,6 +66,7 @@ start, импорт тестового bundle, draft, stop, offline start и п�
 GitHub Actions `Windows portable release` выполняет автоматическую ZIP-проверку на
 Windows 2022, включая Unicode/space path, два конкурентных BAT-запуска, health/root,
 все referenced assets, согласованность PID/instance state, единственный server
-process, отсутствие token в argv/logs и временных install-файлов, stop и
-offline-ready restart без переустановки runtime. Эта CI-проверка не заменяет указанную выше ручную
-приёмку на чистой пользовательской Windows.
+process, отсутствие token в argv/logs и временных install-файлов, stop, repair
+изменённого/лишнего runtime-файла, offline recovery из `python.previous` и
+offline-ready restart без переустановки runtime. Эта CI-проверка не заменяет
+указанную выше ручную приёмку на чистой пользовательской Windows.

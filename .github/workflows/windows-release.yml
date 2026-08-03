@@ -59,6 +59,37 @@ jobs:
           python "$env:GITHUB_WORKSPACE\scripts\release\verify_windows_release.py" $root
           if (Get-ChildItem $root -Recurse | Where-Object { $_.Name -in 'node.exe','npm','npm.cmd','node_modules' }) { throw 'Node/npm leaked into package' }
           "E2E_ROOT=$root" >> $env:GITHUB_ENV
+      - name: Malformed bootstrap manifest fails before installation
+        shell: pwsh
+        working-directory: C:\Windows\Temp
+        run: |
+          $manifestPath = "$env:E2E_ROOT\scripts\launcher\runtime-manifest.json"
+          $original = [IO.File]::ReadAllBytes($manifestPath)
+          try {
+            $bad = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+            $bad.runtime_paths = $false
+            [IO.File]::WriteAllText($manifestPath, ($bad | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
+            & "$env:E2E_ROOT\start.bat" --no-browser
+            if ($LASTEXITCODE -eq 0) { throw 'malformed bootstrap manifest was accepted' }
+            $global:LASTEXITCODE = 0
+            if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python") { throw 'malformed manifest installed a runtime before rejection' }
+            if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python-download.part") { throw 'malformed manifest started a download before rejection' }
+          } finally {
+            [IO.File]::WriteAllBytes($manifestPath, $original)
+          }
+          try {
+            $bad = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+            $bad.python.url = 'https://user:secret@www.python.org/ftp/python/runtime.zip'
+            [IO.File]::WriteAllText($manifestPath, ($bad | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
+            & "$env:E2E_ROOT\start.bat" --no-browser
+            if ($LASTEXITCODE -eq 0) { throw 'credential-bearing runtime URL was accepted' }
+            $global:LASTEXITCODE = 0
+            if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python") { throw 'credential-bearing URL installed a runtime before rejection' }
+            if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python-download.part") { throw 'credential-bearing URL started a download before rejection' }
+          } finally {
+            [IO.File]::WriteAllBytes($manifestPath, $original)
+          }
+
       - name: BAT-level first start, concurrency, health and stop
         shell: pwsh
         working-directory: C:\Windows\Temp
@@ -97,6 +128,99 @@ jobs:
           Start-Sleep -Milliseconds 300
           if (Get-Process -Id $health.pid -ErrorAction SilentlyContinue) { throw 'server process survived stop' }
           if (Test-Path "$env:E2E_ROOT\.runtime\server.json") { throw 'server state survived stop' }
+      - name: Damaged and unexpected runtime files are repaired
+        shell: pwsh
+        working-directory: C:\Windows\Temp
+        run: |
+          & "$env:E2E_ROOT\start.bat" --no-browser
+          if ($LASTEXITCODE) { throw 'pre-repair server start failed' }
+          $runningBefore = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          $receiptPath = "$env:E2E_ROOT\.runtime\python\install-receipt.json"
+          $before = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
+          if ($before.schema_version -ne 2 -or @($before.files).Count -eq 0) { throw 'runtime receipt has no verified file inventory' }
+          $target = @($before.files | Where-Object { $_.path -ne 'python.exe' -and $_.path -match '\.(txt|cat|pth)$' } | Select-Object -First 1)
+          if ($target.Count -eq 0) { $target = @($before.files | Where-Object { $_.path -ne 'python.exe' } | Select-Object -First 1) }
+          if ($target.Count -ne 1) { throw 'receipt has no file available for tamper test' }
+          $targetPath = Join-Path "$env:E2E_ROOT\.runtime\python" $target[0].path
+          $installedAt = [string]$before.installed_at
+          Add-Content -LiteralPath $targetPath -Value 'intentional CI corruption'
+          $unexpected = "$env:E2E_ROOT\.runtime\python\unexpected-runtime-file.txt"
+          Set-Content -LiteralPath $unexpected -Value 'not part of the pinned runtime'
+          & "$env:E2E_ROOT\start.bat" --no-browser
+          if ($LASTEXITCODE) { throw 'runtime repair start failed' }
+          $after = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
+          if ([string]$after.installed_at -eq $installedAt) { throw 'damaged runtime was reused without reinstall' }
+          if (Test-Path -LiteralPath $unexpected) { throw 'unexpected runtime file survived repair' }
+          $restored = @($after.files | Where-Object { $_.path -eq $target[0].path })
+          if ($restored.Count -ne 1) { throw 'repaired receipt lost the tampered file' }
+          $actualHash = (Get-FileHash -LiteralPath $targetPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $restored[0].sha256 -or (Get-Item -LiteralPath $targetPath).Length -ne $restored[0].size) { throw 'tampered runtime file was not restored' }
+          $runningAfter = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          if ($runningAfter.pid -eq $runningBefore.pid) { throw 'runtime repair reused the process that still owned the damaged runtime' }
+          & "$env:E2E_ROOT\stop.bat"
+          if ($LASTEXITCODE) { throw 'stop after runtime repair failed' }
+
+      - name: Recycled stale PID does not block runtime repair
+        shell: pwsh
+        working-directory: C:\Windows\Temp
+        run: |
+          $runtime = "$env:E2E_ROOT\.runtime"
+          Set-Content -LiteralPath (Join-Path $runtime 'python\unexpected-runtime-file.txt') -Value 'force repair'
+          $stale = [ordered]@{
+            app_identity = 'auto-offer'
+            app_version = 'stale'
+            release_fingerprint = 'stale'
+            launcher_version = '1.0.0'
+            host = '127.0.0.1'
+            port = 8765
+            pid = $PID
+            instance_id = 'stale-recycled-pid'
+            start_time = [DateTime]::UtcNow.ToString('o')
+            shutdown_token = 'ci-only-stale-token'
+          }
+          [IO.File]::WriteAllText((Join-Path $runtime 'server.json'), ($stale | ConvertTo-Json), [Text.UTF8Encoding]::new($false))
+          & "$env:E2E_ROOT\start.bat" --no-browser
+          if ($LASTEXITCODE) { throw 'stale recycled PID blocked runtime repair' }
+          if (Test-Path -LiteralPath (Join-Path $runtime 'python\unexpected-runtime-file.txt')) { throw 'runtime was not repaired after stale state' }
+          Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health | Out-Null
+          & "$env:E2E_ROOT\stop.bat"
+          if ($LASTEXITCODE) { throw 'stop after stale-state repair failed' }
+
+      - name: Interrupted publication recovers offline
+        shell: pwsh
+        working-directory: C:\Windows\Temp
+        run: |
+          $runtime = "$env:E2E_ROOT\.runtime"
+          $active = Join-Path $runtime 'python'
+          $previous = Join-Path $runtime 'python.previous'
+          if (Test-Path -LiteralPath $previous) { throw 'previous runtime survived a successful launch' }
+          $receiptHash = (Get-FileHash -LiteralPath (Join-Path $active 'install-receipt.json') -Algorithm SHA256).Hash
+          Move-Item -LiteralPath $active -Destination $previous
+          $oldHttps = $env:HTTPS_PROXY
+          $oldHttp = $env:HTTP_PROXY
+          $oldNoProxy = $env:NO_PROXY
+          try {
+            $env:HTTPS_PROXY = 'http://127.0.0.1:9'
+            $env:HTTP_PROXY = 'http://127.0.0.1:9'
+            $env:NO_PROXY = '127.0.0.1,localhost'
+            & "$env:E2E_ROOT\start.bat" --no-browser
+            if ($LASTEXITCODE) { throw 'offline recovery start failed' }
+          } finally {
+            $env:HTTPS_PROXY = $oldHttps
+            $env:HTTP_PROXY = $oldHttp
+            $env:NO_PROXY = $oldNoProxy
+          }
+          if (-not (Test-Path -LiteralPath $active)) { throw 'previous runtime was not restored' }
+          if (Test-Path -LiteralPath $previous) { throw 'previous runtime was not finalized after successful launch' }
+          if (Test-Path -LiteralPath (Join-Path $runtime 'python-download.part')) { throw 'offline recovery attempted a download' }
+          if ((Get-FileHash -LiteralPath (Join-Path $active 'install-receipt.json') -Algorithm SHA256).Hash -ne $receiptHash) { throw 'offline recovery changed the verified receipt' }
+          $health = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          Invoke-WebRequest http://127.0.0.1:8765/ | Out-Null
+          & "$env:E2E_ROOT\stop.bat"
+          if ($LASTEXITCODE) { throw 'stop after offline recovery failed' }
+          Start-Sleep -Milliseconds 300
+          if (Get-Process -Id $health.pid -ErrorAction SilentlyContinue) { throw 'recovered server survived stop' }
+
       - name: Offline repeat start and stop
         shell: pwsh
         working-directory: C:\Windows\Temp
