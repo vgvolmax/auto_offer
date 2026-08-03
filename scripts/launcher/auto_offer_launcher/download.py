@@ -72,5 +72,10 @@ def extract_atomic(archive: Path, destination: Path, validator=lambda p: True, f
         if not validator(source): raise DownloadError("runtime archive has an invalid structure or version")
         old=destination.with_name(destination.name+".old"); shutil.rmtree(old,ignore_errors=True)
         if destination.exists(): os.replace(destination,old)
-        os.replace(source,destination); shutil.rmtree(old,ignore_errors=True)
+        try:
+            os.replace(source,destination)
+        except Exception:
+            if old.exists() and not destination.exists(): os.replace(old,destination)
+            raise
+        shutil.rmtree(old,ignore_errors=True)
     finally: shutil.rmtree(temp,ignore_errors=True)
