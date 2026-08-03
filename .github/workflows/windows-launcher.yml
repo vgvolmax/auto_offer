@@ -34,10 +34,15 @@ jobs:
           $outside = Join-Path $env:RUNNER_TEMP 'arbitrary cwd'; New-Item -ItemType Directory -Force $outside | Out-Null
           Push-Location $outside
           try {
-            $one = Start-Process cmd.exe -ArgumentList '/d','/c',('"{0}" --no-browser > "{1}" 2>&1' -f "$target\start.bat","$target\first.log") -PassThru
-            $two = Start-Process cmd.exe -ArgumentList '/d','/c',('"{0}" --no-browser > "{1}" 2>&1' -f "$target\start.bat","$target\second.log") -PassThru
+            $out1=Join-Path $env:RUNNER_TEMP 'start-1.out'; $err1=Join-Path $env:RUNNER_TEMP 'start-1.err'
+            $out2=Join-Path $env:RUNNER_TEMP 'start-2.out'; $err2=Join-Path $env:RUNNER_TEMP 'start-2.err'
+            $one = Start-Process -FilePath "$target\start.bat" -ArgumentList '--no-browser' -RedirectStandardOutput $out1 -RedirectStandardError $err1 -PassThru
+            $two = Start-Process -FilePath "$target\start.bat" -ArgumentList '--no-browser' -RedirectStandardOutput $out2 -RedirectStandardError $err2 -PassThru
             $one.WaitForExit(); $two.WaitForExit()
-            if ($one.ExitCode -ne 0 -or $two.ExitCode -ne 0) { Get-Content "$target\*.log"; throw "concurrent start.bat failed: $($one.ExitCode), $($two.ExitCode)" }
+            if ($one.ExitCode -ne 0 -or $two.ExitCode -ne 0) {
+              @($out1,$err1,$out2,$err2,"$target\.runtime\logs\launcher.log") | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Write-Host "--- $_"; Get-Content -LiteralPath $_ }
+              throw "concurrent start.bat failed: $($one.ExitCode), $($two.ExitCode)"
+            }
           } finally { Pop-Location }
           foreach ($runtime in @(@('python','python.zip'),@('node','node.zip'))) {
             $item = $manifest.($runtime[0]); $archive = Join-Path "$target\.runtime\downloads" $runtime[1]
