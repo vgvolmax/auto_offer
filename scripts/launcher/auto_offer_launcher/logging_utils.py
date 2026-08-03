@@ -11,7 +11,11 @@ class RedactingFormatter(logging.Formatter):
 
 def logger_for(path, name="launcher"):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    log = logging.getLogger(name); log.setLevel(logging.INFO); log.handlers.clear()
+    log = logging.getLogger(name)
+    log.setLevel(logging.INFO)
+    for existing in list(log.handlers):
+        log.removeHandler(existing)
+        existing.close()
     handler = RotatingFileHandler(path, maxBytes=1_000_000, backupCount=4, encoding="utf-8")
     handler.setFormatter(RedactingFormatter("%(asctime)s [%(name)s] %(levelname)s %(message)s"))
     log.addHandler(handler)

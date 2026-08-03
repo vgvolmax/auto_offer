@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import argparse, json, socket, subprocess, sys, time, webbrowser
+sys.dont_write_bytecode = True
+
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -8,6 +10,7 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE))
 from auto_offer_launcher import APP_IDENTITY, LAUNCHER_VERSION
 from auto_offer_launcher.config import HOST, PORT, START_URL, fingerprint, load_release, load_runtime
+from auto_offer_launcher.console import console_text
 from auto_offer_launcher.logging_utils import logger_for
 from auto_offer_launcher.server import remove_owned_state, serve
 
@@ -98,7 +101,7 @@ def owned_stop(expected_fingerprint=None):
 
 def start(no_browser=False):
     load_runtime(HERE / "runtime-manifest.json")
-    print("[2/4] Проверка приложения")
+    console_text("[2/4] Проверка приложения")
     release = load_release(ROOT / "release-manifest.json", ROOT)
     fp = fingerprint(release)
     kind, _ = inspect_listener(fp)
@@ -111,7 +114,7 @@ def start(no_browser=False):
             kind = "closed"
         if kind in ("foreign", "unresponsive"):
             raise RuntimeError("Port 8765 is occupied by a foreign or unresponsive listener")
-        print("[3/4] Сервер")
+        console_text("[3/4] Сервер")
         runtime_root = ROOT / ".runtime"
         (runtime_root / "logs").mkdir(parents=True, exist_ok=True)
         cmd = [sys.executable, str(Path(__file__).resolve()), "serve",
@@ -129,7 +132,7 @@ def start(no_browser=False):
             time.sleep(.1)
         else:
             raise RuntimeError("server health timeout")
-    print("[4/4] Браузер")
+    console_text("[4/4] Браузер")
     if not no_browser and not webbrowser.open(START_URL):
         raise RuntimeError(f"Browser could not be opened; server remains running. Open {START_URL}")
     return 0
@@ -159,7 +162,7 @@ if __name__ == "__main__":
         raise SystemExit(main())
     except Exception as exc:
         logger_for(ROOT / ".runtime/logs/launcher.log").exception("launcher failed")
-        print(f"Что произошло: {exc}\nЭтап: запуск Auto Offer\nЧто сохранено: portable Python и данные браузера\n"
-              f"Следующий запуск повторит незавершённый этап\nЧто сделать: полностью распакуйте свежий release ZIP и повторите start.bat\n"
-              f"Лог: {ROOT/'.runtime/logs/launcher.log'}", file=sys.stderr)
+        console_text(f"Что произошло: {exc}\nЭтап: запуск Auto Offer\nЧто сохранено: portable Python и данные браузера\n"
+                     f"Следующий запуск повторит незавершённый этап\nЧто сделать: полностью распакуйте свежий release ZIP и повторите start.bat\n"
+                     f"Лог: {ROOT/'.runtime/logs/launcher.log'}", file=sys.stderr)
         raise SystemExit(2)

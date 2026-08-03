@@ -7,7 +7,11 @@ where powershell.exe >nul 2>nul || (
   pause
   exit /b 10
 )
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\launcher\bootstrap.ps1" %*
+if /I "%~1"=="--no-browser" (
+  powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\launcher\bootstrap.ps1" -NoBrowser
+) else (
+  powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\launcher\bootstrap.ps1" %*
+)
 set "RC=%ERRORLEVEL%"
 if not "%RC%"=="0" (
   echo.

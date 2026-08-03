@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([switch]$NoBrowser)
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -11,6 +11,20 @@ $receiptPath = Join-Path $pythonDir 'install-receipt.json'
 function Fail([string]$message, [string]$stage) {
   $log = Join-Path $runtime 'logs\launcher.log'
   Write-Error "Что произошло: $message`nЭтап: $stage`nЧто сохранено: проверенные файлы release и данные IndexedDB не изменены`nСледующий start.bat повторит незавершённый этап`nЧто сделать: проверьте сеть/место и полностью распакованный ZIP`nЛог: $log"
+}
+
+function Get-Sha256([string]$Path) {
+  $stream = [IO.File]::OpenRead($Path)
+  try {
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try {
+      return ([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-', '').ToLowerInvariant()
+    } finally {
+      $sha.Dispose()
+    }
+  } finally {
+    $stream.Dispose()
+  }
 }
 try {
   Add-Type -AssemblyName System.Net.Http
@@ -37,7 +51,7 @@ try {
     if ((Test-Path -LiteralPath $pythonExe) -and (Test-Path -LiteralPath $receiptPath)) {
       try {
         $r = Get-Content -LiteralPath $receiptPath -Raw -Encoding UTF8 | ConvertFrom-Json
-        $actual = & $pythonExe -c 'import sys; print(".".join(map(str, sys.version_info[:3])))'
+        $actual = & $pythonExe -c 'import sys; print(sys.version.split()[0])'
         $ready = ($LASTEXITCODE -eq 0 -and $actual.Trim() -eq $m.python.version -and $r.python_version -eq $m.python.version -and $r.archive_sha256 -eq $m.python.sha256 -and $r.launcher_version -eq $m.launcher_version)
       } catch { $ready = $false }
     }
@@ -88,7 +102,7 @@ try {
           Start-Sleep -Seconds $attempt
         } finally { $client.Dispose() }
       }
-      if ((Get-FileHash -LiteralPath $part -Algorithm SHA256).Hash.ToLowerInvariant() -ne $m.python.sha256) { throw 'Portable Python checksum mismatch' }
+      if ((Get-Sha256 $part) -ne $m.python.sha256) { throw 'Portable Python checksum mismatch' }
       New-Item -ItemType Directory -Path $temp | Out-Null
       $zip=[IO.Compression.ZipFile]::OpenRead($part)
       try {
@@ -97,7 +111,7 @@ try {
         [IO.Compression.ZipFileExtensions]::ExtractToDirectory($zip,$temp)
       } finally { $zip.Dispose() }
       $tempPython=Join-Path $temp 'python.exe'; if (-not (Test-Path $tempPython)) { throw 'Portable Python ZIP has no python.exe' }
-      $actual=& $tempPython -c 'import sys; print(".".join(map(str, sys.version_info[:3])))'; if ($LASTEXITCODE -ne 0 -or $actual.Trim() -ne $m.python.version) { throw 'Portable Python version check failed' }
+      $actual=& $tempPython -c 'import sys; print(sys.version.split()[0])'; if ($LASTEXITCODE -ne 0 -or $actual.Trim() -ne $m.python.version) { throw 'Portable Python version check failed' }
       @{schema_version=1;python_version=$m.python.version;archive_sha256=$m.python.sha256;launcher_version=$m.launcher_version;installed_at=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $temp 'install-receipt.json') -Encoding UTF8
       $backup=Join-Path $runtime 'python.previous'; Remove-Item $backup -Recurse -Force -ErrorAction SilentlyContinue
       if (Test-Path $pythonDir) { Move-Item $pythonDir $backup }
