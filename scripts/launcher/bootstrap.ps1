@@ -121,16 +121,8 @@ function Stop-OwnedServerForRuntimeRepair {
     $health = Invoke-RestMethod -Uri 'http://127.0.0.1:8765/__auto_offer_health' -Method Get -TimeoutSec 2
   } catch {
     if (Test-LocalPortOpen) { throw 'Port 8765 is occupied by a foreign or unresponsive listener; runtime repair was not started' }
-    if (Test-Path -LiteralPath $statePath -PathType Leaf) {
-      try {
-        $stale = Get-Content -LiteralPath $statePath -Raw -Encoding UTF8 | ConvertFrom-Json
-        if ((($stale.pid -is [int]) -or ($stale.pid -is [long])) -and (Get-Process -Id $stale.pid -ErrorAction SilentlyContinue)) {
-          throw 'Auto Offer server state names a running process that cannot be authenticated'
-        }
-      } catch {
-        if ($_.Exception.Message -like 'Auto Offer server state*') { throw }
-      }
-    }
+    # A closed fixed port proves there is no serving Auto Offer instance. PID values in
+    # stale state are diagnostic only and may already belong to an unrelated process.
     return
   }
 
@@ -209,7 +201,7 @@ try {
   if ($m.download_hosts -isnot [System.Array] -or $m.download_hosts.Count -ne 1 -or $m.download_hosts[0] -isnot [string] -or $m.download_hosts[0] -ne 'www.python.org') { throw 'Runtime manifest download hosts are invalid' }
   if ($m.python.version -isnot [string] -or -not $m.python.version -or $m.python.url -isnot [string] -or $m.python.sha256 -isnot [string] -or $m.python.executable -isnot [string] -or $m.python.executable -ne 'python.exe') { throw 'Python manifest types are invalid' }
   try { $pythonUri = [Uri]$m.python.url } catch { throw 'Runtime manifest download URL is invalid' }
-  if ($pythonUri.Scheme -ne 'https' -or $pythonUri.Host -ne 'www.python.org' -or (-not $pythonUri.IsDefaultPort -and $pythonUri.Port -ne 443) -or $m.python.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Runtime manifest download policy is invalid' }
+  if ($pythonUri.Scheme -ne 'https' -or $pythonUri.Host -ne 'www.python.org' -or $pythonUri.UserInfo -or (-not $pythonUri.IsDefaultPort -and $pythonUri.Port -ne 443) -or $m.python.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Runtime manifest download policy is invalid' }
 
   $mutex = [Threading.Mutex]::new($false, 'Local\AutoOfferPortable-7d321f49')
   Write-Host '[1/4] Portable Python - waiting for preparation lock'
