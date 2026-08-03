@@ -35,5 +35,11 @@ class LifecycleContractTests(unittest.TestCase):
         self.assertNotIn('print(".".join', source)
         self.assertEqual(source.count("print(sys.version.split()[0])"), 2)
 
+    def test_launcher_disables_bytecode_before_local_imports(self):
+        source=(HERE/"launcher.py").read_text(encoding="utf-8")
+        disabled=source.index("sys.dont_write_bytecode = True")
+        local_import=source.index("from auto_offer_launcher")
+        self.assertLess(disabled, local_import)
+
 
 if __name__ == "__main__": unittest.main()
