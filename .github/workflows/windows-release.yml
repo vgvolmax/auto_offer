@@ -59,6 +59,24 @@ jobs:
           python "$env:GITHUB_WORKSPACE\scripts\release\verify_windows_release.py" $root
           if (Get-ChildItem $root -Recurse | Where-Object { $_.Name -in 'node.exe','npm','npm.cmd','node_modules' }) { throw 'Node/npm leaked into package' }
           "E2E_ROOT=$root" >> $env:GITHUB_ENV
+      - name: Malformed bootstrap manifest fails before installation
+        shell: pwsh
+        working-directory: C:\Windows\Temp
+        run: |
+          $manifestPath = "$env:E2E_ROOT\scripts\launcher\runtime-manifest.json"
+          $original = [IO.File]::ReadAllBytes($manifestPath)
+          try {
+            $bad = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+            $bad.runtime_paths = $false
+            [IO.File]::WriteAllText($manifestPath, ($bad | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
+            & "$env:E2E_ROOT\start.bat" --no-browser
+            if ($LASTEXITCODE -eq 0) { throw 'malformed bootstrap manifest was accepted' }
+            if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python") { throw 'malformed manifest installed a runtime before rejection' }
+            if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python-download.part") { throw 'malformed manifest started a download before rejection' }
+          } finally {
+            [IO.File]::WriteAllBytes($manifestPath, $original)
+          }
+
       - name: BAT-level first start, concurrency, health and stop
         shell: pwsh
         working-directory: C:\Windows\Temp
@@ -101,6 +119,9 @@ jobs:
         shell: pwsh
         working-directory: C:\Windows\Temp
         run: |
+          & "$env:E2E_ROOT\start.bat" --no-browser
+          if ($LASTEXITCODE) { throw 'pre-repair server start failed' }
+          $runningBefore = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
           $receiptPath = "$env:E2E_ROOT\.runtime\python\install-receipt.json"
           $before = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
           if ($before.schema_version -ne 2 -or @($before.files).Count -eq 0) { throw 'runtime receipt has no verified file inventory' }
@@ -121,7 +142,8 @@ jobs:
           if ($restored.Count -ne 1) { throw 'repaired receipt lost the tampered file' }
           $actualHash = (Get-FileHash -LiteralPath $targetPath -Algorithm SHA256).Hash.ToLowerInvariant()
           if ($actualHash -ne $restored[0].sha256 -or (Get-Item -LiteralPath $targetPath).Length -ne $restored[0].size) { throw 'tampered runtime file was not restored' }
-          Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health | Out-Null
+          $runningAfter = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          if ($runningAfter.pid -eq $runningBefore.pid) { throw 'runtime repair reused the process that still owned the damaged runtime' }
           & "$env:E2E_ROOT\stop.bat"
           if ($LASTEXITCODE) { throw 'stop after runtime repair failed' }
 
