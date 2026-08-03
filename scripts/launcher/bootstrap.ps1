@@ -26,7 +26,9 @@ try {
   if ($m.python.url -notmatch '^https://www\.python\.org/' -or $m.python.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Runtime manifest download policy is invalid' }
   $mutex = [Threading.Mutex]::new($false, 'Local\AutoOfferPortable-7d321f49')
   Write-Host '[1/4] Portable Python - waiting for preparation lock'
-  if (-not $mutex.WaitOne([TimeSpan]::FromMinutes(10))) { throw 'Timed out waiting for another launcher' }
+  try { $locked = $mutex.WaitOne([TimeSpan]::FromMinutes(10)) }
+  catch [Threading.AbandonedMutexException] { $locked = $true }
+  if (-not $locked) { throw 'Timed out waiting for another launcher' }
   try {
     New-Item -ItemType Directory -Force -Path (Join-Path $runtime 'logs') | Out-Null
     $drive = Get-PSDrive -Name ([IO.Path]::GetPathRoot($root).TrimEnd(':\'))
@@ -43,20 +45,49 @@ try {
       $part = Join-Path $runtime 'python-download.part'; $temp = Join-Path $runtime ('python-install-' + [guid]::NewGuid().ToString('N'))
       Remove-Item -LiteralPath $part -Force -ErrorAction SilentlyContinue
       Write-Host '[1/4] Portable Python - downloading verified archive'
-      $handler = New-Object Net.Http.HttpClientHandler; $handler.AllowAutoRedirect = $false
-      $client = New-Object Net.Http.HttpClient($handler)
-      $uri = [Uri]$m.python.url
-      try {
-        for ($redirects=0; $redirects -le 5; $redirects++) {
-          if ($uri.Scheme -ne 'https' -or $m.download_hosts -notcontains $uri.Host) { throw "Forbidden download URL: $uri" }
-          $response = $client.GetAsync($uri, [Net.Http.HttpCompletionOption]::ResponseHeadersRead).GetAwaiter().GetResult()
-          if ([int]$response.StatusCode -in 301,302,303,307,308) { $uri = [Uri]::new($uri,$response.Headers.Location); $response.Dispose(); continue }
-          $response.EnsureSuccessStatusCode() | Out-Null
-          $total=$response.Content.Headers.ContentLength; $stream=$response.Content.ReadAsStreamAsync().GetAwaiter().GetResult(); $out=[IO.File]::Create($part); $buf=New-Object byte[] 65536; $count=0; $started=[DateTime]::UtcNow
-          try { while (($n=$stream.Read($buf,0,$buf.Length)) -gt 0) { $out.Write($buf,0,$n); $count += $n; if ($total) { Write-Progress -Activity '[1/4] Portable Python' -PercentComplete ([Math]::Min(100,100*$count/$total)) -Status ("{0:N1}/{1:N1} MB" -f ($count/1MB),($total/1MB)) } } } finally { $out.Dispose(); $stream.Dispose(); $response.Dispose() }
-          break
-        }
-      } finally { $client.Dispose() }
+      $downloaded = $false
+      for ($attempt=1; $attempt -le 3 -and -not $downloaded; $attempt++) {
+        Remove-Item -LiteralPath $part -Force -ErrorAction SilentlyContinue
+        $handler = New-Object Net.Http.HttpClientHandler; $handler.AllowAutoRedirect = $false
+        $client = New-Object Net.Http.HttpClient($handler); $uri = [Uri]$m.python.url
+        try {
+          for ($redirects=0; $redirects -le 5; $redirects++) {
+            if ($uri.Scheme -ne 'https' -or $m.download_hosts -notcontains $uri.Host) { throw [InvalidOperationException]::new('Forbidden download URL') }
+            $response = $client.GetAsync($uri, [Net.Http.HttpCompletionOption]::ResponseHeadersRead).GetAwaiter().GetResult()
+            $status = [int]$response.StatusCode
+            if ($status -in 301,302,303,307,308) {
+              if (-not $response.Headers.Location) { throw [InvalidOperationException]::new('Redirect has no location') }
+              $uri = [Uri]::new($uri,$response.Headers.Location); $response.Dispose(); continue
+            }
+            if ($status -eq 408 -or $status -eq 429 -or $status -ge 500) { $response.Dispose(); throw [Net.Http.HttpRequestException]::new("Transient HTTP status $status") }
+            if ($status -ge 400) { $response.Dispose(); throw [InvalidOperationException]::new("Non-retryable HTTP status $status") }
+            $response.EnsureSuccessStatusCode() | Out-Null
+            $total=$response.Content.Headers.ContentLength; $stream=$response.Content.ReadAsStreamAsync().GetAwaiter().GetResult(); $out=[IO.File]::Create($part); $buf=New-Object byte[] 65536; [long]$count=0; $started=[DateTime]::UtcNow
+            try {
+              while (($n=$stream.Read($buf,0,$buf.Length)) -gt 0) {
+                $out.Write($buf,0,$n); $count += $n; $elapsed=[Math]::Max(.01,([DateTime]::UtcNow-$started).TotalSeconds); $speed=$count/$elapsed
+                if ($null -ne $total -and $total -gt 0) { Write-Progress -Activity '[1/4] Portable Python' -PercentComplete ([Math]::Min(100,100*$count/$total)) -Status ("{0:N1}/{1:N1} MB, {2:N1} MB/s" -f ($count/1MB),($total/1MB),($speed/1MB)) }
+                else { Write-Progress -Activity '[1/4] Portable Python' -Status ("Downloading... {0:N1} MB, {1:N1}s" -f ($count/1MB),$elapsed) }
+              }
+            } finally { $out.Dispose(); $stream.Dispose(); $response.Dispose() }
+            $downloaded = $true; break
+          }
+          if (-not $downloaded) { throw [InvalidOperationException]::new('Too many redirects') }
+        } catch [Net.Http.HttpRequestException] {
+          if ($attempt -eq 3) { throw }
+          Start-Sleep -Seconds $attempt
+        } catch [IO.IOException] {
+          if ($_.Exception.HResult -in -2147024784,-2147024789) { throw [InvalidOperationException]::new('Insufficient disk space', $_.Exception) }
+          if ($attempt -eq 3) { throw }
+          Start-Sleep -Seconds $attempt
+        } catch [Net.Sockets.SocketException] {
+          if ($attempt -eq 3) { throw }
+          Start-Sleep -Seconds $attempt
+        } catch [Threading.Tasks.TaskCanceledException] {
+          if ($attempt -eq 3) { throw }
+          Start-Sleep -Seconds $attempt
+        } finally { $client.Dispose() }
+      }
       if ((Get-FileHash -LiteralPath $part -Algorithm SHA256).Hash.ToLowerInvariant() -ne $m.python.sha256) { throw 'Portable Python checksum mismatch' }
       New-Item -ItemType Directory -Path $temp | Out-Null
       $zip=[IO.Compression.ZipFile]::OpenRead($part)
@@ -73,7 +104,10 @@ try {
       try { Move-Item $temp $pythonDir } catch { if (Test-Path $backup) { Move-Item $backup $pythonDir }; throw }
       Remove-Item $backup -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item $part -Force
     } else { Write-Host '[1/4] Portable Python - ready' }
+  } finally { }
+  try {
+    $args=@((Join-Path $PSScriptRoot 'launcher.py'),'start'); if ($NoBrowser) { $args += '--no-browser' }
+    & $pythonExe @args; $launcherExit=$LASTEXITCODE
   } finally { $mutex.ReleaseMutex(); $mutex.Dispose() }
-  $args=@((Join-Path $PSScriptRoot 'launcher.py'),'start'); if ($NoBrowser) { $args += '--no-browser' }
-  & $pythonExe @args; exit $LASTEXITCODE
+  exit $launcherExit
 } catch { Fail $_.Exception.Message 'Portable Python'; exit 2 }
