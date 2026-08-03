@@ -30,10 +30,10 @@ class LifecycleContractTests(unittest.TestCase):
         self.assertNotIn("Get-FileHash", source)
         self.assertIn("[Security.Cryptography.SHA256]::Create()", source)
 
-    def test_python_version_probe_uses_powershell_native_quoting(self):
+    def test_python_version_probe_avoids_embedded_native_quotes(self):
         source=(HERE/"bootstrap.ps1").read_text(encoding="utf-8")
-        self.assertNotIn(r'print(\".\".join', source)
-        self.assertEqual(source.count('print(".".join'), 2)
+        self.assertNotIn('print(".".join', source)
+        self.assertEqual(source.count("print(sys.version.split()[0])"), 2)
 
 
 if __name__ == "__main__": unittest.main()
