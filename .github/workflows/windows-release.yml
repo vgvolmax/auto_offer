@@ -8,6 +8,7 @@ on:
       - scripts/launcher/**
       - scripts/release/**
       - .github/workflows/windows-release.yml
+      - .gitattributes
       - package.json
       - package-lock.json
       - app/**
