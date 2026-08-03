@@ -120,5 +120,5 @@ F1–F4 остаются verified. Gate проверяет full workflow, reload
 | L3 | Updated ZIP | dependency/build fingerprints | implemented, manual pending |
 | L4 | Offline repeat | Windows E2E second start | implemented, manual pending |
 | L5 | Already running | health identity unit/integration | implemented, manual pending |
-| L6 | Graceful stop | authenticated shutdown integration | implemented, manual pending |
+| L6 | Остановка приложения | закрытие отдельного окна Auto Offer Server | implemented, manual pending |
 | L7 | Failure/recovery | retry/checksum/atomic publication tests | implemented, manual pending |
