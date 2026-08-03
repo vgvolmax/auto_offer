@@ -7,6 +7,11 @@ def unicode_supported(stream=None) -> bool:
     encoding = getattr(stream or sys.stdout, "encoding", "") or ""
     try: "█░".encode(encoding); return True
     except (UnicodeEncodeError, LookupError): return False
+def console_print(text: str, *, end="\n", flush=True) -> None:
+    try: print(text,end=end,flush=flush)
+    except UnicodeEncodeError:
+        fallback=text.encode("ascii",errors="backslashreplace").decode("ascii")
+        print(fallback,end=end,flush=flush)
 def download_line(stage, name, downloaded, total, elapsed, unicode=True):
     speed = downloaded / max(elapsed, .001) / 1048576
     if total:
@@ -16,4 +21,4 @@ def download_line(stage, name, downloaded, total, elapsed, unicode=True):
     return f"[{stage}/7] {name} {spin} {downloaded} bytes {elapsed:.1f}s"
 class Reporter:
     def __init__(self): self.unicode=unicode_supported(); self.started=time.monotonic()
-    def stage(self, number, name, detail="готово"): print(f"[{number}/7] {name}: {detail}", flush=True)
+    def stage(self, number, name, detail="готово"): console_print(f"[{number}/7] {name}: {detail}")
