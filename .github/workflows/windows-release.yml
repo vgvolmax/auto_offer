@@ -73,23 +73,47 @@ jobs:
             @($out1,$out2,$err1,$err2,"$env:E2E_ROOT\.runtime\logs\launcher.log","$env:E2E_ROOT\.runtime\logs\server.log") | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Get-Content -LiteralPath $_ | Select-String -NotMatch 'shutdown_token|X-Auto-Offer-Shutdown|Authorization|Cookie' }
             throw "starts failed: $($p1.ExitCode),$($p2.ExitCode)"
           }
+          if ((Get-ChildItem "$env:E2E_ROOT\.runtime" -Force | Where-Object { $_.Name -eq 'python-download.part' -or $_.Name -like 'python-install-*' }).Count -ne 0) { throw 'runtime installation left temporary files' }
           $health=Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
           if ($health.app_identity -ne 'auto-offer' -or $health.pid -le 0 -or -not $health.instance_id -or -not $health.release_fingerprint) { throw 'health identity mismatch' }
           $state=Get-Content "$env:E2E_ROOT\.runtime\server.json" -Raw | ConvertFrom-Json
           if ($state.pid -ne $health.pid -or $state.instance_id -ne $health.instance_id) { throw 'server state mismatch' }
-          if ((Invoke-WebRequest http://127.0.0.1:8765/).StatusCode -ne 200) { throw 'root failed' }
+          $serverProcess=Get-Process -Id $health.pid -ErrorAction Stop
+          if ($serverProcess.HasExited) { throw 'health PID does not belong to a running process' }
+          $serverCommands=@(Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -eq $health.pid })
+          if ($serverCommands.Count -ne 1 -or $serverCommands[0].CommandLine -notmatch 'launcher\.py.+serve') { throw 'health PID is not the server process' }
+          if ($serverCommands[0].CommandLine -match 'shutdown|token') { throw 'shutdown token leaked into process arguments' }
+          $pythonServers=@(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match [regex]::Escape($env:E2E_ROOT) -and $_.CommandLine -match 'launcher\.py.+serve' })
+          if ($pythonServers.Count -ne 1) { throw "expected one server process, found $($pythonServers.Count)" }
+          $rootResponse=Invoke-WebRequest http://127.0.0.1:8765/
+          if ($rootResponse.StatusCode -ne 200) { throw 'root failed' }
+          $refs=[regex]::Matches($rootResponse.Content,'(?:src|href)=["'']([^"''#]+)["'']') | ForEach-Object { $_.Groups[1].Value }
+          foreach ($ref in $refs) { if ((Invoke-WebRequest ([Uri]::new([Uri]'http://127.0.0.1:8765/',$ref))).StatusCode -ne 200) { throw "asset failed: $ref" } }
+          foreach ($log in @("$env:E2E_ROOT\.runtime\logs\launcher.log","$env:E2E_ROOT\.runtime\logs\server.log")) {
+            if ((Test-Path $log) -and (Get-Content $log -Raw) -match [regex]::Escape($state.shutdown_token)) { throw 'shutdown token leaked into logs' }
+          }
           & "$env:E2E_ROOT\stop.bat"; if ($LASTEXITCODE) { throw 'stop failed' }
+          Start-Sleep -Milliseconds 300
+          if (Get-Process -Id $health.pid -ErrorAction SilentlyContinue) { throw 'server process survived stop' }
           if (Test-Path "$env:E2E_ROOT\.runtime\server.json") { throw 'server state survived stop' }
       - name: Offline repeat start and stop
         shell: pwsh
         working-directory: C:\Windows\Temp
         run: |
           $before=(Get-Item "$env:E2E_ROOT\.runtime\python\install-receipt.json").LastWriteTimeUtc
-          $old=$env:HTTPS_PROXY; $env:HTTPS_PROXY='http://127.0.0.1:9'
+          $pythonBefore=(Get-Item "$env:E2E_ROOT\.runtime\python\python.exe").LastWriteTimeUtc
+          $old=$env:HTTPS_PROXY; $env:HTTPS_PROXY='http://127.0.0.1:9'; $env:NO_PROXY=''
           & "$env:E2E_ROOT\start.bat" --no-browser; if ($LASTEXITCODE) { throw 'offline start failed' }
           if ((Get-Item "$env:E2E_ROOT\.runtime\python\install-receipt.json").LastWriteTimeUtc -ne $before) { throw 'runtime downloaded again' }
+          if ((Get-Item "$env:E2E_ROOT\.runtime\python\python.exe").LastWriteTimeUtc -ne $pythonBefore) { throw 'runtime was reinstalled' }
+          if (Test-Path "$env:E2E_ROOT\.runtime\python-download.part") { throw 'offline start created a download' }
+          $repeatHealth=Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
           Invoke-WebRequest http://127.0.0.1:8765/ | Out-Null
           & "$env:E2E_ROOT\stop.bat"; if ($LASTEXITCODE) { throw 'offline stop failed' }
+          Start-Sleep -Milliseconds 300
+          if (Get-Process -Id $repeatHealth.pid -ErrorAction SilentlyContinue) { throw 'repeat server survived stop' }
+          if (Test-Path "$env:E2E_ROOT\.runtime\server.json") { throw 'repeat state survived stop' }
+          if (Get-ChildItem "$env:E2E_ROOT\.runtime" -Force | Where-Object { $_.Name -eq 'python-download.part' -or $_.Name -like 'python-install-*' }) { throw 'temporary runtime files survived E2E' }
           $env:HTTPS_PROXY=$old
       - uses: actions/upload-artifact@v4
         with:

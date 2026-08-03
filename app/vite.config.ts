@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
 
-const appRoot = new URL('.', import.meta.url).pathname;
-const buildOutput = new URL('../dist/app', import.meta.url).pathname;
+const appRoot = fileURLToPath(new URL('.', import.meta.url));
+const buildOutput = fileURLToPath(new URL('../dist/app', import.meta.url));
 
 export default defineConfig({
   root: appRoot,
