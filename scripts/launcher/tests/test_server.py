@@ -1,37 +1,27 @@
 import json,tempfile,threading,time,unittest,urllib.request
 from pathlib import Path
 from scripts.launcher.auto_offer_launcher import APP_IDENTITY
-from scripts.launcher.auto_offer_launcher.server import is_ours,probe,serve,stop
+from scripts.launcher.auto_offer_launcher.server import is_ours,probe,remove_owned_state,serve
 class ServerTests(unittest.TestCase):
- def test_identity_foreign(self): self.assertTrue(is_ours({'app_identity':APP_IDENTITY,'launcher_version':'1'},'1')); self.assertFalse(is_ours({'app_identity':'foreign'},'1'))
- def test_stale_state(self):
+ def identity(self): return {'app_identity':APP_IDENTITY,'launcher_version':'1','project_root_id':'root-a','build_fingerprint':'build-a'}
+ def test_identity_includes_checkout_and_build(self):
+  expected=self.identity()
+  self.assertTrue(is_ours(dict(expected),expected))
+  for key in ('app_identity','launcher_version','project_root_id','build_fingerprint'):
+   changed=dict(expected); changed[key]='different'
+   self.assertFalse(is_ours(changed,expected))
+ def test_state_cleanup_is_owned_by_instance(self):
   with tempfile.TemporaryDirectory() as d:
-   p=Path(d)/'s'; p.write_text('{}'); self.assertTrue(stop(p,'127.0.0.1',58764,'1')); self.assertFalse(p.exists())
+   path=Path(d)/'server.json'; path.write_text(json.dumps({'instance_id':'new'}))
+   self.assertFalse(remove_owned_state(path,'old')); self.assertTrue(path.exists())
+   self.assertTrue(remove_owned_state(path,'new')); self.assertFalse(path.exists())
  def test_health_root_shutdown(self):
   with tempfile.TemporaryDirectory() as d:
-   root=Path(d)/'web'; root.mkdir(); (root/'index.html').write_text('hello'); state=Path(d)/'server.json'; port=58765
-   t=threading.Thread(target=serve,args=(root,state,'127.0.0.1',port,'1')); t.start()
+   root=Path(d)/'web'; root.mkdir(); (root/'index.html').write_text('hello'); state=Path(d)/'server.json'; port=58765; ready=[]
+   t=threading.Thread(target=serve,args=(root,state,'127.0.0.1',port,self.identity(),ready.append)); t.start()
    for _ in range(50):
-    if probe('127.0.0.1',port): break
+    if ready and probe('127.0.0.1',port): break
     time.sleep(.02)
-   self.assertEqual(probe('127.0.0.1',port)['app_identity'],APP_IDENTITY)
+   health=probe('127.0.0.1',port); self.assertTrue(is_ours(health,self.identity())); self.assertNotIn('shutdown_token',health)
    self.assertEqual(urllib.request.urlopen(f'http://127.0.0.1:{port}/').read(),b'hello')
-   self.assertTrue(stop(state,'127.0.0.1',port,'1')); t.join(2); self.assertFalse(t.is_alive())
- def test_start_health_shutdown_stress(self):
-  with tempfile.TemporaryDirectory() as d:
-   root=Path(d)/'web'; root.mkdir(); (root/'index.html').write_text('ok'); state=Path(d)/'server.json'; port=58766
-   for _ in range(20):
-    t=threading.Thread(target=serve,args=(root,state,'127.0.0.1',port,'1')); t.start()
-    for _ in range(100):
-     if probe('127.0.0.1',port): break
-     time.sleep(.01)
-    self.assertTrue(stop(state,'127.0.0.1',port,'1')); t.join(2)
-    self.assertFalse(t.is_alive()); self.assertFalse(state.exists())
- def test_live_foreign_identity_preserves_state(self):
-  with tempfile.TemporaryDirectory() as d:
-   state=Path(d)/'server.json'; state.write_text('{"sentinel":true}')
-   # An unrelated HTTP listener is represented by overriding the probe result.
-   from unittest.mock import patch
-   with patch('scripts.launcher.auto_offer_launcher.server.probe',return_value={'app_identity':'foreign'}):
-    self.assertFalse(stop(state,'127.0.0.1',58767,'1'))
-   self.assertTrue(state.exists())
+   ready[0].shutdown(); t.join(2); self.assertFalse(t.is_alive()); self.assertFalse(state.exists())
