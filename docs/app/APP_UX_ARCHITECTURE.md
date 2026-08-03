@@ -51,3 +51,7 @@ AI export включается только для актуального run п
 # B5b final review UX
 
 После списка строк панель «Завершение проверки» показывает progress и counts, объясняет incomplete/stale состояние и открывает inline-подтверждение. После atomic confirm интерфейс показывает badge «Подтверждено», блокирует все matching/review controls и оставляет просмотр и AI JSON. Inline reopen предупреждает о смене статуса и возвращает редактирование без потери решений или feedback; browser modal не используется.
+
+## Pilot diagnostics
+
+После получения результата `MatchResultsPanel` показывает закрытую по умолчанию read-only секцию «Диагностика пилота». Она использует уже загруженный SelectionState и отображает release/contracts/storage, фактические taxonomy версий bundles и идентификаторы session/run. AI feedback export является частью pilot flow; G1 остаётся planned.

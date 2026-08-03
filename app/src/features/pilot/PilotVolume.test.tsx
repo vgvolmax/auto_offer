@@ -1,0 +1,67 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { buildAiFeedbackExport } from "../../domain/export/ai-feedback-export";
+import { MatchResultsPanel } from "../sessions/results/MatchResultsPanel";
+import { MATCH_RESULTS_BATCH_SIZE } from "../sessions/results/useMatchResultReview";
+import { catalogsRepository } from "../../storage/catalogs-repository";
+import { sessionsRepository } from "../../storage/sessions-repository";
+import { getDatabase, resetDatabaseConnection } from "../../storage/database";
+import { sessionReviewRepository } from "../../storage/session-review-repository";
+import { createPilotVolumeFixture, PILOT_VOLUME_PROFILE } from "../../test/pilot/pilot-volume-fixture";
+
+async function clearDatabase() {
+  resetDatabaseConnection();
+  await new Promise<void>((resolve, reject) => {
+    const request = indexedDB.deleteDatabase("auto-offer");
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function persistFixture() {
+  const fixture = createPilotVolumeFixture();
+  for (const catalog of fixture.catalogs) await catalogsRepository.save(catalog);
+  await sessionsRepository.save(fixture.session);
+  const db = await getDatabase();
+  await db.put("matchRuns", fixture.run);
+  await db.put("selectionStates", fixture.selectionState);
+  return fixture;
+}
+
+beforeEach(clearDatabase);
+
+describe("Pilot 1.0 volume readiness", () => {
+  it("confirms and deterministically exports a 500-line review", async () => {
+    const fixture = await persistFixture();
+    const before = structuredClone(fixture);
+    const confirmed = await sessionReviewRepository.confirm({
+      sessionId: fixture.session.sessionId,
+      matchRunId: fixture.run.id,
+      expectedSelectionRevision: fixture.selectionState.revision,
+    });
+    const input = { session: confirmed, catalogs: fixture.catalogs, run: fixture.run, selectionState: fixture.selectionState, current: true, exportedAt: "2026-07-31T12:00:00.000Z" };
+    const first = buildAiFeedbackExport(input);
+    const second = buildAiFeedbackExport(input);
+    expect(PILOT_VOLUME_PROFILE).toEqual({ requestLines: 500, catalogs: 2, catalogItemsTotal: 2_000, candidatesPerResultLine: 1 });
+    expect(confirmed.confirmation).toMatchObject({ lineCount: 500, selectedOfferCount: 375, noOfferCount: 125, feedbackCount: 50 });
+    expect(first.operator_review.lines).toHaveLength(500);
+    expect(first.operator_review.lines.map((line) => line.line_id)).toEqual(fixture.session.requestBundle.request_document.lines.map((line) => line.line_id));
+    expect(second).toEqual(first);
+    expect(fixture).toEqual(before);
+  });
+
+  it("renders the existing 50-card batch and paginates/filter without mounting 500 cards", async () => {
+    const fixture = await persistFixture();
+    render(<MatchResultsPanel session={fixture.session} catalogs={fixture.catalogs} run={fixture.run} current locked={false} confirming={false} reopening={false} reviewRefreshing={false} onReviewRefreshingChange={() => undefined} onConfirm={async () => ({ ok: false, code: "REVIEW_INCOMPLETE", message: "not used" })} onReopen={async () => false} onRefreshSessionSnapshot={async () => true} />);
+    await screen.findByText(/Обработано 500 из 500/);
+    const cards = () => document.querySelectorAll("article.match-line");
+    expect(cards()).toHaveLength(MATCH_RESULTS_BATCH_SIZE);
+    expect(cards().length).toBeLessThan(500);
+    await userEvent.click(screen.getByRole("button", { name: "Показать ещё" }));
+    expect(cards()).toHaveLength(MATCH_RESULTS_BATCH_SIZE * 2);
+    await userEvent.selectOptions(screen.getByLabelText("Фильтр"), "no_offer");
+    await waitFor(() => expect(cards()).toHaveLength(MATCH_RESULTS_BATCH_SIZE));
+    expect(document.querySelectorAll("article.match-line").length).toBeLessThan(500);
+  });
+});

@@ -1,7 +1,7 @@
 import { validateCompletedReview, CompletedReviewError } from "../domain/review/completed-review";
 import { SessionReviewError } from "../domain/review/session-review";
 import { normalizeSelectionStateRecord } from "../domain/matching/selection-state";
-import { normalizeSessionRecord, type ConfirmedSessionRecord, type DraftSessionRecord, type SessionConfirmation } from "../domain/session";
+import { normalizeSessionRecord, SESSION_CONFIRMATION_SCHEMA_VERSION, type ConfirmedSessionRecord, type DraftSessionRecord, type SessionConfirmation } from "../domain/session";
 import { getDatabase } from "./database";
 
 export interface SessionReviewRepository {
@@ -36,7 +36,7 @@ export function createSessionReviewRepository(dependencies: { now?: () => string
         try { summary = validateCompletedReview({ session, catalogs, run: run!, selectionState, mode: "current_draft" }); }
         catch (cause) { if (cause instanceof CompletedReviewError) throw new SessionReviewError(cause.message, cause.code, cause.lineIds, { cause }); throw cause; }
         const timestamp = now();
-        const confirmation: SessionConfirmation = { schemaVersion: "1.0.0", ...summary, confirmedAt: timestamp };
+        const confirmation: SessionConfirmation = { schemaVersion: SESSION_CONFIRMATION_SCHEMA_VERSION, ...summary, confirmedAt: timestamp };
         const confirmed: ConfirmedSessionRecord = { ...session, status: "confirmed", confirmation, updatedAt: timestamp };
         await tx.objectStore("sessions").put(confirmed);
         await tx.done;

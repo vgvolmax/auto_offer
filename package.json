@@ -31,6 +31,7 @@
     "app:build": "vite build --config app/vite.config.ts",
     "app:preview": "vite preview --config app/vite.config.ts",
     "test:app": "vitest run --config app/vite.config.ts",
+    "test:pilot": "vitest run --config app/vite.config.ts src/test/pilot/pilot-fixtures.test.ts src/domain/pilot/pilot-runtime.test.ts src/features/sessions/pilot/PilotDiagnosticsPanel.test.tsx src/features/pilot/PilotWorkflow.test.tsx src/features/sessions/SessionPage.pilot.test.tsx src/storage/catalog-snapshot.pilot.test.ts src/features/pilot/PilotVolume.test.tsx",
     "typecheck:app": "tsc --project app/tsconfig.json --noEmit",
     "test:app:watch": "vitest --config app/vite.config.ts",
     "test:bundles": "node --test tests/catalog-bundle.test.mjs tests/request-bundle.test.mjs tests/bundle-cli.test.mjs",

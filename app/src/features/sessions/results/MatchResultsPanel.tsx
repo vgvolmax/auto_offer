@@ -12,6 +12,8 @@ import {
 import { useEffect, useState } from "react";
 import { SessionReviewPanel } from "../review/SessionReviewPanel";
 import type { ConfirmReviewResult } from "../matching/useSessionMatching";
+import { PilotDiagnosticsPanel } from "../pilot/PilotDiagnosticsPanel";
+import { buildPilotRuntimeInfo } from "../../../domain/pilot/pilot-runtime";
 type ExportStatus =
   | { kind: "idle" }
   | { kind: "success" }
@@ -104,6 +106,13 @@ export function MatchResultsPanel(input: {
         выбрано товаров {review.view.selectedCount} · без предложения{" "}
         {review.view.noOfferCount} · осталось {review.view.undecidedCount}
       </p>
+      <PilotDiagnosticsPanel info={buildPilotRuntimeInfo({
+        session: input.session,
+        catalogs: input.catalogs,
+        run: input.run,
+        selectionState: "selectionState" in review.state ? review.state.selectionState : undefined,
+        current: input.current,
+      })} />
       {input.locked ? (
         <p className="warning-text">
           Это зафиксированный результат. Решения и обратная связь доступны

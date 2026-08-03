@@ -1,4 +1,5 @@
 import type { CatalogRecord } from "./catalog";
+export const SESSION_CONFIRMATION_SCHEMA_VERSION = "1.0.0" as const;
 import {
   createDefaultSessionMatchingSettings,
   normalizeSessionMatchingSettings,
@@ -22,7 +23,7 @@ export interface RequestBundle {
 }
 export type SessionStatus = "draft" | "confirmed";
 export interface SessionConfirmation {
-  schemaVersion: "1.0.0";
+  schemaVersion: typeof SESSION_CONFIRMATION_SCHEMA_VERSION;
   matchRunId: string;
   inputFingerprint: string;
   matchingRevision: number;
@@ -82,7 +83,7 @@ function normalizeConfirmation(value: unknown): SessionConfirmation {
   const confirmation = value as Record<string, unknown> | null;
   const strings = ["matchRunId", "inputFingerprint", "confirmedAt"];
   const numbers = ["matchingRevision", "selectionStateRevision", "lineCount", "selectedOfferCount", "noOfferCount", "feedbackCount"];
-  if (!confirmation || confirmation.schemaVersion !== "1.0.0" || strings.some((key) => typeof confirmation[key] !== "string") || numbers.some((key) => typeof confirmation[key] !== "number" || !Number.isInteger(confirmation[key]) || (confirmation[key] as number) < 0))
+  if (!confirmation || confirmation.schemaVersion !== SESSION_CONFIRMATION_SCHEMA_VERSION || strings.some((key) => typeof confirmation[key] !== "string") || numbers.some((key) => typeof confirmation[key] !== "number" || !Number.isInteger(confirmation[key]) || (confirmation[key] as number) < 0))
     throw new SessionRecordError("Некорректные данные подтверждения сессии", "INVALID_SESSION_CONFIRMATION");
   return { ...(confirmation as unknown as SessionConfirmation) };
 }

@@ -103,3 +103,10 @@ The full end-to-end workflow remains unverified until B5.
 F1–F4 verified: end-to-end review workflow завершён. B5a AI feedback export verified в составе полного flow и поддерживает draft/confirmed snapshots. AI JSON не является основным человеческим итоговым документом; human export (G1–G4) остаётся отдельным будущим PR. Полная pilot readiness всё ещё требует B6.
 | Финальное подтверждение | Verified: B5b |
 | Human export | Planned: future PR |
+
+## B6 pilot gate
+
+F1–F4 остаются verified. Gate проверяет full workflow, reload/recovery, concurrent revision refresh, multi-catalog priority, confirmed AI feedback export и volume smoke. G1 human final document остаётся planned; Pilot 1.0 не считается коммерческим production release.
+# Pilot readiness automation
+
+Статус `verified` для Pilot 1.0 означает прохождение автоматического сценария, а не только наличие production-кода. Полный жизненный цикл review подтверждает `PilotWorkflow.test.tsx`; восстановление draft, конфликт revision и stale settings — `SessionPage.pilot.test.tsx`; неизменяемость ссылки на каталог — `catalog-snapshot.pilot.test.ts`; профиль 500 строк и ограниченный рендеринг — `PilotVolume.test.tsx`.
