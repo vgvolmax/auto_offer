@@ -12,6 +12,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from .config import atomic_json, load_state
+from .progress import console_print
 
 HEALTH = "/__auto_offer_health"
 IDENTITY_FIELDS = ("app_identity", "launcher_version", "project_root_id", "build_fingerprint")
@@ -112,8 +113,8 @@ def serve(root, state_file, host, port, identity, on_ready=None):
             ctypes.windll.kernel32.SetConsoleTitleW("Auto Offer Server — close this window to stop")
         except (AttributeError, OSError):
             pass
-    print("Auto Offer работает: http://127.0.0.1:8765/#/", flush=True)
-    print("Чтобы остановить приложение, закройте это окно.", flush=True)
+    console_print("Auto Offer работает: http://127.0.0.1:8765/#/")
+    console_print("Чтобы остановить приложение, закройте это окно.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
