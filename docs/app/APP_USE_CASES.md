@@ -638,4 +638,4 @@ F1–F4 остаются verified; AI feedback export входит в pilot flow
 
 ## Launcher use cases L1–L7
 
-Windows delivery-контур покрывает L1 (первый запуск), L2 (повторный), L3 (обновлённый ZIP), L4 (offline repeat), L5 (reuse работающего сервера), L6 (authenticated stop) и L7 (ошибка/восстановление). Фактический контракт описан в [WINDOWS_PORTABLE_LAUNCH.md](WINDOWS_PORTABLE_LAUNCH.md). Статус до clean-Windows acceptance: **implemented, not verified**.
+Windows delivery-контур покрывает L1 (первый запуск), L2 (повторный), L3 (обновлённый ZIP), L4 (offline repeat), L5 (reuse актуального сервера), L6 (закрытие видимого серверного окна) и L7 (ошибка/восстановление). Фактический контракт описан в [WINDOWS_PORTABLE_LAUNCH.md](WINDOWS_PORTABLE_LAUNCH.md). Статус до clean-Windows acceptance: **implemented, not verified**.
