@@ -50,15 +50,57 @@ function Get-AllowedDownload([Uri]$Uri, [string]$Destination) {
         Assert-AllowedUri $Uri
         continue
       }
-      $response.EnsureSuccessStatusCode() | Out-Null
+      if (-not $response.IsSuccessStatusCode) {
+        $status = [int]$response.StatusCode
+        $response.Dispose()
+        throw [InvalidOperationException]::new("Runtime download failed with HTTP status $status.")
+      }
       Assert-AllowedUri $response.RequestMessage.RequestUri
       $input = $response.Content.ReadAsStreamAsync().GetAwaiter().GetResult()
       $output = [IO.File]::Open($Destination,[IO.FileMode]::Create,[IO.FileAccess]::Write,[IO.FileShare]::None)
-      try { $input.CopyTo($output) } finally { $output.Dispose(); $input.Dispose(); $response.Dispose() }
+      $cancel = [Threading.CancellationTokenSource]::new([TimeSpan]::FromMinutes(5))
+      $buffer = New-Object byte[] (256 * 1024)
+      $received = [int64]0
+      $total = $response.Content.Headers.ContentLength
+      $watch = [Diagnostics.Stopwatch]::StartNew()
+      try {
+        while ($true) {
+          $count = $input.ReadAsync($buffer,0,$buffer.Length,$cancel.Token).GetAwaiter().GetResult()
+          if ($count -eq 0) { break }
+          $output.Write($buffer,0,$count); $received += $count
+          $speed = ($received / 1MB) / [Math]::Max($watch.Elapsed.TotalSeconds,0.001)
+          if ($null -ne $total -and $total -gt 0) {
+            $percent = [Math]::Min(100,[int](100*$received/$total))
+            $done = [Math]::Min(20,[int](20*$received/$total))
+            $bar = ('#' * $done) + ('-' * (20-$done))
+            Write-Host -NoNewline ("\r[1/7] Portable Python [{0}] {1}% {2:N1}/{3:N1} MB {4:N1} MB/s" -f $bar,$percent,($received/1MB),($total/1MB),$speed)
+          } else {
+            Write-Host -NoNewline ("\r[1/7] Portable Python | {0} bytes {1:N1}s" -f $received,$watch.Elapsed.TotalSeconds)
+          }
+        }
+        if ($null -ne $total -and $total -gt 0 -and $received -ne $total) { throw [IO.EndOfStreamException]::new('Runtime download was interrupted.') }
+        Write-Host
+      } finally {
+        $cancel.Dispose(); $output.Dispose(); $input.Dispose(); $response.Dispose()
+      }
       return
     }
     throw 'Download blocked: too many redirects.'
   } finally { $client.Dispose(); $handler.Dispose() }
+}
+
+function Get-AllowedDownloadWithRetry([Uri]$Uri, [string]$Destination) {
+  for ($attempt=1; $attempt -le 3; $attempt++) {
+    try {
+      Get-AllowedDownload $Uri $Destination
+      return
+    } catch [Net.Http.HttpRequestException], [Threading.Tasks.TaskCanceledException], [IO.IOException] {
+      Remove-Item -LiteralPath $Destination -Force -ErrorAction SilentlyContinue
+      if ($attempt -eq 3) { throw }
+      Write-Host "Temporary download error. Retrying in 2 seconds ($attempt/3)..."
+      Start-Sleep -Seconds 2
+    }
+  }
 }
 
 function Get-Sha256([string]$Path) {
@@ -95,7 +137,7 @@ if (-not (Test-PortablePython $PythonDir)) {
   $Part = "$Archive.part"; Remove-Item -LiteralPath $Part -Force -ErrorAction SilentlyContinue
   $Temp = Join-Path $Runtime "python.new-$PID-$([Guid]::NewGuid().ToString('N'))"
   try {
-    Get-AllowedDownload ([Uri]$Manifest.python.url) $Part
+    Get-AllowedDownloadWithRetry ([Uri]$Manifest.python.url) $Part
     $Actual = Get-Sha256 $Part
     if ($Actual -ne $Manifest.python.sha256) {
       throw "Python SHA-256 mismatch; expected $($Manifest.python.sha256), actual $Actual; downloaded archive was not installed."
