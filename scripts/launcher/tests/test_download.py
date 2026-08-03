@@ -1,5 +1,6 @@
-import hashlib, io, tempfile, unittest, urllib.error, zipfile
+import hashlib, io, os, tempfile, unittest, urllib.error, zipfile
 from pathlib import Path
+from unittest.mock import patch
 from scripts.launcher.auto_offer_launcher.download import DownloadError, download, extract_atomic, open_allowed, validate_download_url
 class Response(io.BytesIO):
  def __init__(self,data,length=True,url='https://x'): super().__init__(data); self.headers={'Content-Length':str(len(data))} if length else {}; self.url=url
@@ -31,6 +32,18 @@ class DownloadTests(unittest.TestCase):
  def test_atomic_publication(self):
   with tempfile.TemporaryDirectory() as d:
    a=Path(d)/'a.zip'; self.zip(a); out=Path(d)/'out'; extract_atomic(a,out,lambda p:(p/'python.exe').exists()); self.assertTrue((out/'python.exe').exists())
+ def test_publication_failure_restores_previous_runtime(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d); archive=root/'node.zip'; self.zip(archive,'node.exe')
+   out=root/'node'; out.mkdir(); (out/'node.exe').write_text('old')
+   real_replace=os.replace
+   def fail_new_publication(source,destination):
+    if Path(destination)==out and Path(source)!=out.with_name('node.old'):
+     raise PermissionError('simulated antivirus lock')
+    return real_replace(source,destination)
+   with patch('scripts.launcher.auto_offer_launcher.download.os.replace',side_effect=fail_new_publication):
+    with self.assertRaises(PermissionError): extract_atomic(archive,out,lambda p:(p/'node.exe').exists())
+   self.assertEqual((out/'node.exe').read_text(),'old')
  def test_url_policy(self):
   validate_download_url('https://downloads.example.test/a',['downloads.example.test'])
   for url in ('http://downloads.example.test/a','https://evil.example/a'):
