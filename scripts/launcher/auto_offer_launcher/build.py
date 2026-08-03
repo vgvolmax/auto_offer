@@ -33,13 +33,20 @@ def dependencies_usable(root: Path,node: Path) -> bool:
         return result.returncode==0
     except (OSError,subprocess.SubprocessError):
         return False
+def portable_node_environment(node: Path,base: dict[str,str] | None=None) -> dict[str,str]:
+    env=dict(os.environ if base is None else base)
+    path_key=next((key for key in env if key.upper()=="PATH"),"PATH")
+    existing=env.get(path_key,"")
+    node_directory=str(node.resolve().parent)
+    env[path_key]=node_directory+(os.pathsep+existing if existing else "")
+    return env
 def build_current(root,state,fingerprint):
     return state.get("build_input_fingerprint")==fingerprint and validate_artifact(root/"dist/app")
 def make_build_staging(final: Path) -> Path:
     final.parent.mkdir(parents=True,exist_ok=True)
     return Path(tempfile.mkdtemp(prefix="app.new-",dir=final.parent))
-def run_activity(args, cwd: Path, log, stage: int, name: str) -> None:
-    process=subprocess.Popen([str(x) for x in args],cwd=str(cwd),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding="utf-8",errors="replace",shell=False)
+def run_activity(args, cwd: Path, log, stage: int, name: str, env=None) -> None:
+    process=subprocess.Popen([str(x) for x in args],cwd=str(cwd),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding="utf-8",errors="replace",shell=False,env=env)
     last=[""]; started=time.monotonic()
     def consume():
         assert process.stdout
