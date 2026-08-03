@@ -1,6 +1,7 @@
-import tempfile,time,unittest
+import os,tempfile,time,unittest
 from pathlib import Path
 from unittest.mock import Mock,patch
+from scripts.launcher.auto_offer_launcher import build as build_module
 from scripts.launcher.auto_offer_launcher.build import build_current,build_fingerprint,dependencies_current,dependencies_usable,make_build_staging,publish_build
 class BuildTests(unittest.TestCase):
  def root(self,d):
@@ -34,6 +35,14 @@ class BuildTests(unittest.TestCase):
     self.assertFalse(run.call_args.kwargs['shell'])
    with patch('scripts.launcher.auto_offer_launcher.build.subprocess.run',return_value=Mock(returncode=1)):
     self.assertFalse(dependencies_usable(root,node))
+ def test_portable_node_is_first_on_child_process_path(self):
+  with tempfile.TemporaryDirectory() as d:
+   node=Path(d)/'node.exe'; node.write_text('')
+   make_environment=getattr(build_module,'portable_node_environment',None)
+   self.assertIsNotNone(make_environment)
+   env=make_environment(node,{'Path':'system-tools','OTHER':'kept'})
+   self.assertEqual(env['Path'].split(os.pathsep)[0],str(node.parent.resolve()))
+   self.assertEqual(env['OTHER'],'kept')
  def test_failed_build_preserves_artifact(self):
   with tempfile.TemporaryDirectory() as d:
    r=Path(d); final=r/'app'; final.mkdir(); (final/'index.html').write_text('old'); temp=r/'new'; temp.mkdir(); (temp/'index.html').write_text('<script src="/missing.js"></script>')

@@ -15,6 +15,15 @@ jobs:
         shell: pwsh
         timeout-minutes: 15
         run: |
+          # windows-latest already has Node. Remove every directory containing
+          # node.exe so this E2E proves the launcher uses only its portable Node.
+          $pathWithoutNode = foreach ($entry in ($env:Path -split ';')) {
+            if ([string]::IsNullOrWhiteSpace($entry)) { continue }
+            if (Test-Path (Join-Path $entry 'node.exe')) { continue }
+            $entry
+          }
+          $env:Path = $pathWithoutNode -join ';'
+          if (Get-Command node -ErrorAction SilentlyContinue) { throw 'system Node remains visible in launcher E2E' }
           $source = (Get-Location).Path
           $target = Join-Path $env:RUNNER_TEMP 'CI Work\Тест Auto Offer\auto_offer'
           Remove-Item $target -Recurse -Force -ErrorAction SilentlyContinue
