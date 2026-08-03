@@ -1,6 +1,10 @@
 import io
+import sys
 import unittest
+from pathlib import Path
 
+HERE = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(HERE))
 from auto_offer_launcher.console import console_text
 
 
