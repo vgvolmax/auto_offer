@@ -79,15 +79,23 @@ jobs:
           & cmd.exe /d /c "`"$target\start.bat`" --no-browser"; if ($LASTEXITCODE -ne 0) { throw 'stale metadata blocked start' }
           & cmd.exe /d /c "`"$target\stop.bat`""; if ($LASTEXITCODE -ne 0) { throw 'stop failed' }
       - name: Repository regression
-        shell: bash
+        shell: pwsh
         run: |
-          npm run typecheck:app
-          npm run test:app
-          npm run test:pilot
-          npm run app:build
-          npm test
-          git diff --check
-          if rg -n "(?:skip|only)\(" scripts/launcher app/src tests; then exit 1; fi
+          $target = Join-Path $env:RUNNER_TEMP 'CI Work\Тест Auto Offer\auto_offer'
+          $npm = Join-Path $target '.runtime\node\npm.cmd'
+          Push-Location $target
+          try {
+            & $npm run typecheck:app; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $npm run test:app; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $npm run test:pilot; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $npm run app:build; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $npm test; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & rg -n '(?:skip|only)\(' scripts/launcher app/src tests
+            if ($LASTEXITCODE -eq 0) { throw 'disabled or focused test found' }
+            if ($LASTEXITCODE -ne 1) { throw "rg failed with exit code $LASTEXITCODE" }
+          } finally { Pop-Location }
+          & git -C $env:GITHUB_WORKSPACE diff --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload sanitized launcher log on failure
         if: failure()
         shell: pwsh
