@@ -1,10 +1,13 @@
 @echo off
-setlocal
+setlocal EnableExtensions DisableDelayedExpansion
+chcp 65001 >nul
 cd /d "%~dp0"
-set "PY=%~dp0.runtime\python\python.exe"
-if not exist "%PY%" (
-  echo Auto Offer is not running.
+set "PYTHON=%~dp0.runtime\python\python.exe"
+if not exist "%PYTHON%" (
+  echo Auto Offer is not running: portable Python has not been prepared.
   exit /b 0
 )
-"%PY%" "%~dp0scripts\launcher\launcher.py" stop
-exit /b %ERRORLEVEL%
+"%PYTHON%" "%~dp0scripts\launcher\launcher.py" stop
+set "RC=%ERRORLEVEL%"
+if not "%RC%"=="0" pause
+exit /b %RC%
