@@ -141,13 +141,18 @@ def load_runtime(path):
     python = data["python"]
     _string(python["version"], "python.version")
     url = _string(python["url"], "python.url")
-    parsed = urlsplit(url)
+    try:
+        parsed = urlsplit(url)
+        url_port = parsed.port
+    except ValueError as exc:
+        raise ManifestError("Python URL is malformed") from exc
     if (
         parsed.scheme != "https"
         or not parsed.hostname
         or parsed.hostname not in hosts
         or parsed.username is not None
         or parsed.password is not None
+        or url_port not in (None, 443)
     ):
         raise ManifestError("Python URL is not allowed")
     python_sha = _string(python["sha256"], "python.sha256")
@@ -162,7 +167,13 @@ def safe_path(value):
     if type(value) is not str or not value or "\\" in value:
         raise ManifestError("path must use /")
     path = PurePosixPath(value)
-    if path.is_absolute() or ".." in path.parts or path.parts[0].endswith(":"):
+    if (
+        not path.parts
+        or path == PurePosixPath(".")
+        or path.is_absolute()
+        or ".." in path.parts
+        or path.parts[0].endswith(":")
+    ):
         raise ManifestError("unsafe release path")
     return path
 
