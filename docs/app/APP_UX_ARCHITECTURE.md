@@ -56,6 +56,6 @@ AI export включается только для актуального run п
 
 После получения результата `MatchResultsPanel` показывает закрытую по умолчанию read-only секцию «Диагностика пилота». Она использует уже загруженный SelectionState и отображает release/contracts/storage, фактические taxonomy версий bundles и идентификаторы session/run. AI feedback export является частью pilot flow; G1 остаётся planned.
 
-## Portable Windows shell
+## Windows delivery/runtime boundary
 
-Windows shell находится вне React UI: BAT маршрутизирует вызов, PowerShell через проверенный staging-каталог готовит portable Python, а standard-library Python валидирует release и управляет static server. Receipt v2 фиксирует точный набор и SHA-256 файлов runtime; sibling `python.previous` остаётся rollback boundary до успешного запуска и может быть восстановлен offline до загрузки. В пользовательском flow нет frontend build. Стадии соответствуют реальной работе: portable Python, проверка приложения, сервер, браузер. Постоянный origin `http://127.0.0.1:8765/#/` сохраняет browser/IndexedDB boundary; launcher не читает каталоги, заявки или drafts.
+`start.bat → bootstrap.ps1 → launcher.py` является отдельным delivery-контуром и не меняет React/domain/storage. Он атомарно готовит runtime и build, затем обслуживает только проверенный `dist/app` на постоянном origin `http://127.0.0.1:8765`. Health identity отличает Auto Offer от чужого listener; shutdown token обеспечивает локальную штатную остановку. IndexedDB зависит от origin, браузера и профиля.
