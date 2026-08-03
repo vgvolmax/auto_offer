@@ -1,7 +1,7 @@
 import tempfile,time,unittest
 from pathlib import Path
 from unittest.mock import patch
-from scripts.launcher.auto_offer_launcher.build import build_fingerprint,dependencies_current,publish_build
+from scripts.launcher.auto_offer_launcher.build import build_fingerprint,dependencies_current,make_build_staging,publish_build
 class BuildTests(unittest.TestCase):
  def root(self,d):
   r=Path(d); (r/'app').mkdir(); (r/'app/x').write_text('x'); (r/'package.json').write_text('{}'); (r/'package-lock.json').write_text('{}'); return r
@@ -17,3 +17,12 @@ class BuildTests(unittest.TestCase):
    r=Path(d); final=r/'app'; final.mkdir(); (final/'index.html').write_text('old'); temp=r/'new'; temp.mkdir(); (temp/'index.html').write_text('<script src="/missing.js"></script>')
    with self.assertRaises(RuntimeError): publish_build(temp,final)
    self.assertEqual((final/'index.html').read_text(),'old')
+ def test_staging_directory_is_created_when_dist_does_not_exist(self):
+  with tempfile.TemporaryDirectory() as d:
+   final=Path(d)/'dist/app'
+   staging=make_build_staging(final)
+   try:
+    self.assertEqual(staging.parent,final.parent)
+    self.assertTrue(staging.is_dir())
+   finally:
+    staging.rmdir()
