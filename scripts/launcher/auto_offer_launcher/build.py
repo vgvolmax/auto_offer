@@ -2,7 +2,7 @@ from __future__ import annotations
 import hashlib, os, re, shutil, subprocess, tempfile, threading, time
 from pathlib import Path
 from .config import atomic_json, sha256_file
-from .progress import redact
+from .progress import console_print, redact
 
 def build_fingerprint(root: Path, settings: dict) -> str:
     files=[root/"package.json",root/"package-lock.json"]+[p for p in (root/"app").rglob("*") if p.is_file()]
@@ -26,8 +26,8 @@ def run_activity(args, cwd: Path, log, stage: int, name: str) -> None:
             safe=redact(line.rstrip()); log.write(safe+"\n"); log.flush(); last[0]=safe[-120:]
     thread=threading.Thread(target=consume); thread.start()
     while process.poll() is None:
-        print(f"\r[{stage}/7] {name} | выполняется {int(time.monotonic()-started):02d}s | {last[0]:120}",end="",flush=True); time.sleep(.2)
-    thread.join(); print()
+        console_print(f"\r[{stage}/7] {name} | выполняется {int(time.monotonic()-started):02d}s | {last[0]:120}",end="",flush=True); time.sleep(.2)
+    thread.join(); console_print("")
     if process.returncode: raise RuntimeError(f"{name} failed with exit code {process.returncode}")
 def validate_artifact(path: Path):
     index=path/"index.html"
