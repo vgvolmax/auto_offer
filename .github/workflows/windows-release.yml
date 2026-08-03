@@ -71,6 +71,7 @@ jobs:
             [IO.File]::WriteAllText($manifestPath, ($bad | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
             & "$env:E2E_ROOT\start.bat" --no-browser
             if ($LASTEXITCODE -eq 0) { throw 'malformed bootstrap manifest was accepted' }
+            $global:LASTEXITCODE = 0
             if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python") { throw 'malformed manifest installed a runtime before rejection' }
             if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python-download.part") { throw 'malformed manifest started a download before rejection' }
           } finally {
@@ -82,6 +83,7 @@ jobs:
             [IO.File]::WriteAllText($manifestPath, ($bad | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
             & "$env:E2E_ROOT\start.bat" --no-browser
             if ($LASTEXITCODE -eq 0) { throw 'credential-bearing runtime URL was accepted' }
+            $global:LASTEXITCODE = 0
             if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python") { throw 'credential-bearing URL installed a runtime before rejection' }
             if (Test-Path -LiteralPath "$env:E2E_ROOT\.runtime\python-download.part") { throw 'credential-bearing URL started a download before rejection' }
           } finally {
