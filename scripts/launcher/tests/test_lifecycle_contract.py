@@ -20,5 +20,10 @@ class LifecycleContractTests(unittest.TestCase):
         source=(HERE/"bootstrap.ps1").read_text(encoding="utf-8")
         self.assertIn("$attempt -le 3", source)
 
+    def test_start_bat_maps_public_no_browser_option(self):
+        source=(HERE.parents[1]/"start.bat").read_text(encoding="utf-8")
+        self.assertIn('if /I "%~1"=="--no-browser"', source)
+        self.assertIn("-NoBrowser", source)
+
 
 if __name__ == "__main__": unittest.main()
