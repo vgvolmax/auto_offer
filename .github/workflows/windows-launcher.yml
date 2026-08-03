@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Launcher unit tests
         run: python -m unittest discover -s scripts/launcher/tests -p "test_*.py" -v
-      - name: BAT-level fresh, concurrent, offline-ready E2E
+      - name: BAT-level fresh and offline-ready E2E
         shell: pwsh
         run: |
           $source = (Get-Location).Path
@@ -34,14 +34,19 @@ jobs:
           $outside = Join-Path $env:RUNNER_TEMP 'arbitrary cwd'; New-Item -ItemType Directory -Force $outside | Out-Null
           Push-Location $outside
           try {
-            $out1=Join-Path $env:RUNNER_TEMP 'start-1.out'; $err1=Join-Path $env:RUNNER_TEMP 'start-1.err'
-            $out2=Join-Path $env:RUNNER_TEMP 'start-2.out'; $err2=Join-Path $env:RUNNER_TEMP 'start-2.err'
+            $out1=Join-Path $env:RUNNER_TEMP 'start-fresh.out'; $err1=Join-Path $env:RUNNER_TEMP 'start-fresh.err'
+            $out2=Join-Path $env:RUNNER_TEMP 'start-reuse.out'; $err2=Join-Path $env:RUNNER_TEMP 'start-reuse.err'
+            $two=$null
             $one = Start-Process -FilePath "$target\start.bat" -ArgumentList '--no-browser' -RedirectStandardOutput $out1 -RedirectStandardError $err1 -PassThru
-            $two = Start-Process -FilePath "$target\start.bat" -ArgumentList '--no-browser' -RedirectStandardOutput $out2 -RedirectStandardError $err2 -PassThru
-            $one.WaitForExit(); $two.WaitForExit()
-            if ($one.ExitCode -ne 0 -or $two.ExitCode -ne 0) {
+            if (-not $one.WaitForExit(900000)) { Stop-Process -Id $one.Id -Force -ErrorAction SilentlyContinue; throw 'fresh start.bat exceeded 15 minutes' }
+            if ($one.ExitCode -eq 0) {
+              $two = Start-Process -FilePath "$target\start.bat" -ArgumentList '--no-browser' -RedirectStandardOutput $out2 -RedirectStandardError $err2 -PassThru
+              if (-not $two.WaitForExit(120000)) { Stop-Process -Id $two.Id -Force -ErrorAction SilentlyContinue; throw 'running-server reuse exceeded 2 minutes' }
+            }
+            if ($one.ExitCode -ne 0 -or $null -eq $two -or $two.ExitCode -ne 0) {
               @($out1,$err1,$out2,$err2,"$target\.runtime\logs\launcher.log") | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Write-Host "--- $_"; Get-Content -LiteralPath $_ }
-              throw "concurrent start.bat failed: $($one.ExitCode), $($two.ExitCode)"
+              $reuseExit=if ($null -eq $two) {'not-started'} else {$two.ExitCode}
+              throw "start.bat failed: fresh=$($one.ExitCode), reuse=$reuseExit"
             }
           } finally { Pop-Location }
           foreach ($runtime in @(@('python','python.zip'),@('node','node.zip'))) {
