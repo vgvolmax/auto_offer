@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "launcher_version": "1.0.0",
+  "app_identity": "auto-offer",
+  "python": {
+    "version": "3.13.7",
+    "url": "https://www.python.org/ftp/python/3.13.7/python-3.13.7-embed-amd64.zip",
+    "sha256": "f6cca216a359be84797cabb54149ce5e062afb16cc7567eb7fc51cacb2d86b65",
+    "executable": "python.exe"
+  },
+  "download_hosts": ["www.python.org"],
+  "host": "127.0.0.1",
+  "port": 8765,
+  "health_path": "/__auto_offer_health",
+  "shutdown_path": "/__auto_offer_shutdown",
+  "start_url": "http://127.0.0.1:8765/#/",
+  "runtime_paths": {"root": ".runtime", "python": ".runtime/python", "logs": ".runtime/logs", "server_state": ".runtime/server.json"}
+}
