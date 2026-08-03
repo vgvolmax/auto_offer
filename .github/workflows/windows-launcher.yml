@@ -90,10 +90,10 @@ jobs:
             & $npm run test:pilot; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             & $npm run app:build; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             & $npm test; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            & rg -n '(?:skip|only)\(' scripts/launcher app/src tests
-            if ($LASTEXITCODE -eq 0) { throw 'disabled or focused test found' }
-            if ($LASTEXITCODE -ne 1) { throw "rg failed with exit code $LASTEXITCODE" }
           } finally { Pop-Location }
+          & git -C $env:GITHUB_WORKSPACE grep -n -E '(skip|only)\(' -- scripts/launcher app/src tests
+          if ($LASTEXITCODE -eq 0) { throw 'disabled or focused test found' }
+          if ($LASTEXITCODE -ne 1) { throw "git grep failed with exit code $LASTEXITCODE" }
           & git -C $env:GITHUB_WORKSPACE diff --check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload sanitized launcher log on failure
