@@ -102,6 +102,69 @@ function Write-InstallReceipt([string]$Directory, $Manifest) {
   Move-Item -LiteralPath $part -Destination $path -Force
 }
 
+function Test-LocalPortOpen {
+  $client = [Net.Sockets.TcpClient]::new()
+  try {
+    $connect = $client.ConnectAsync('127.0.0.1', 8765)
+    return ($connect.Wait(500) -and $client.Connected)
+  } catch {
+    return $false
+  } finally {
+    $client.Dispose()
+  }
+}
+
+function Stop-OwnedServerForRuntimeRepair {
+  $statePath = Join-Path $runtime 'server.json'
+  $health = $null
+  try {
+    $health = Invoke-RestMethod -Uri 'http://127.0.0.1:8765/__auto_offer_health' -Method Get -TimeoutSec 2
+  } catch {
+    if (Test-LocalPortOpen) { throw 'Port 8765 is occupied by a foreign or unresponsive listener; runtime repair was not started' }
+    if (Test-Path -LiteralPath $statePath -PathType Leaf) {
+      try {
+        $stale = Get-Content -LiteralPath $statePath -Raw -Encoding UTF8 | ConvertFrom-Json
+        if ((($stale.pid -is [int]) -or ($stale.pid -is [long])) -and (Get-Process -Id $stale.pid -ErrorAction SilentlyContinue)) {
+          throw 'Auto Offer server state names a running process that cannot be authenticated'
+        }
+      } catch {
+        if ($_.Exception.Message -like 'Auto Offer server state*') { throw }
+      }
+    }
+    return
+  }
+
+  if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) { throw 'Running listener has no authenticated Auto Offer state' }
+  $state = Get-Content -LiteralPath $statePath -Raw -Encoding UTF8 | ConvertFrom-Json
+  $identityMatches = (
+    $health.app_identity -eq 'auto-offer' -and
+    $health.launcher_version -eq '1.0.0' -and
+    $health.host -eq '127.0.0.1' -and
+    $health.port -eq 8765 -and
+    $health.instance_id -is [string] -and
+    $health.instance_id -and
+    (($health.pid -is [int]) -or ($health.pid -is [long])) -and
+    $health.pid -gt 0 -and
+    $state.app_identity -eq $health.app_identity -and
+    $state.launcher_version -eq $health.launcher_version -and
+    $state.host -eq $health.host -and
+    $state.port -eq $health.port -and
+    $state.instance_id -eq $health.instance_id -and
+    $state.pid -eq $health.pid -and
+    $state.release_fingerprint -eq $health.release_fingerprint -and
+    $state.shutdown_token -is [string] -and
+    $state.shutdown_token
+  )
+  if (-not $identityMatches) { throw 'Running listener does not match authenticated Auto Offer state; runtime repair was not started' }
+
+  Invoke-RestMethod -Uri 'http://127.0.0.1:8765/__auto_offer_shutdown' -Method Post -Headers @{'X-Auto-Offer-Shutdown' = $state.shutdown_token} -TimeoutSec 2 | Out-Null
+  for ($attempt = 0; $attempt -lt 100; $attempt++) {
+    if (-not (Test-LocalPortOpen) -and -not (Test-Path -LiteralPath $statePath)) { return }
+    Start-Sleep -Milliseconds 100
+  }
+  throw 'Authenticated Auto Offer server did not stop before runtime repair'
+}
+
 function Restore-PreviousRuntime($Manifest) {
   $activeReady = Test-InstalledRuntime $pythonDir $Manifest
   $previousReady = Test-InstalledRuntime $backupDir $Manifest
@@ -136,12 +199,17 @@ try {
   $expected = @('schema_version', 'launcher_version', 'app_identity', 'python', 'download_hosts', 'host', 'port', 'health_path', 'shutdown_path', 'start_url', 'runtime_paths')
   $actual = @($m.PSObject.Properties.Name)
   if (@(Compare-Object $expected $actual).Count -ne 0) { throw 'Runtime manifest has missing or unknown fields' }
-  if (@(Compare-Object @('version', 'url', 'sha256', 'executable') @($m.python.PSObject.Properties.Name)).Count -ne 0) { throw 'Python manifest has missing or unknown fields' }
+  if ($m.python -eq $null -or @(Compare-Object @('version', 'url', 'sha256', 'executable') @($m.python.PSObject.Properties.Name)).Count -ne 0) { throw 'Python manifest has missing or unknown fields' }
+  if ($m.runtime_paths -eq $null -or @(Compare-Object @('root', 'python', 'logs', 'server_state') @($m.runtime_paths.PSObject.Properties.Name)).Count -ne 0) { throw 'Runtime paths have missing or unknown fields' }
   if ((($m.schema_version -isnot [int]) -and ($m.schema_version -isnot [long])) -or $m.schema_version -ne 1) { throw 'Runtime manifest schema is invalid' }
-  if ($m.host -ne '127.0.0.1' -or (($m.port -isnot [int]) -and ($m.port -isnot [long])) -or $m.port -ne 8765 -or $m.start_url -ne 'http://127.0.0.1:8765/#/') { throw 'Runtime manifest has an invalid fixed origin' }
-  if ($m.download_hosts -isnot [System.Array] -or $m.download_hosts.Count -eq 0 -or @($m.download_hosts | Where-Object { $_ -isnot [string] -or -not $_ }).Count -ne 0) { throw 'Runtime manifest download hosts are invalid' }
-  if ($m.python.version -isnot [string] -or -not $m.python.version -or $m.python.url -isnot [string] -or $m.python.sha256 -isnot [string]) { throw 'Python manifest types are invalid' }
-  if ($m.python.url -notmatch '^https://www\.python\.org/' -or $m.python.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Runtime manifest download policy is invalid' }
+  if ($m.launcher_version -isnot [string] -or $m.launcher_version -ne '1.0.0' -or $m.app_identity -isnot [string] -or $m.app_identity -ne 'auto-offer') { throw 'Runtime manifest identity is invalid' }
+  if ($m.host -isnot [string] -or $m.host -ne '127.0.0.1' -or (($m.port -isnot [int]) -and ($m.port -isnot [long])) -or $m.port -ne 8765 -or $m.start_url -isnot [string] -or $m.start_url -ne 'http://127.0.0.1:8765/#/') { throw 'Runtime manifest has an invalid fixed origin' }
+  if ($m.health_path -isnot [string] -or $m.health_path -ne '/__auto_offer_health' -or $m.shutdown_path -isnot [string] -or $m.shutdown_path -ne '/__auto_offer_shutdown') { throw 'Runtime manifest lifecycle paths are invalid' }
+  if ($m.runtime_paths.root -isnot [string] -or $m.runtime_paths.root -ne '.runtime' -or $m.runtime_paths.python -isnot [string] -or $m.runtime_paths.python -ne '.runtime/python' -or $m.runtime_paths.logs -isnot [string] -or $m.runtime_paths.logs -ne '.runtime/logs' -or $m.runtime_paths.server_state -isnot [string] -or $m.runtime_paths.server_state -ne '.runtime/server.json') { throw 'Runtime manifest paths are invalid' }
+  if ($m.download_hosts -isnot [System.Array] -or $m.download_hosts.Count -ne 1 -or $m.download_hosts[0] -isnot [string] -or $m.download_hosts[0] -ne 'www.python.org') { throw 'Runtime manifest download hosts are invalid' }
+  if ($m.python.version -isnot [string] -or -not $m.python.version -or $m.python.url -isnot [string] -or $m.python.sha256 -isnot [string] -or $m.python.executable -isnot [string] -or $m.python.executable -ne 'python.exe') { throw 'Python manifest types are invalid' }
+  try { $pythonUri = [Uri]$m.python.url } catch { throw 'Runtime manifest download URL is invalid' }
+  if ($pythonUri.Scheme -ne 'https' -or $pythonUri.Host -ne 'www.python.org' -or (-not $pythonUri.IsDefaultPort -and $pythonUri.Port -ne 443) -or $m.python.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Runtime manifest download policy is invalid' }
 
   $mutex = [Threading.Mutex]::new($false, 'Local\AutoOfferPortable-7d321f49')
   Write-Host '[1/4] Portable Python - waiting for preparation lock'
@@ -154,6 +222,10 @@ try {
 
   try {
     New-Item -ItemType Directory -Force -Path (Join-Path $runtime 'logs') | Out-Null
+    $activeReady = Test-InstalledRuntime $pythonDir $m
+    if (-not $activeReady -and (Test-Path -LiteralPath $pythonDir)) {
+      Stop-OwnedServerForRuntimeRepair
+    }
     $ready = Restore-PreviousRuntime $m
 
     Get-ChildItem -LiteralPath $runtime -Directory -Filter 'python-install-*' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
