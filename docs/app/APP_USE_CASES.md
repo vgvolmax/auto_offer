@@ -640,12 +640,12 @@ F1–F4 остаются verified; AI feedback export входит в pilot flow
 
 | ID | Пользовательский сценарий | Фактический статус |
 | --- | --- | --- |
-| L1 | Первый запуск готового release ZIP: portable Python, server, browser | Windows workflow defined; manual pending |
-| L2 | Повторный запуск переиспользует runtime и совместимый server | Windows workflow defined; manual pending |
-| L3 | Новый release не маскируется старым fingerprint | unit-covered; ZIP E2E pending |
-| L4 | Повторный неизменённый запуск offline | Windows workflow defined; manual pending |
-| L5 | Уже работающий совместимый экземпляр переиспользуется | implemented; manual pending |
-| L6 | `stop.bat` выполняет authenticated graceful shutdown | Windows workflow defined; manual pending |
-| L7 | Ошибка сохраняет runtime/IndexedDB и сообщает recovery/log | unit-covered; manual pending |
+| L1 | Первый запуск готового release ZIP: portable Python, server, browser | verified in Windows ZIP/BAT E2E; manual clean-Windows pending |
+| L2 | Повторный запуск переиспользует runtime и совместимый server | verified in Windows ZIP/BAT E2E; manual pending |
+| L3 | Новый release не маскируется старым fingerprint | unit-covered; cross-release E2E pending |
+| L4 | Повторный неизменённый запуск offline | verified in Windows ZIP/BAT E2E; manual pending |
+| L5 | Уже работающий совместимый экземпляр переиспользуется | verified by concurrent BAT E2E; manual pending |
+| L6 | `stop.bat` выполняет authenticated graceful shutdown | verified in Windows ZIP/BAT E2E; manual pending |
+| L7 | Повреждённый runtime переустанавливается, прерванная публикация восстанавливается offline | verified in Windows E2E + unit contracts; manual pending |
 
 Статусы не объявляются `verified` до фактического CI run или clean-Windows проверки. Launcher не меняет бизнес-данные и IndexedDB.
