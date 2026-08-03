@@ -20,3 +20,13 @@ class BatchEntryTests(unittest.TestCase):
         self.assertIn("for ($attempt=1; $attempt -le 3; $attempt++)",text)
         self.assertIn("CancellationTokenSource",text)
         self.assertIn("Portable Python [{0}]",text)
+
+    def test_npm_lifecycle_commands_receive_portable_node_path(self):
+        text=Path("scripts/launcher/launcher.py").read_text(encoding="utf-8")
+        self.assertIn("node_env=portable_node_environment(node)",text)
+        self.assertEqual(text.count("env=node_env"),3)
+
+    def test_windows_e2e_removes_system_node_from_path(self):
+        text=Path(".github/workflows/windows-launcher.yml").read_text(encoding="utf-8")
+        self.assertIn("Join-Path $entry 'node.exe'",text)
+        self.assertIn("Get-Command node -ErrorAction SilentlyContinue",text)
