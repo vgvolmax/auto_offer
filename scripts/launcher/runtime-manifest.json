@@ -1,18 +1,31 @@
 {
   "schema_version": 1,
   "launcher_version": "1.0.0",
-  "app_identity": "auto-offer",
+  "download_hosts": ["www.python.org", "python.org", "nodejs.org", "www.nodejs.org"],
   "python": {
     "version": "3.13.7",
     "url": "https://www.python.org/ftp/python/3.13.7/python-3.13.7-embed-amd64.zip",
     "sha256": "f6cca216a359be84797cabb54149ce5e062afb16cc7567eb7fc51cacb2d86b65",
     "executable": "python.exe"
   },
-  "download_hosts": ["www.python.org"],
+  "node": {
+    "version": "22.19.0",
+    "url": "https://nodejs.org/dist/v22.19.0/node-v22.19.0-win-x64.zip",
+    "sha256": "ea3fad0e67a991d8477d8c01344b56e69c676ccb733f065b22436994b1253f86",
+    "executable": "node.exe"
+  },
   "host": "127.0.0.1",
   "port": 8765,
-  "health_path": "/__auto_offer_health",
-  "shutdown_path": "/__auto_offer_shutdown",
-  "start_url": "http://127.0.0.1:8765/#/",
-  "runtime_paths": {"root": ".runtime", "python": ".runtime/python", "logs": ".runtime/logs", "server_state": ".runtime/server.json"}
+  "paths": {
+    "runtime": ".runtime",
+    "python": ".runtime/python",
+    "node": ".runtime/node",
+    "downloads": ".runtime/downloads",
+    "state": ".runtime/state.json",
+    "server_state": ".runtime/server.json",
+    "log": ".runtime/logs/launcher.log",
+    "build": "dist/app"
+  },
+  "build_inputs": ["app/**", "package.json", "package-lock.json"],
+  "build_settings": {"script": "app:build", "typecheck": "typecheck:app"}
 }
