@@ -55,3 +55,7 @@ AI export включается только для актуального run п
 ## Pilot diagnostics
 
 После получения результата `MatchResultsPanel` показывает закрытую по умолчанию read-only секцию «Диагностика пилота». Она использует уже загруженный SelectionState и отображает release/contracts/storage, фактические taxonomy версий bundles и идентификаторы session/run. AI feedback export является частью pilot flow; G1 остаётся planned.
+
+## Portable Windows shell
+
+Windows shell находится вне React UI: BAT маршрутизирует вызов, PowerShell атомарно готовит portable Python, а standard-library Python валидирует release и управляет static server. В пользовательском flow нет frontend build. Стадии соответствуют реальной работе: portable Python, проверка приложения, сервер, браузер. Постоянный origin `http://127.0.0.1:8765/#/` сохраняет browser/IndexedDB boundary; launcher не читает каталоги, заявки или drafts.

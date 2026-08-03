@@ -635,3 +635,17 @@ Result line review, candidate details, checks and differences, excluded candidat
 ## Pilot 1.0 gate (B6)
 
 F1–F4 остаются verified; AI feedback export входит в pilot flow. B6 gate покрывает full workflow, reload/recovery, concurrent revision refresh, multi-catalog priority, confirmed export и volume smoke. G1 human final document остаётся planned. Pilot 1.0 не является коммерческим production release.
+
+## L — Windows portable lifecycle
+
+| ID | Пользовательский сценарий | Фактический статус |
+| --- | --- | --- |
+| L1 | Первый запуск готового release ZIP: portable Python, server, browser | Windows workflow defined; manual pending |
+| L2 | Повторный запуск переиспользует runtime и совместимый server | Windows workflow defined; manual pending |
+| L3 | Новый release не маскируется старым fingerprint | unit-covered; ZIP E2E pending |
+| L4 | Повторный неизменённый запуск offline | Windows workflow defined; manual pending |
+| L5 | Уже работающий совместимый экземпляр переиспользуется | implemented; manual pending |
+| L6 | `stop.bat` выполняет authenticated graceful shutdown | Windows workflow defined; manual pending |
+| L7 | Ошибка сохраняет runtime/IndexedDB и сообщает recovery/log | unit-covered; manual pending |
+
+Статусы не объявляются `verified` до фактического CI run или clean-Windows проверки. Launcher не меняет бизнес-данные и IndexedDB.

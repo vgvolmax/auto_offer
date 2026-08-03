@@ -1,0 +1,74 @@
+name: Windows portable release
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build-and-e2e:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck:app
+      - run: npm run test:app
+      - run: npm run test:pilot
+      - run: npm run app:build
+      - run: npm test
+      - name: Launcher unit tests
+        run: python -m unittest discover -s scripts/launcher/tests -p "test_*.py" -v
+      - name: Build staging package
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $short = '${{ github.sha }}'.Substring(0,7)
+          $name = "Auto-Offer-$version-$short-windows-x64"
+          python scripts/release/build_windows_release.py --app dist/app --output "release-staging/$name" --source-commit '${{ github.sha }}' --build-timestamp '${{ github.event.head_commit.timestamp }}'
+          python scripts/release/verify_windows_release.py "release-staging/$name"
+          Compress-Archive -LiteralPath "release-staging/$name" -DestinationPath "$name.zip"
+          "RELEASE_NAME=$name" >> $env:GITHUB_ENV
+      - name: Extract exact user ZIP into Unicode path
+        shell: pwsh
+        run: |
+          $target = 'C:\CI Work\Тест Auto Offer\auto_offer'
+          New-Item -ItemType Directory -Force $target | Out-Null
+          Expand-Archive "$env:GITHUB_WORKSPACE\$env:RELEASE_NAME.zip" $target
+          $root = Join-Path $target $env:RELEASE_NAME
+          if (Get-ChildItem $root -Recurse | Where-Object { $_.Name -in 'node.exe','npm','npm.cmd','node_modules' }) { throw 'Node/npm leaked into package' }
+          "E2E_ROOT=$root" >> $env:GITHUB_ENV
+      - name: BAT-level first start, concurrency, health and stop
+        shell: pwsh
+        working-directory: C:\Windows\Temp
+        run: |
+          $out1="$env:RUNNER_TEMP\start1.out"; $out2="$env:RUNNER_TEMP\start2.out"
+          $env:PATH="$env:SystemRoot\System32;$env:SystemRoot;$env:SystemRoot\System32\WindowsPowerShell\v1.0"
+          $p1=Start-Process cmd.exe -ArgumentList '/d','/c',"`"$env:E2E_ROOT\start.bat`" --no-browser > `"$out1`" 2>&1" -PassThru
+          Start-Sleep -Milliseconds 300
+          $p2=Start-Process cmd.exe -ArgumentList '/d','/c',"`"$env:E2E_ROOT\start.bat`" --no-browser > `"$out2`" 2>&1" -PassThru
+          $p1.WaitForExit(); $p2.WaitForExit()
+          if ($p1.ExitCode -ne 0 -or $p2.ExitCode -ne 0) { Get-Content $out1,$out2 -ErrorAction SilentlyContinue; throw "starts failed: $($p1.ExitCode),$($p2.ExitCode)" }
+          $health=Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          if ($health.app_identity -ne 'auto-offer') { throw 'health identity mismatch' }
+          if ((Invoke-WebRequest http://127.0.0.1:8765/).StatusCode -ne 200) { throw 'root failed' }
+          & "$env:E2E_ROOT\stop.bat"; if ($LASTEXITCODE) { throw 'stop failed' }
+      - name: Offline repeat start and stop
+        shell: pwsh
+        working-directory: C:\Windows\Temp
+        run: |
+          $before=(Get-Item "$env:E2E_ROOT\.runtime\python\install-receipt.json").LastWriteTimeUtc
+          $old=$env:HTTPS_PROXY; $env:HTTPS_PROXY='http://127.0.0.1:9'
+          & "$env:E2E_ROOT\start.bat" --no-browser; if ($LASTEXITCODE) { throw 'offline start failed' }
+          if ((Get-Item "$env:E2E_ROOT\.runtime\python\install-receipt.json").LastWriteTimeUtc -ne $before) { throw 'runtime downloaded again' }
+          Invoke-WebRequest http://127.0.0.1:8765/ | Out-Null
+          & "$env:E2E_ROOT\stop.bat"; if ($LASTEXITCODE) { throw 'offline stop failed' }
+          $env:HTTPS_PROXY=$old
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.RELEASE_NAME }}
+          path: ${{ env.RELEASE_NAME }}.zip
+          if-no-files-found: error

@@ -110,3 +110,17 @@ F1–F4 остаются verified. Gate проверяет full workflow, reload
 # Pilot readiness automation
 
 Статус `verified` для Pilot 1.0 означает прохождение автоматического сценария, а не только наличие production-кода. Полный жизненный цикл review подтверждает `PilotWorkflow.test.tsx`; восстановление draft, конфликт revision и stale settings — `SessionPage.pilot.test.tsx`; неизменяемость ссылки на каталог — `catalog-snapshot.pilot.test.ts`; профиль 500 строк и ограниченный рендеринг — `PilotVolume.test.tsx`.
+
+## Windows launcher L1–L7
+
+| ID | Online/offline contract | Ownership contract | Статус |
+| --- | --- | --- | --- |
+| L1 first start | verified Python download | OS-backed mutex | workflow defined; execution pending |
+| L2 repeat | no download | compatible health reused | workflow defined; execution pending |
+| L3 updated release | runtime reusable | fingerprint + authenticated shutdown | unit-covered; E2E pending |
+| L4 offline repeat | root/health available | receipt revalidated | workflow defined; execution pending |
+| L5 already running | browser handoff | identity/fingerprint checked | implementation complete; manual pending |
+| L6 normal stop | offline capable | token + health + state | workflow defined; execution pending |
+| L7 recovery | runtime retained | foreign listener untouched | unit-covered; manual pending |
+
+**Manual clean-Windows acceptance pending.** Статусы не означают изменение Pilot 1.0, matcher или storage contracts.
