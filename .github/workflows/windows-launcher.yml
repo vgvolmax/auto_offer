@@ -1,7 +1,7 @@
 name: Windows portable launcher
 on:
   pull_request:
-    paths: ['start.bat', 'stop.bat', 'scripts/launcher/**', '.github/workflows/windows-launcher.yml', 'docs/app/WINDOWS_PORTABLE_LAUNCH.md', 'package*.json', 'app/**']
+    paths: ['start.bat', 'scripts/launcher/**', '.github/workflows/windows-launcher.yml', 'docs/app/WINDOWS_PORTABLE_LAUNCH.md', 'package*.json', 'app/**']
   workflow_dispatch:
 jobs:
   windows-launcher:
@@ -48,13 +48,23 @@ jobs:
           }
           $health = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
           if ($health.app_identity -ne 'auto-offer-windows-portable') { throw 'health identity failed' }
+          if (-not $health.project_root_id -or -not $health.build_fingerprint -or $health.shutdown_token) { throw 'health identity is incomplete or contains a shutdown token' }
           $root = Invoke-WebRequest http://127.0.0.1:8765/ -UseBasicParsing
           if ($root.StatusCode -ne 200 -or [string]::IsNullOrWhiteSpace($root.Content)) { throw 'root/index.html failed' }
           $serverPid = $health.pid
           if (@(Get-Process -Id $serverPid -ErrorAction SilentlyContinue).Count -ne 1) { throw 'exactly one server was not found' }
-          Push-Location $outside; try { & cmd.exe /d /c "`"$target\stop.bat`""; if ($LASTEXITCODE -ne 0) { throw 'stop.bat failed' } } finally { Pop-Location }
-          if (Test-Path "$target\.runtime\server.json") { throw 'server.json was not removed' }
-          if (Get-Process -Id $serverPid -ErrorAction SilentlyContinue) { throw 'server process remains' }
+          $originalPackage = [IO.File]::ReadAllBytes("$target\package.json")
+          try {
+            Add-Content -LiteralPath "$target\package.json" -Value ' '
+            & "$target\.runtime\python\python.exe" "$target\scripts\launcher\launcher.py" start --no-browser
+            if ($LASTEXITCODE -eq 0) { throw 'running stale server was reused after source fingerprint changed' }
+            $global:LASTEXITCODE = 0
+          } finally { [IO.File]::WriteAllBytes("$target\package.json",$originalPackage) }
+          $serverProcess = Get-CimInstance Win32_Process -Filter "ProcessId=$serverPid"
+          & taskkill.exe /PID $serverProcess.ParentProcessId /T /F | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'closing the visible server window failed' }
+          for ($i=0;$i -lt 50 -and (Get-Process -Id $serverPid -ErrorAction SilentlyContinue);$i++) { Start-Sleep -Milliseconds 100 }
+          if (Get-Process -Id $serverPid -ErrorAction SilentlyContinue) { throw 'server process remains after its window was closed' }
 
           $pythonTime=(Get-Item "$target\.runtime\python\python.exe").LastWriteTimeUtc
           $nodeTime=(Get-Item "$target\.runtime\node\node.exe").LastWriteTimeUtc
@@ -67,7 +77,9 @@ jobs:
           if ((Get-Item "$target\dist\app").LastWriteTimeUtc -ne $buildTime) { throw 'offline run repeated build' }
           $health=Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
           if ($health.app_identity -ne 'auto-offer-windows-portable') { throw 'offline health failed' }
-          & cmd.exe /d /c "`"$target\stop.bat`""; if ($LASTEXITCODE -ne 0) { throw 'offline stop.bat failed' }
+          $serverProcess = Get-CimInstance Win32_Process -Filter "ProcessId=$($health.pid)"
+          & taskkill.exe /PID $serverProcess.ParentProcessId /T /F | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'offline server window close failed' }
       - name: Bootstrap lock crash recovery and stale metadata
         shell: pwsh
         run: |
@@ -77,7 +89,10 @@ jobs:
           Stop-Process -Id $holder.Id -Force; $holder.WaitForExit()
           & cmd.exe /d /c "echo stale metadata> `"$target\.runtime\launcher.lock`""
           & cmd.exe /d /c "`"$target\start.bat`" --no-browser"; if ($LASTEXITCODE -ne 0) { throw 'stale metadata blocked start' }
-          & cmd.exe /d /c "`"$target\stop.bat`""; if ($LASTEXITCODE -ne 0) { throw 'stop failed' }
+          $health = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          $serverProcess = Get-CimInstance Win32_Process -Filter "ProcessId=$($health.pid)"
+          & taskkill.exe /PID $serverProcess.ParentProcessId /T /F | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'server window close failed' }
       - name: Repository regression
         shell: pwsh
         run: |
@@ -101,7 +116,7 @@ jobs:
         shell: pwsh
         run: |
           $log = Join-Path $env:RUNNER_TEMP 'CI Work\Тест Auto Offer\auto_offer\.runtime\logs\launcher.log'
-          if (Test-Path $log) { (Get-Content $log) -replace '(?i)(shutdown.?token|authorization|cookie)(\s*[:=]\s*)\S+','$1$2[REDACTED]' | Set-Content launcher-sanitized.log }
+          if (Test-Path $log) { (Get-Content $log) -replace '(?i)(authorization|cookie)(\s*[:=]\s*)\S+','$1$2[REDACTED]' | Set-Content launcher-sanitized.log }
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
