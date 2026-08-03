@@ -1,0 +1,44 @@
+name: Windows portable launcher
+on:
+  pull_request:
+    paths: ['start.bat', 'stop.bat', 'scripts/launcher/**', '.github/workflows/windows-launcher.yml', 'app/**', 'package*.json']
+  workflow_dispatch:
+jobs:
+  windows-launcher:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit and fixture integration tests
+        run: python -m unittest discover -s scripts/launcher/tests -p "test_*.py" -v
+      - name: Path with spaces and Cyrillic
+        shell: pwsh
+        run: |
+          $target = Join-Path $env:RUNNER_TEMP 'Тест Auto Offer\auto_offer'
+          New-Item -ItemType Directory -Force $target | Out-Null
+          Copy-Item scripts,start.bat,stop.bat,package.json,package-lock.json,app -Destination $target -Recurse
+          python "$target\scripts\launcher\launcher.py" doctor
+      - name: Fresh end-to-end portable bootstrap
+        shell: pwsh
+        run: |
+          Remove-Item .runtime,node_modules,dist -Recurse -Force -ErrorAction SilentlyContinue
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/launcher/bootstrap.ps1 -NoBrowser
+          Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health | ConvertTo-Json
+          if ((Invoke-WebRequest http://127.0.0.1:8765/ -UseBasicParsing).StatusCode -ne 200) { throw 'root failed' }
+          .runtime/python/python.exe scripts/launcher/launcher.py stop
+          $env:HTTP_PROXY='http://127.0.0.1:1'; $env:HTTPS_PROXY='http://127.0.0.1:1'
+          .runtime/python/python.exe scripts/launcher/launcher.py start --no-browser
+          .runtime/python/python.exe scripts/launcher/launcher.py stop
+      - name: Upload sanitized launcher log on failure
+        if: failure()
+        shell: pwsh
+        run: |
+          if (Test-Path .runtime/logs/launcher.log) {
+            (Get-Content .runtime/logs/launcher.log) -replace '(?i)(shutdown.?token|authorization|cookie)(\s*[:=]\s*)\S+','$1$2[REDACTED]' | Set-Content launcher-sanitized.log
+          }
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: launcher-sanitized-log
+          path: launcher-sanitized.log
+          if-no-files-found: ignore

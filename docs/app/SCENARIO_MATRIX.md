@@ -110,3 +110,15 @@ F1–F4 остаются verified. Gate проверяет full workflow, reload
 # Pilot readiness automation
 
 Статус `verified` для Pilot 1.0 означает прохождение автоматического сценария, а не только наличие production-кода. Полный жизненный цикл review подтверждает `PilotWorkflow.test.tsx`; восстановление draft, конфликт revision и stale settings — `SessionPage.pilot.test.tsx`; неизменяемость ссылки на каталог — `catalog-snapshot.pilot.test.ts`; профиль 500 строк и ограниченный рендеринг — `PilotVolume.test.tsx`.
+
+## Windows launcher scenarios
+
+| ID | Scenario | Automated coverage | Status |
+|---|---|---|---|
+| L1 | First clean-Windows launch | Windows E2E workflow | implemented, manual pending |
+| L2 | Unchanged repeat | fingerprint/unit + E2E repeat | implemented, manual pending |
+| L3 | Updated ZIP | dependency/build fingerprints | implemented, manual pending |
+| L4 | Offline repeat | Windows E2E second start | implemented, manual pending |
+| L5 | Already running | health identity unit/integration | implemented, manual pending |
+| L6 | Graceful stop | authenticated shutdown integration | implemented, manual pending |
+| L7 | Failure/recovery | retry/checksum/atomic publication tests | implemented, manual pending |

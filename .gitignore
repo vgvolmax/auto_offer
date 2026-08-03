@@ -1,4 +1,6 @@
 node_modules/
+.runtime/
+dist/
 /data/source/*
 /data/work/*
 /data/generated/*
@@ -7,3 +9,6 @@ node_modules/
 /taxonomy/generated/*
 /taxonomy/local/
 .DS_Store
+
+__pycache__/
+*.py[cod]

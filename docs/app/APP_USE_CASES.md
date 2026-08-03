@@ -635,3 +635,7 @@ Result line review, candidate details, checks and differences, excluded candidat
 ## Pilot 1.0 gate (B6)
 
 F1–F4 остаются verified; AI feedback export входит в pilot flow. B6 gate покрывает full workflow, reload/recovery, concurrent revision refresh, multi-catalog priority, confirmed export и volume smoke. G1 human final document остаётся planned. Pilot 1.0 не является коммерческим production release.
+
+## Launcher use cases L1–L7
+
+Windows delivery-контур покрывает L1 (первый запуск), L2 (повторный), L3 (обновлённый ZIP), L4 (offline repeat), L5 (reuse работающего сервера), L6 (authenticated stop) и L7 (ошибка/восстановление). Фактический контракт описан в [WINDOWS_PORTABLE_LAUNCH.md](WINDOWS_PORTABLE_LAUNCH.md). Статус до clean-Windows acceptance: **implemented, not verified**.

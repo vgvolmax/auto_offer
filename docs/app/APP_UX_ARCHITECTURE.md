@@ -55,3 +55,7 @@ AI export включается только для актуального run п
 ## Pilot diagnostics
 
 После получения результата `MatchResultsPanel` показывает закрытую по умолчанию read-only секцию «Диагностика пилота». Она использует уже загруженный SelectionState и отображает release/contracts/storage, фактические taxonomy версий bundles и идентификаторы session/run. AI feedback export является частью pilot flow; G1 остаётся planned.
+
+## Windows delivery/runtime boundary
+
+`start.bat → bootstrap.ps1 → launcher.py` является отдельным delivery-контуром и не меняет React/domain/storage. Он атомарно готовит runtime и build, затем обслуживает только проверенный `dist/app` на постоянном origin `http://127.0.0.1:8765`. Health identity отличает Auto Offer от чужого listener; shutdown token обеспечивает локальную штатную остановку. IndexedDB зависит от origin, браузера и профиля.

@@ -1,0 +1,13 @@
+@echo off
+setlocal EnableExtensions DisableDelayedExpansion
+chcp 65001 >nul
+cd /d "%~dp0"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\launcher\bootstrap.ps1"
+set "RC=%ERRORLEVEL%"
+if not "%RC%"=="0" (
+  echo.
+  echo Auto Offer could not start. Review the message above and retry start.bat.
+  echo Log: "%~dp0.runtime\logs\launcher.log"
+  pause
+)
+exit /b %RC%

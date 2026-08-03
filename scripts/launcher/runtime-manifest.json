@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "launcher_version": "1.0.0",
+  "python": {
+    "version": "3.13.7",
+    "url": "https://www.python.org/ftp/python/3.13.7/python-3.13.7-embed-amd64.zip",
+    "sha256": "9e4e003d13be5d4a8a3e88f1e40b2550d0e492bd647a2c0f1a5e1aa30cb60d87",
+    "executable": "python.exe"
+  },
+  "node": {
+    "version": "22.19.0",
+    "url": "https://nodejs.org/dist/v22.19.0/node-v22.19.0-win-x64.zip",
+    "sha256": "8f22f8261a70476b8143756a03a9a6bf25f73d1beabbf949ea57b0f17d7f2c77",
+    "executable": "node.exe"
+  },
+  "host": "127.0.0.1",
+  "port": 8765,
+  "paths": {
+    "runtime": ".runtime",
+    "python": ".runtime/python",
+    "node": ".runtime/node",
+    "downloads": ".runtime/downloads",
+    "state": ".runtime/state.json",
+    "server_state": ".runtime/server.json",
+    "log": ".runtime/logs/launcher.log",
+    "build": "dist/app"
+  },
+  "build_inputs": ["app/**", "package.json", "package-lock.json"],
+  "build_settings": {"script": "app:build", "typecheck": "typecheck:app"}
+}
