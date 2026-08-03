@@ -58,4 +58,4 @@ AI export включается только для актуального run п
 
 ## Windows delivery/runtime boundary
 
-`start.bat → bootstrap.ps1 → launcher.py` является отдельным delivery-контуром и не меняет React/domain/storage. Он атомарно готовит runtime и build, затем обслуживает только проверенный `dist/app` на постоянном origin `http://127.0.0.1:8765`. Health identity отличает Auto Offer от чужого listener; shutdown token обеспечивает локальную штатную остановку. IndexedDB зависит от origin, браузера и профиля.
+`start.bat → bootstrap.ps1 → launcher.py` является отдельным delivery-контуром и не меняет React/domain/storage. Он атомарно готовит runtime и build, затем обслуживает только проверенный `dist/app` на постоянном origin `http://127.0.0.1:8765`. Health identity включает project root и build fingerprint, поэтому устаревшая или чужая копия не переиспользуется. Сервер работает в отдельном видимом окне и останавливается его закрытием. IndexedDB зависит от origin, браузера и профиля.
