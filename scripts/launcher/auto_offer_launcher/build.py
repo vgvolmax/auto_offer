@@ -19,6 +19,20 @@ def dependencies_current(root, state, node_version):
         and state.get("package_lock_sha256")==sha256_file(lock)
         and state.get("node",{}).get("version")==node_version
     )
+def dependencies_usable(root: Path,node: Path) -> bool:
+    script=(
+        "const p=require('./package.json');"
+        "const names=[...Object.keys(p.dependencies||{}),'typescript','vite'];"
+        "for(const name of names)require.resolve(name,{paths:[process.cwd()]});"
+    )
+    try:
+        result=subprocess.run(
+            [str(node),"-e",script],cwd=str(root),stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
+            timeout=20,shell=False,
+        )
+        return result.returncode==0
+    except (OSError,subprocess.SubprocessError):
+        return False
 def build_current(root,state,fingerprint):
     return state.get("build_input_fingerprint")==fingerprint and validate_artifact(root/"dist/app")
 def make_build_staging(final: Path) -> Path:
