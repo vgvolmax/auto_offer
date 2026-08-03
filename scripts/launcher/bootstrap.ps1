@@ -12,6 +12,20 @@ function Fail([string]$message, [string]$stage) {
   $log = Join-Path $runtime 'logs\launcher.log'
   Write-Error "Что произошло: $message`nЭтап: $stage`nЧто сохранено: проверенные файлы release и данные IndexedDB не изменены`nСледующий start.bat повторит незавершённый этап`nЧто сделать: проверьте сеть/место и полностью распакованный ZIP`nЛог: $log"
 }
+
+function Get-Sha256([string]$Path) {
+  $stream = [IO.File]::OpenRead($Path)
+  try {
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try {
+      return ([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-', '').ToLowerInvariant()
+    } finally {
+      $sha.Dispose()
+    }
+  } finally {
+    $stream.Dispose()
+  }
+}
 try {
   Add-Type -AssemblyName System.Net.Http
   Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -88,7 +102,7 @@ try {
           Start-Sleep -Seconds $attempt
         } finally { $client.Dispose() }
       }
-      if ((Get-FileHash -LiteralPath $part -Algorithm SHA256).Hash.ToLowerInvariant() -ne $m.python.sha256) { throw 'Portable Python checksum mismatch' }
+      if ((Get-Sha256 $part) -ne $m.python.sha256) { throw 'Portable Python checksum mismatch' }
       New-Item -ItemType Directory -Path $temp | Out-Null
       $zip=[IO.Compression.ZipFile]::OpenRead($part)
       try {
