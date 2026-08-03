@@ -1,8 +1,9 @@
 import hashlib, io, tempfile, unittest, urllib.error, zipfile
 from pathlib import Path
-from scripts.launcher.auto_offer_launcher.download import DownloadError, download, extract_atomic
+from scripts.launcher.auto_offer_launcher.download import DownloadError, download, extract_atomic, open_allowed, validate_download_url
 class Response(io.BytesIO):
- def __init__(self,data,length=True): super().__init__(data); self.headers={'Content-Length':str(len(data))} if length else {}
+ def __init__(self,data,length=True,url='https://x'): super().__init__(data); self.headers={'Content-Length':str(len(data))} if length else {}; self.url=url
+ def geturl(self): return self.url
  def __enter__(self): return self
  def __exit__(self,*a): pass
 class DownloadTests(unittest.TestCase):
@@ -28,3 +29,24 @@ class DownloadTests(unittest.TestCase):
  def test_atomic_publication(self):
   with tempfile.TemporaryDirectory() as d:
    a=Path(d)/'a.zip'; self.zip(a); out=Path(d)/'out'; extract_atomic(a,out,lambda p:(p/'python.exe').exists()); self.assertTrue((out/'python.exe').exists())
+ def test_url_policy(self):
+  validate_download_url('https://downloads.example.test/a',['downloads.example.test'])
+  for url in ('http://downloads.example.test/a','https://evil.example/a'):
+   with self.assertRaises(DownloadError): validate_download_url(url,['downloads.example.test'])
+ def test_final_url_is_validated(self):
+  with self.assertRaises(DownloadError): open_allowed('https://good.test/a',['good.test'],opener=lambda *a,**k:Response(b'x',url='https://evil.test/a'))
+ def test_allowed_redirect_and_forbidden_chains(self):
+  def redirect(url,location):
+   raise urllib.error.HTTPError(url,302,'redirect',{'Location':location},None)
+  calls=[]
+  def allowed(url,**kwargs):
+   calls.append(url)
+   if len(calls)==1: return redirect(url,'https://cdn.test/file')
+   return Response(b'ok',url=url)
+  self.assertEqual(open_allowed('https://origin.test/file',['origin.test','cdn.test'],opener=allowed).read(),b'ok')
+  for destination in ('https://evil.test/file','http://origin.test/file'):
+   with self.assertRaises(DownloadError): open_allowed('https://origin.test/file',['origin.test'],opener=lambda url,**k:redirect(url,destination))
+  calls.clear()
+  def intermediate(url,**kwargs):
+   return redirect(url,'https://evil.test/step')
+  with self.assertRaises(DownloadError): open_allowed('https://origin.test/file',['origin.test','final.test'],opener=intermediate)

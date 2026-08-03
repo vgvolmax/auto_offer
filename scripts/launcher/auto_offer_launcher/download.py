@@ -1,15 +1,43 @@
 from __future__ import annotations
-import hashlib, os, shutil, tempfile, time, urllib.error, urllib.request, zipfile
+import hashlib, os, shutil, tempfile, time, urllib.error, urllib.parse, urllib.request, zipfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from .progress import download_line, unicode_supported
 
 class DownloadError(RuntimeError): pass
-def download(url: str, destination: Path, checksum: str, stage=2, attempts=3, opener=urllib.request.urlopen) -> Path:
+def validate_download_url(url: str, allowed_hosts) -> None:
+    parsed=urllib.parse.urlparse(url)
+    if parsed.scheme.lower() != "https": raise DownloadError("download was blocked: HTTPS is required")
+    if not parsed.hostname or parsed.hostname.lower() not in {h.lower() for h in allowed_hosts}:
+        raise DownloadError("download was blocked: host is not in the launcher allowlist")
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl): return None
+
+def open_allowed(url: str, allowed_hosts, timeout=30, max_redirects=10, opener=None):
+    """Open a URL while validating every redirect, including the final URL."""
+    current=url; client=opener or urllib.request.build_opener(_NoRedirect()).open
+    for _ in range(max_redirects+1):
+        validate_download_url(current,allowed_hosts)
+        try: response=client(current,timeout=timeout)
+        except urllib.error.HTTPError as exc:
+            if exc.code not in (301,302,303,307,308): raise
+            location=exc.headers.get("Location")
+            if not location: raise DownloadError("download redirect did not provide a destination") from exc
+            current=urllib.parse.urljoin(current,location); continue
+        final=getattr(response,"geturl",lambda:current)()
+        try: validate_download_url(final,allowed_hosts)
+        except Exception: response.close(); raise
+        return response
+    raise DownloadError("download was blocked: too many redirects")
+
+def download(url: str, destination: Path, checksum: str, stage=2, attempts=3, opener=None, allowed_hosts=None) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True); part=destination.with_suffix(destination.suffix+".part")
     for attempt in range(1, attempts+1):
         try:
             h=hashlib.sha256(); received=0; started=time.monotonic()
-            with opener(url, timeout=30) as response, part.open("wb") as out:
+            hosts=allowed_hosts or [urllib.parse.urlparse(url).hostname]
+            response=open_allowed(url,hosts,opener=opener)
+            with response, part.open("wb") as out:
                 total=int(response.headers.get("Content-Length", 0) or 0)
                 while True:
                     block=response.read(1024*256)

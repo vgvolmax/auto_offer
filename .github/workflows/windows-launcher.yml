@@ -23,12 +23,42 @@ jobs:
         run: |
           Remove-Item .runtime,node_modules,dist -Recurse -Force -ErrorAction SilentlyContinue
           powershell -NoProfile -ExecutionPolicy Bypass -File scripts/launcher/bootstrap.ps1 -NoBrowser
-          Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health | ConvertTo-Json
+          $health = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          if ($health.app_identity -ne 'auto-offer-windows-portable') { throw 'health identity failed' }
           if ((Invoke-WebRequest http://127.0.0.1:8765/ -UseBasicParsing).StatusCode -ne 200) { throw 'root failed' }
+          $firstPid = $health.pid
+          $pythonTime = (Get-Item .runtime/python/python.exe).LastWriteTimeUtc
+          $nodeTime = (Get-Item .runtime/node/node.exe).LastWriteTimeUtc
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/launcher/bootstrap.ps1 -NoBrowser
+          $again = Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
+          if ($again.pid -ne $firstPid) { throw 'second server was created' }
+          if ((Get-Item .runtime/python/python.exe).LastWriteTimeUtc -ne $pythonTime -or (Get-Item .runtime/node/node.exe).LastWriteTimeUtc -ne $nodeTime) { throw 'runtime was downloaded again' }
           .runtime/python/python.exe scripts/launcher/launcher.py stop
+          if (Test-Path .runtime/server.json) { throw 'server state was not cleaned' }
           $env:HTTP_PROXY='http://127.0.0.1:1'; $env:HTTPS_PROXY='http://127.0.0.1:1'
           .runtime/python/python.exe scripts/launcher/launcher.py start --no-browser
           .runtime/python/python.exe scripts/launcher/launcher.py stop
+      - name: Recover damaged and partial Python runtime
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force .runtime/python.new-interrupted | Out-Null
+          Set-Content .runtime/python.new-interrupted/python.exe 'partial'
+          Remove-Item .runtime/python/install-receipt.json -Force
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/launcher/bootstrap.ps1 -NoBrowser
+          $version = & .runtime/python/python.exe -c 'import platform; print(platform.python_version())'
+          if ($version.Trim() -ne '3.13.7') { throw 'Python repair/version validation failed' }
+          if (Test-Path .runtime/python.new-interrupted) { throw 'partial install was not cleaned' }
+          .runtime/python/python.exe scripts/launcher/launcher.py stop
+      - name: Full launch from path with spaces and Cyrillic
+        shell: pwsh
+        run: |
+          $target = Join-Path $env:RUNNER_TEMP 'Тест Auto Offer\auto_offer'
+          Remove-Item $target -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force $target | Out-Null
+          Copy-Item scripts,start.bat,stop.bat,package.json,package-lock.json,app,.runtime,node_modules,dist -Destination $target -Recurse
+          & "$target\.runtime\python\python.exe" "$target\scripts\launcher\launcher.py" start --no-browser
+          if ((Invoke-WebRequest http://127.0.0.1:8765/ -UseBasicParsing).StatusCode -ne 200) { throw 'Cyrillic path root failed' }
+          & "$target\.runtime\python\python.exe" "$target\scripts\launcher\launcher.py" stop
       - name: Upload sanitized launcher log on failure
         if: failure()
         shell: pwsh

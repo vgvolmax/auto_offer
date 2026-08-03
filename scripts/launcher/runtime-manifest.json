@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "launcher_version": "1.0.0",
+  "download_hosts": ["www.python.org", "python.org", "nodejs.org", "www.nodejs.org"],
   "python": {
     "version": "3.13.7",
     "url": "https://www.python.org/ftp/python/3.13.7/python-3.13.7-embed-amd64.zip",

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, contextlib, logging, logging.handlers, os, subprocess, sys, tempfile, time, webbrowser
+import argparse, contextlib, json, logging, logging.handlers, os, subprocess, sys, tempfile, time, webbrowser
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -22,19 +22,34 @@ def logger_for(path):
     return logger
 @contextlib.contextmanager
 def launch_lock(path):
-    path.parent.mkdir(parents=True,exist_ok=True); deadline=time.monotonic()+60
+    path.parent.mkdir(parents=True,exist_ok=True); deadline=time.monotonic()+60; handle=path.open("a+b"); announced=0
     while True:
-        try: fd=os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY); os.write(fd,str(os.getpid()).encode()); break
-        except FileExistsError:
-            if time.monotonic()>deadline: raise LaunchFailure("another launcher is still preparing Auto Offer","lock")
+        try:
+            if os.name=="nt":
+                import msvcrt
+                handle.seek(0); handle.write(b"\0"); handle.flush(); handle.seek(0); msvcrt.locking(handle.fileno(),msvcrt.LK_NBLCK,1)
+            else:
+                import fcntl
+                fcntl.flock(handle.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+            break
+        except OSError:
+            elapsed=int(60-(deadline-time.monotonic()))
+            if elapsed>=announced: print(f"[lock] Another launcher is preparing Auto Offer; waiting ({elapsed}s)...",flush=True); announced=elapsed+5
+            if time.monotonic()>deadline: handle.close(); raise LaunchFailure("another launcher is still preparing Auto Offer","lock")
             time.sleep(.2)
+    handle.seek(0); handle.truncate(); handle.write(json.dumps({"pid":os.getpid(),"acquired":datetime.now(timezone.utc).isoformat()}).encode()); handle.flush()
     try: yield
-    finally: os.close(fd); path.unlink(missing_ok=True)
+    finally:
+        try:
+            handle.seek(0)
+            if os.name=="nt": msvcrt.locking(handle.fileno(),msvcrt.LK_UNLCK,1)
+            else: fcntl.flock(handle.fileno(),fcntl.LOCK_UN)
+        finally: handle.close()
 def paths(manifest): return {k:ROOT/v for k,v in manifest["paths"].items()}
 def ensure_node(manifest,p,state,report):
     item=manifest["node"]; exe=p["node"]/item["executable"]
     if exe.is_file() and state.get("node",{}).get("sha256")==item["sha256"]: report.stage(2,"Portable Node.js"); return
-    archive=p["downloads"]/"node.zip"; download(item["url"],archive,item["sha256"],2)
+    archive=p["downloads"]/"node.zip"; download(item["url"],archive,item["sha256"],2,allowed_hosts=manifest["download_hosts"])
     extract_atomic(archive,p["node"],lambda d:(d/item["executable"]).is_file() and (d/"npm.cmd").is_file(),flatten=True)
     state["node"]={"version":item["version"],"sha256":item["sha256"]}; atomic_json(p["state"],state); report.stage(2,"Portable Node.js")
 def error_text(exc,log):
