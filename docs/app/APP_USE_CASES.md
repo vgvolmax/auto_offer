@@ -636,16 +636,6 @@ Result line review, candidate details, checks and differences, excluded candidat
 
 F1–F4 остаются verified; AI feedback export входит в pilot flow. B6 gate покрывает full workflow, reload/recovery, concurrent revision refresh, multi-catalog priority, confirmed export и volume smoke. G1 human final document остаётся planned. Pilot 1.0 не является коммерческим production release.
 
-## L — Windows portable lifecycle
+## Launcher use cases L1–L7
 
-| ID | Пользовательский сценарий | Фактический статус |
-| --- | --- | --- |
-| L1 | Первый запуск готового release ZIP: portable Python, server, browser | verified in Windows ZIP/BAT E2E; manual clean-Windows pending |
-| L2 | Повторный запуск переиспользует runtime и совместимый server | verified in Windows ZIP/BAT E2E; manual pending |
-| L3 | Новый release не маскируется старым fingerprint | unit-covered; cross-release E2E pending |
-| L4 | Повторный неизменённый запуск offline | verified in Windows ZIP/BAT E2E; manual pending |
-| L5 | Уже работающий совместимый экземпляр переиспользуется | verified by concurrent BAT E2E; manual pending |
-| L6 | `stop.bat` выполняет authenticated graceful shutdown | verified in Windows ZIP/BAT E2E; manual pending |
-| L7 | Повреждённый runtime переустанавливается, прерванная публикация восстанавливается offline | verified in Windows E2E + unit contracts; manual pending |
-
-Статусы не объявляются `verified` до фактического CI run или clean-Windows проверки. Launcher не меняет бизнес-данные и IndexedDB.
+Windows delivery-контур покрывает L1 (первый запуск), L2 (повторный), L3 (обновлённый ZIP), L4 (offline repeat), L5 (reuse работающего сервера), L6 (authenticated stop) и L7 (ошибка/восстановление). Фактический контракт описан в [WINDOWS_PORTABLE_LAUNCH.md](WINDOWS_PORTABLE_LAUNCH.md). Статус до clean-Windows acceptance: **implemented, not verified**.
