@@ -8,7 +8,15 @@ class BatchEntryTests(unittest.TestCase):
         self.assertIn('cd /d "%~dp0"',text)
         self.assertIn('-file "%~dp0scripts\\launcher\\bootstrap.ps1" %*',text)
 
-    def test_stop_uses_only_project_local_python(self):
-        text=Path("stop.bat").read_text(encoding="utf-8").lower()
-        self.assertIn('set "python=%~dp0.runtime\\python\\python.exe"',text)
-        self.assertNotIn("where python",text)
+    def test_server_has_a_visible_window_and_no_stop_entrypoint(self):
+        self.assertFalse(Path("stop.bat").exists())
+        text=Path("scripts/launcher/server-window.cmd").read_text(encoding="utf-8").lower()
+        self.assertIn("title auto offer server",text)
+        self.assertIn("close this window",text)
+        self.assertIn('.runtime\\python\\python.exe',text)
+
+    def test_python_download_has_bounded_retry_timeout_and_real_progress(self):
+        text=Path("scripts/launcher/bootstrap.ps1").read_text(encoding="utf-8")
+        self.assertIn("for ($attempt=1; $attempt -le 3; $attempt++)",text)
+        self.assertIn("CancellationTokenSource",text)
+        self.assertIn("Portable Python [{0}]",text)
