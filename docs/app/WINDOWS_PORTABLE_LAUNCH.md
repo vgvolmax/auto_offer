@@ -1,6 +1,7 @@
 # Windows portable launch
 
-Статус архитектуры: **READY**. Статус ручной приёмки: **Manual clean-Windows acceptance pending**.
+Статус архитектуры после технической проверки: **REFACTOR-IN-PR**. Статус ручной
+приёмки: **Manual clean-Windows acceptance pending**.
 
 ## Контракт поставки
 
@@ -17,6 +18,12 @@ SHA-256 `f6cca216a359be84797cabb54149ce5e062afb16cc7567eb7fc51cacb2d86b65`.
 Runtime атомарно публикуется в `.runtime/python`; системные Python, pip, PATH,
 пакеты и права администратора не используются.
 
+Mutex удерживается до подтверждённого health нового сервера (либо подтверждения
+уже работающего экземпляра). Поэтому конкурентные первые запуски последовательно
+перепроверяют runtime и listener, а аварийное завершение не оставляет постоянный lock.
+Сетевые попытки ограничены тремя и повторяются только для временных transport/HTTP
+ошибок; checksum, policy redirect и unsafe ZIP завершают установку сразу.
+
 ## Целостность и lifecycle
 
 `release-manifest.json` строго фиксирует schema/app/launcher versions, source commit,
@@ -24,7 +31,13 @@ build timestamp, origin и сортированный список `path`, `size
 кроме manifest. Неизвестные поля, unsafe/duplicate paths, пропуски и несовпадения
 блокируют сервер. Сервер standard-library `ThreadingHTTPServer` слушает только
 `127.0.0.1:8765`, публикует health identity/fingerprint и использует authenticated
-loopback shutdown. `stop.bat` не завершает процесс по одному PID.
+loopback shutdown. После успешного bind сервер сам создаёт instance ID и shutdown
+token, записывает собственный ненулевой PID и атомарно публикует `server.json`.
+Token существует только в этом локальном state, не передаётся через argv и
+сравнивается constant-time. Сервер удаляет state только если файл всё ещё относится
+к его instance. `stop.bat` сверяет health со state и не завершает процесс по одному PID.
+Закрытый port со state считается stale; foreign или временно не отвечающий listener
+не останавливается и не перезаписывается.
 
 Логи находятся в `.runtime/logs/launcher.log` и `server.log`, ротируются и не должны
 содержать shutdown token. Повреждённый release следует скачать и полностью
@@ -39,3 +52,8 @@ release на том же origin и удаление `.runtime` данные не
 Ручной clean-Windows flow (ZIP в `C:\Тест Auto Offer\auto_offer`, первый online
 start, импорт тестового bundle, draft, stop, offline start и проверка данных в том
 же профиле) ещё не выполнен и не заявляется как verified.
+
+GitHub Actions `Windows portable release` выполняет автоматическую ZIP-проверку на
+Windows 2022, включая Unicode/space path, два конкурентных BAT-запуска, health/root,
+stop и offline-ready restart. Эта CI-проверка не заменяет указанную выше ручную
+приёмку на чистой пользовательской Windows.

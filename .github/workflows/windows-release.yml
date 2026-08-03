@@ -1,6 +1,17 @@
 name: Windows portable release
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - start.bat
+      - stop.bat
+      - scripts/launcher/**
+      - scripts/release/**
+      - .github/workflows/windows-release.yml
+      - package.json
+      - package-lock.json
+      - app/**
+      - release-manifest*.json
   push:
     tags: ['v*']
 permissions:
@@ -22,13 +33,18 @@ jobs:
       - run: npm test
       - name: Launcher unit tests
         run: python -m unittest discover -s scripts/launcher/tests -p "test_*.py" -v
+      - name: Release contract tests
+        run: python -m unittest discover -s scripts/release/tests -p "test_*.py" -v
       - name: Build staging package
         shell: pwsh
         run: |
           $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          $short = '${{ github.sha }}'.Substring(0,7)
+          $commit = '${{ github.event.pull_request.head.sha }}'
+          if (-not $commit) { $commit = '${{ github.sha }}' }
+          $short = $commit.Substring(0,7)
           $name = "Auto-Offer-$version-$short-windows-x64"
-          python scripts/release/build_windows_release.py --app dist/app --output "release-staging/$name" --source-commit '${{ github.sha }}' --build-timestamp '${{ github.event.head_commit.timestamp }}'
+          $timestamp = [DateTime]::UtcNow.ToString('o')
+          python scripts/release/build_windows_release.py --app dist/app --output "release-staging/$name" --source-commit $commit --build-timestamp $timestamp
           python scripts/release/verify_windows_release.py "release-staging/$name"
           Compress-Archive -LiteralPath "release-staging/$name" -DestinationPath "$name.zip"
           "RELEASE_NAME=$name" >> $env:GITHUB_ENV
@@ -39,6 +55,7 @@ jobs:
           New-Item -ItemType Directory -Force $target | Out-Null
           Expand-Archive "$env:GITHUB_WORKSPACE\$env:RELEASE_NAME.zip" $target
           $root = Join-Path $target $env:RELEASE_NAME
+          python "$env:GITHUB_WORKSPACE\scripts\release\verify_windows_release.py" $root
           if (Get-ChildItem $root -Recurse | Where-Object { $_.Name -in 'node.exe','npm','npm.cmd','node_modules' }) { throw 'Node/npm leaked into package' }
           "E2E_ROOT=$root" >> $env:GITHUB_ENV
       - name: BAT-level first start, concurrency, health and stop
@@ -47,15 +64,22 @@ jobs:
         run: |
           $out1="$env:RUNNER_TEMP\start1.out"; $out2="$env:RUNNER_TEMP\start2.out"
           $env:PATH="$env:SystemRoot\System32;$env:SystemRoot;$env:SystemRoot\System32\WindowsPowerShell\v1.0"
-          $p1=Start-Process cmd.exe -ArgumentList '/d','/c',"`"$env:E2E_ROOT\start.bat`" --no-browser > `"$out1`" 2>&1" -PassThru
+          $err1="$env:RUNNER_TEMP\start1.err"; $err2="$env:RUNNER_TEMP\start2.err"
+          $p1=Start-Process -FilePath "$env:E2E_ROOT\start.bat" -ArgumentList '--no-browser' -RedirectStandardOutput $out1 -RedirectStandardError $err1 -PassThru
           Start-Sleep -Milliseconds 300
-          $p2=Start-Process cmd.exe -ArgumentList '/d','/c',"`"$env:E2E_ROOT\start.bat`" --no-browser > `"$out2`" 2>&1" -PassThru
+          $p2=Start-Process -FilePath "$env:E2E_ROOT\start.bat" -ArgumentList '--no-browser' -RedirectStandardOutput $out2 -RedirectStandardError $err2 -PassThru
           $p1.WaitForExit(); $p2.WaitForExit()
-          if ($p1.ExitCode -ne 0 -or $p2.ExitCode -ne 0) { Get-Content $out1,$out2 -ErrorAction SilentlyContinue; throw "starts failed: $($p1.ExitCode),$($p2.ExitCode)" }
+          if ($p1.ExitCode -ne 0 -or $p2.ExitCode -ne 0) {
+            @($out1,$out2,$err1,$err2,"$env:E2E_ROOT\.runtime\logs\launcher.log","$env:E2E_ROOT\.runtime\logs\server.log") | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Get-Content -LiteralPath $_ | Select-String -NotMatch 'shutdown_token|X-Auto-Offer-Shutdown|Authorization|Cookie' }
+            throw "starts failed: $($p1.ExitCode),$($p2.ExitCode)"
+          }
           $health=Invoke-RestMethod http://127.0.0.1:8765/__auto_offer_health
-          if ($health.app_identity -ne 'auto-offer') { throw 'health identity mismatch' }
+          if ($health.app_identity -ne 'auto-offer' -or $health.pid -le 0 -or -not $health.instance_id -or -not $health.release_fingerprint) { throw 'health identity mismatch' }
+          $state=Get-Content "$env:E2E_ROOT\.runtime\server.json" -Raw | ConvertFrom-Json
+          if ($state.pid -ne $health.pid -or $state.instance_id -ne $health.instance_id) { throw 'server state mismatch' }
           if ((Invoke-WebRequest http://127.0.0.1:8765/).StatusCode -ne 200) { throw 'root failed' }
           & "$env:E2E_ROOT\stop.bat"; if ($LASTEXITCODE) { throw 'stop failed' }
+          if (Test-Path "$env:E2E_ROOT\.runtime\server.json") { throw 'server state survived stop' }
       - name: Offline repeat start and stop
         shell: pwsh
         working-directory: C:\Windows\Temp
