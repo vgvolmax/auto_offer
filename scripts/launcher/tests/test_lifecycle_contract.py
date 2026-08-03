@@ -25,5 +25,10 @@ class LifecycleContractTests(unittest.TestCase):
         self.assertIn('if /I "%~1"=="--no-browser"', source)
         self.assertIn("-NoBrowser", source)
 
+    def test_bootstrap_hashes_without_optional_powershell_cmdlets(self):
+        source=(HERE/"bootstrap.ps1").read_text(encoding="utf-8")
+        self.assertNotIn("Get-FileHash", source)
+        self.assertIn("[Security.Cryptography.SHA256]::Create()", source)
+
 
 if __name__ == "__main__": unittest.main()
