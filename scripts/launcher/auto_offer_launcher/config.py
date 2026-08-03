@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 HEX = set("0123456789abcdef")
-TOP = {"schema_version", "launcher_version", "python", "node", "host", "port", "paths", "build_inputs", "build_settings"}
+TOP = {"schema_version", "launcher_version", "download_hosts", "python", "node", "host", "port", "paths", "build_inputs", "build_settings"}
 RUNTIME = {"version", "url", "sha256", "executable"}
 PATHS = {"runtime", "python", "node", "downloads", "state", "server_state", "log", "build"}
 SETTINGS = {"script", "typecheck"}
@@ -24,10 +24,13 @@ def load_manifest(path: Path) -> dict:
     except (OSError, json.JSONDecodeError) as exc: raise ConfigError(f"invalid manifest: {exc}") from exc
     _exact(data, TOP, "manifest")
     if data["schema_version"] != 1 or not isinstance(data["launcher_version"], str): raise ConfigError("unsupported schema/launcher version")
+    hosts=data["download_hosts"]
+    if not isinstance(hosts,list) or not hosts or any(not isinstance(h,str) or not h or h != h.lower() for h in hosts): raise ConfigError("invalid download host allowlist")
     for key in ("python", "node"):
         item = data[key]; _exact(item, RUNTIME, key)
         if not all(isinstance(item[x], str) and item[x] for x in RUNTIME): raise ConfigError(f"invalid {key} value")
-        if urlparse(item["url"]).scheme != "https": raise ConfigError(f"{key} URL must use HTTPS")
+        parsed=urlparse(item["url"])
+        if parsed.scheme != "https" or parsed.hostname not in hosts: raise ConfigError(f"{key} URL must use HTTPS and an allowed host")
         if len(item["sha256"]) != 64 or any(c not in HEX for c in item["sha256"]): raise ConfigError(f"invalid {key} SHA-256")
     if data["host"] != "127.0.0.1" or data["port"] != 8765: raise ConfigError("host/port must be 127.0.0.1:8765")
     _exact(data["paths"], PATHS, "paths"); _exact(data["build_settings"], SETTINGS, "build_settings")
