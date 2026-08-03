@@ -13,7 +13,9 @@ class DownloadTests(unittest.TestCase):
     data=b'abc'; p=Path(d)/'x'; download('https://x',p,hashlib.sha256(data).hexdigest(),opener=lambda *a,**k:Response(data,length)); self.assertEqual(p.read_bytes(),data)
  def test_checksum(self):
   with tempfile.TemporaryDirectory() as d:
-   with self.assertRaises(DownloadError): download('https://x',Path(d)/'x','0'*64,opener=lambda *a,**k:Response(b'x'))
+   with self.assertRaisesRegex(DownloadError,r'expected 0{64}, actual 2d711642'):
+    download('https://x',Path(d)/'x','0'*64,opener=lambda *a,**k:Response(b'x'))
+   self.assertFalse((Path(d)/'x').exists())
  def test_bounded_retry_and_interruption(self):
   calls=[]
   def fail(*a,**k): calls.append(1); raise urllib.error.URLError('offline')

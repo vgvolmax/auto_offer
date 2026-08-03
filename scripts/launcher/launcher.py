@@ -58,7 +58,10 @@ def error_text(exc,log):
 def command_start(manifest,args):
     p=paths(manifest); log=logger_for(p["log"]); report=Reporter()
     validate_windows(p["runtime"])
-    with launch_lock(p["runtime"]/"launcher.lock"):
+    # bootstrap.ps1 holds this same lock across Python installation and this
+    # entire command. Direct launcher invocations still acquire it themselves.
+    lock_context=contextlib.nullcontext() if os.environ.get("AUTO_OFFER_BOOTSTRAP_LOCK_HELD")=="1" else launch_lock(p["runtime"]/"launcher.lock")
+    with lock_context:
         current=probe(manifest["host"],manifest["port"])
         if current:
             if not is_ours(current,manifest["launcher_version"]): raise LaunchFailure("port 8765 is occupied by another application; no alternate port will be used","server")

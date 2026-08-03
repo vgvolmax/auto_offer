@@ -8,7 +8,7 @@ class BuildTests(unittest.TestCase):
  def test_fingerprint_ignores_mtime_and_docs(self):
   with tempfile.TemporaryDirectory() as d:
    r=self.root(d); a=build_fingerprint(r,{'x':'y'}); time.sleep(.01); (r/'app/x').touch(); (r/'README').write_text('doc'); self.assertEqual(a,build_fingerprint(r,{'x':'y'}))
- def test_dependency_fingerprint_and_skip(self):
+ def test_dependency_fingerprint_and_reuse(self):
   with tempfile.TemporaryDirectory() as d:
    r=self.root(d); (r/'node_modules').mkdir(); import hashlib
    lock=hashlib.sha256(b'{}').hexdigest(); self.assertTrue(dependencies_current(r,{'package_lock_sha256':lock,'node':{'version':'1'}},'1'))
