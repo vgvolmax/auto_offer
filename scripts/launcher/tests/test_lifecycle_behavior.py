@@ -73,14 +73,18 @@ class LifecycleBehaviorTests(unittest.TestCase):
 
     def test_state_is_published_after_bind_and_health_has_process_identity(self):
         port = free_port()
-        blocker = ThreadingHTTPServer(("127.0.0.1", port), SilentListener)
-        try:
-            process = multiprocessing.Process(target=run_server, args=(self.app, self.state, port))
-            process.start(); self.processes.append(process); process.join(5)
-            self.assertNotEqual(process.exitcode, 0)
-            self.assertFalse(self.state.exists())
-        finally:
-            blocker.server_close()
+        identity = {"app_identity": "auto-offer", "app_version": "test",
+                    "release_fingerprint": "fixture", "launcher_version": "1.0.0",
+                    "host": "127.0.0.1", "port": port}
+
+        class BindFailure:
+            def __init__(self, *_args, **_kwargs):
+                raise OSError("fixture bind failed")
+
+        with self.assertRaisesRegex(OSError, "fixture bind failed"):
+            serve(self.app, identity, self.state, logging.getLogger("bind-failure"),
+                  server_class=BindFailure)
+        self.assertFalse(self.state.exists())
 
         process, port, saved = self.start_server()
         health = json.load(urlopen(f"http://127.0.0.1:{port}/__auto_offer_health"))
