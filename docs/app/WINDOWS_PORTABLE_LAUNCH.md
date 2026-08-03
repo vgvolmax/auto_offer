@@ -1,72 +1,36 @@
 # Windows portable launch
 
-Статус архитектуры после технической проверки: **REFACTOR-IN-PR**. Статус ручной
-приёмки: **Manual clean-Windows acceptance pending**.
+## Пользовательский контракт
 
-## Контракт поставки
+1. Скачайте ZIP ветки/релиза и распакуйте его в любую доступную для записи папку (пробелы и кириллица поддерживаются).
+2. Дважды щёлкните `start.bat`. Не устанавливайте Python или Node.js и не запускайте файл от администратора.
+3. Дождитесь семи этапов: Portable Python, Portable Node.js, npm-зависимости, TypeScript, Сборка, Сервер, Браузер.
+4. Останавливайте только через `stop.bat`.
 
-CI на Node.js **22.19.0** проверяет приложение, собирает `dist/app`, создаёт manifest,
-ZIP и тестирует именно повторно распакованный архив. Пользовательский пакет содержит
-только `start.bat`, `stop.bat`, `release-manifest.json`, готовый `dist/app` и
-`scripts/launcher/{bootstrap.ps1,launcher.py,runtime-manifest.json,auto_offer_launcher/**}`.
-В нём нет Node/npm, исходников TypeScript, `.runtime`, Python или пользовательских данных.
+Адрес неизменяем: `http://127.0.0.1:8765/#/`. Launcher никогда не использует `localhost`, `0.0.0.0` или запасной порт. Это сохраняет IndexedDB origin. IndexedDB также привязан к браузеру и профилю: данные, не видимые в другом браузере/профиле, не были удалены.
 
-Первый `start.bat` под OS-backed mutex загружает официальный embeddable Python
-**3.13.7 x64** с
-`https://www.python.org/ftp/python/3.13.7/python-3.13.7-embed-amd64.zip` и проверяет
-SHA-256 `f6cca216a359be84797cabb54149ce5e062afb16cc7567eb7fc51cacb2d86b65`.
-Runtime публикуется в `.runtime/python` через проверенный staging-каталог;
-системные Python, pip, PATH, пакеты и права администратора не используются.
-`install-receipt.json` schema v2 фиксирует точный сортированный набор каждого
-regular file (нормализованный path, size и SHA-256), pinned Python/archive и launcher
-version. Повторное использование разрешено только при полном совпадении receipt,
-фактического набора файлов, их хешей и запускаемой версии Python.
+## Что хранится локально
 
-Mutex удерживается до подтверждённого health нового сервера (либо подтверждения
-уже работающего экземпляра). Поэтому конкурентные первые запуски последовательно
-перепроверяют runtime и listener, а аварийное завершение не оставляет постоянный lock.
-Сетевые попытки ограничены тремя и повторяются только для временных transport/HTTP
-ошибок; checksum, policy redirect и unsafe ZIP завершают установку сразу.
+`.runtime/python` и `.runtime/node` содержат portable runtimes, `.runtime/state.json` — подтверждённое состояние установки/сборки, `.runtime/server.json` — identity и одноразовый shutdown token работающего сервера, `.runtime/launcher.lock` — только диагностические метаданные OS-блокировки, `.runtime/downloads` — проверенные архивы, а `.runtime/logs/launcher.log` — ротируемый UTF-8 log. `node_modules` содержит зависимости; `dist/app` — атомарно опубликованную сборку. Эти каталоги не коммитятся. Успешный state записывается только после проверки соответствующего этапа.
 
-## Целостность и lifecycle
+Повторный запуск проверяет receipt, обязательные файлы, запускаемость и точную версию Python. Исправный runtime, зависимости и сборка повторно не скачиваются и не создаются, поэтому неизменённый проект можно запустить офлайн. PowerShell получает OS-блокировку до проверки и загрузки Python и удерживает её до завершения launcher; поэтому один владелец изменяет `.runtime`, `node_modules` и `dist/app`, а ожидающий запуск после получения блокировки проверяет состояние заново. Оставшийся после аварии `launcher.lock` удалять не требуется: файл содержит лишь диагностику, активность определяется автоматически освобождаемой OS-блокировкой. Каталоги `python.new-*` от прерванной установки очищаются, повреждённый runtime заменяется только после проверки временной копии.
 
-`release-manifest.json` строго фиксирует schema/app/launcher versions, source commit,
-build timestamp, origin и сортированный список `path`, `size`, `sha256` всех файлов
-кроме manifest. Неизвестные поля, unsafe/duplicate paths, пропуски и несовпадения
-блокируют сервер. Сервер standard-library `ThreadingHTTPServer` слушает только
-`127.0.0.1:8765`, публикует health identity/fingerprint и использует authenticated
-loopback shutdown. После успешного bind сервер сам создаёт instance ID и shutdown
-token, записывает собственный ненулевой PID и атомарно публикует `server.json`.
-Token существует только в этом локальном state, не передаётся через argv и
-сравнивается constant-time. Сервер удаляет state только если файл всё ещё относится
-к его instance. `stop.bat` сверяет health со state и не завершает процесс по одному PID.
-Закрытый port со state считается stale; foreign или временно не отвечающий listener
-не останавливается и не перезаписывается.
+Закреплены `python-3.13.7-embed-amd64.zip` (`f6cca216a359be84797cabb54149ce5e062afb16cc7567eb7fc51cacb2d86b65`) и `node-v22.19.0-win-x64.zip` (`ea3fad0e67a991d8477d8c01344b56e69c676ccb733f065b22436994b1253f86`). Официальные URL и SHA-256 находятся в `scripts/launcher/runtime-manifest.json`; их обновление требует отдельного PR.
 
-Публикация runtime сохраняет sibling-каталог `.runtime/python.previous` до
-успешного запуска launcher. Если процесс прерван после переименования, следующий
-`start.bat` под mutex восстанавливает проверенный previous runtime до сетевой
-загрузки. Повреждённый, неполный или содержащий лишний файл runtime не считается
-готовым и заменяется только после полной проверки нового staging-каталога.
+## Сценарии L1–L7
 
-Логи находятся в `.runtime/logs/launcher.log` и `server.log`, ротируются и не должны
-содержать shutdown token. Повреждённый release следует скачать и полностью
-распаковать заново; исправный Python runtime сохраняется.
+* **L1:** чистая Windows — bootstrap скачивает и проверяет runtimes, затем dependencies/build/server/browser.
+* **L2:** повторный запуск — подтверждённые stages пропускаются.
+* **L3:** обновлённый ZIP — content fingerprint определяет необходимую переустановку/сборку.
+* **L4:** offline repeat — готовое неизменённое приложение запускается без сети.
+* **L5:** уже работает — health identity подтверждает сервер и launcher открывает тот же URL.
+* **L6:** `stop.bat` выполняет локальный authenticated graceful shutdown; чужой PID не завершается.
+* **L7:** ошибка — partial download/build не публикуется, сохранённые успешные stages переиспользуются.
 
-## IndexedDB и ручная приёмка
+## Диагностика и восстановление
 
-IndexedDB принадлежит origin `http://127.0.0.1:8765`, браузеру и профилю. Новый
-release на том же origin и удаление `.runtime` данные не удаляют. Другой профиль
-показывает другое хранилище; очистка site data может удалить данные.
+`start.bat` проверяет/устанавливает компоненты, собирает и открывает приложение; аргумент `start.bat --no-browser` выполняет тот же путь без открытия браузера. `stop.bat` аутентифицирует локальный сервер и останавливает только Auto Offer. Оба BAT-файла разрешают корень относительно собственного расположения, а не текущего каталога. `doctor` только диагностирует: `.runtime/python/python.exe scripts/launcher/launcher.py doctor`.
 
-Ручной clean-Windows flow (ZIP в `C:\Тест Auto Offer\auto_offer`, первый online
-start, импорт тестового bundle, draft, stop, offline start и проверка данных в том
-же профиле) ещё не выполнен и не заявляется как verified.
+Ошибка сообщает stage, сохранённое состояние, повторяемое действие, рекомендацию и путь log. Проверьте запись в папку, не менее 750 MB места, HTTPS-доступ к разрешённым официальным доменам и свободный порт 8765. Занятый порт не приводит к выбору другого origin: launcher откажется запускать второй сервер. Checksum mismatch означает повреждённую/подменённую загрузку и не обходится. Redirect на домен вне allowlist и HTTPS→HTTP блокируются до скачивания; полный URL и токены в пользовательское сообщение не выводятся. Сетевая ошибка оставляет только `.part`/временный каталог, которые безопасно очищаются следующим запуском. Corporate proxy или antivirus может блокировать загрузку/запуск unsigned portable binaries; настройку исключений выполняет пользовательская организация.
 
-GitHub Actions `Windows portable release` выполняет автоматическую ZIP-проверку на
-Windows 2022, включая Unicode/space path, два конкурентных BAT-запуска, health/root,
-все referenced assets, согласованность PID/instance state, единственный server
-process, отсутствие token в argv/logs и временных install-файлов, stop, repair
-изменённого/лишнего runtime-файла, offline recovery из `python.previous` и
-offline-ready restart без переустановки runtime. Эта CI-проверка не заменяет
-указанную выше ручную приёмку на чистой пользовательской Windows.
+Manual clean-Windows acceptance pending: требуется проверить ZIP в `C:\Тест Auto Offer\auto_offer`, загрузку тестового bundle, stop, отключение сети и повторный запуск в том же браузере/профиле.
