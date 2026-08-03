@@ -61,6 +61,17 @@ function Get-AllowedDownload([Uri]$Uri, [string]$Destination) {
   } finally { $client.Dispose(); $handler.Dispose() }
 }
 
+function Get-Sha256([string]$Path) {
+  $stream = [IO.File]::OpenRead($Path)
+  $algorithm = [Security.Cryptography.SHA256]::Create()
+  try {
+    return ([BitConverter]::ToString($algorithm.ComputeHash($stream))).Replace('-', '').ToLowerInvariant()
+  } finally {
+    $algorithm.Dispose()
+    $stream.Dispose()
+  }
+}
+
 function Test-PortablePython([string]$Directory) {
   $exe = Join-Path $Directory $Manifest.python.executable
   if (-not (Test-Path -LiteralPath $exe -PathType Leaf)) { return $false }
@@ -85,7 +96,7 @@ if (-not (Test-PortablePython $PythonDir)) {
   $Temp = Join-Path $Runtime "python.new-$PID-$([Guid]::NewGuid().ToString('N'))"
   try {
     Get-AllowedDownload ([Uri]$Manifest.python.url) $Part
-    $Actual = (Get-FileHash -LiteralPath $Part -Algorithm SHA256).Hash.ToLowerInvariant()
+    $Actual = Get-Sha256 $Part
     if ($Actual -ne $Manifest.python.sha256) {
       throw "Python SHA-256 mismatch; expected $($Manifest.python.sha256), actual $Actual; downloaded archive was not installed."
     }
