@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build and validate the deterministic Auto Offer Windows staging directory."""
-import argparse, hashlib, json, os, re, shutil
+import argparse, hashlib, json, os, re, shutil, sys
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
@@ -20,6 +20,12 @@ class Refs(HTMLParser):
             if value: self.values.append(value)
 
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def console_text(value):
+    """Write diagnostics even when the Windows console cannot encode the path."""
+    text=str(value)
+    encoding=getattr(sys.stdout,"encoding",None) or "utf-8"
+    print(text.encode(encoding,errors="backslashreplace").decode(encoding))
 
 def validate_app(app):
     index=app/"index.html"
@@ -55,7 +61,7 @@ def build(args):
     files=[{"path":p.relative_to(stage).as_posix(),"size":p.stat().st_size,"sha256":digest(p)} for p in package_files(stage)]
     manifest={"schema_version":1,"app_identity":"auto-offer","app_version":version,"launcher_version":LAUNCHER_VERSION,"source_commit":args.source_commit,"build_timestamp":args.build_timestamp,"host":"127.0.0.1","port":8765,"start_url":"http://127.0.0.1:8765/#/","files":files}
     (stage/"release-manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,sort_keys=True,indent=2)+"\n",encoding="utf-8",newline="\n")
-    audit(stage); print(stage)
+    audit(stage); console_text(stage)
 
 def main():
     p=argparse.ArgumentParser(); p.add_argument("--app",default=ROOT/"dist/app"); p.add_argument("--output",required=True); p.add_argument("--source-commit",required=True); p.add_argument("--build-timestamp",default=datetime.now(timezone.utc).isoformat())
