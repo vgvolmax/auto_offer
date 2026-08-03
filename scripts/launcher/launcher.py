@@ -7,7 +7,7 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent; ROOT=HERE.parent.parent
 sys.path.insert(0,str(HERE))
 from auto_offer_launcher import APP_IDENTITY
-from auto_offer_launcher.build import build_current, build_fingerprint, dependencies_current, dependencies_usable, make_build_staging, publish_build, run_activity
+from auto_offer_launcher.build import build_current, build_fingerprint, dependencies_current, dependencies_usable, make_build_staging, portable_node_environment, publish_build, run_activity
 from auto_offer_launcher.config import ConfigError, atomic_json, load_manifest, load_state, sha256_file
 from auto_offer_launcher.download import download, extract_atomic
 from auto_offer_launcher.environment import validate_windows
@@ -101,15 +101,16 @@ def command_start(manifest,args):
             npm=p["node"]/"npm.cmd"
             with p["log"].open("a",encoding="utf-8") as output:
                 node=p["node"]/manifest["node"]["executable"]
+                node_env=portable_node_environment(node)
                 if not dependencies_current(ROOT,state,manifest["node"]["version"]) or not dependencies_usable(ROOT,node):
-                    run_activity([npm,"ci","--no-audit","--no-fund"],ROOT,output,3,"npm-зависимости")
+                    run_activity([npm,"ci","--no-audit","--no-fund"],ROOT,output,3,"npm-зависимости",env=node_env)
                     state["package_lock_sha256"]=sha256_file(ROOT/"package-lock.json"); atomic_json(p["state"],state)
                 else: report.stage(3,"npm-зависимости","без изменений")
                 if not build_current(ROOT,state,fingerprint):
-                    run_activity([npm,"run","typecheck:app"],ROOT,output,4,"TypeScript")
+                    run_activity([npm,"run","typecheck:app"],ROOT,output,4,"TypeScript",env=node_env)
                     temp=make_build_staging(p["build"])
                     try:
-                        run_activity([npm,"run","app:build","--","--outDir",str(temp)],ROOT,output,5,"Сборка"); publish_build(temp,p["build"])
+                        run_activity([npm,"run","app:build","--","--outDir",str(temp)],ROOT,output,5,"Сборка",env=node_env); publish_build(temp,p["build"])
                     finally:
                         import shutil; shutil.rmtree(temp,ignore_errors=True)
                     state.update({"schema_version":1,"launcher_version":manifest["launcher_version"],"python":{"version":manifest["python"]["version"],"sha256":manifest["python"]["sha256"]},"build_input_fingerprint":fingerprint,"build_timestamp":datetime.now(timezone.utc).isoformat(),"active_build_path":"dist/app"}); atomic_json(p["state"],state)
