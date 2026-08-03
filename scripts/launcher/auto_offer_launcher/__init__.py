@@ -1,4 +1,3 @@
-"""Standard-library-only launcher for the Auto Offer Windows release."""
+"""Dependency-free Windows portable launcher for Auto Offer."""
 
-LAUNCHER_VERSION = "1.0.0"
-APP_IDENTITY = "auto-offer"
+APP_IDENTITY = "auto-offer-windows-portable"
