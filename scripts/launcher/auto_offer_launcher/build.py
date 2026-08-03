@@ -12,8 +12,15 @@ def build_fingerprint(root: Path, settings: dict) -> str:
     h.update(repr(sorted(settings.items())).encode()); return h.hexdigest()
 def dependencies_current(root, state, node_version):
     lock=root/"package-lock.json"
-    return (root/"node_modules").is_dir() and state.get("package_lock_sha256")==sha256_file(lock) and state.get("node",{}).get("version")==node_version
-def build_current(root,state,fingerprint): return (root/"dist/app/index.html").is_file() and state.get("build_input_fingerprint")==fingerprint
+    required=("tsc.cmd","vite.cmd","vitest.cmd")
+    return (
+        (root/"node_modules").is_dir()
+        and all((root/"node_modules/.bin"/name).is_file() for name in required)
+        and state.get("package_lock_sha256")==sha256_file(lock)
+        and state.get("node",{}).get("version")==node_version
+    )
+def build_current(root,state,fingerprint):
+    return state.get("build_input_fingerprint")==fingerprint and validate_artifact(root/"dist/app")
 def make_build_staging(final: Path) -> Path:
     final.parent.mkdir(parents=True,exist_ok=True)
     return Path(tempfile.mkdtemp(prefix="app.new-",dir=final.parent))
