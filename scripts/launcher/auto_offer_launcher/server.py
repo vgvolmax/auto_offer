@@ -1,114 +1,124 @@
-import hmac
+from __future__ import annotations
+
 import json
-import mimetypes
 import os
-import re
-import secrets
-import threading
+import socket
 import time
+import urllib.error
+import urllib.request
 import uuid
 from datetime import datetime, timezone
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
 
-FINGERPRINTED = re.compile(r"[.-][0-9a-fA-F]{8,}[.-]")
+from .config import atomic_json, load_state
+from .progress import console_print
+
+HEALTH = "/__auto_offer_health"
+IDENTITY_FIELDS = ("app_identity", "launcher_version", "project_root_id", "build_fingerprint")
 
 
-def atomic_json(path, value):
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + "." + uuid.uuid4().hex + ".tmp")
+def health_url(host, port):
+    return f"http://{host}:{port}{HEALTH}"
+
+
+def probe(host, port, timeout=.7):
     try:
-        tmp.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
-        os.replace(tmp, path)
-    finally:
-        if tmp.exists():
-            tmp.unlink()
+        with urllib.request.urlopen(health_url(host, port), timeout=timeout) as response:
+            return json.load(response)
+    except (OSError, ValueError, urllib.error.URLError):
+        return None
 
 
-def remove_owned_state(path, instance_id, log=None):
-    """Remove state only while it still names this server; never hide WinError 32."""
-    path = Path(path)
-    for attempt in range(5):
-        try:
-            if not path.exists():
-                return True
-            saved = json.loads(path.read_text(encoding="utf-8"))
-            if saved.get("instance_id") != instance_id:
-                return False
-            path.unlink()
+def listener_present(host, port, timeout=.3):
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
             return True
-        except (OSError, ValueError) as exc:
-            if attempt == 4:
-                if log:
-                    log.error("could not remove owned server state after retries: %s", type(exc).__name__)
+    except OSError:
+        return False
+
+
+def is_ours(value, expected):
+    return (
+        isinstance(value, dict)
+        and isinstance(expected, dict)
+        and all(value.get(field) == expected.get(field) for field in IDENTITY_FIELDS)
+    )
+
+
+def _unlink_with_retry(path, attempts=20, delay=.05):
+    for attempt in range(attempts):
+        try:
+            path.unlink(missing_ok=True)
+            return True
+        except PermissionError as exc:
+            if getattr(exc, "winerror", None) != 32 or attempt + 1 == attempts:
                 raise
-            time.sleep(.1 * (attempt + 1))
+            time.sleep(delay)
+    return False
 
 
-def handler_factory(app_dir, health, token):
-    app_dir = Path(app_dir).resolve()
+def remove_owned_state(path, instance_id):
+    current = load_state(path)
+    if current.get("instance_id") != instance_id:
+        return False
+    return _unlink_with_retry(path)
 
-    class Handler(BaseHTTPRequestHandler):
+
+def make_handler(root: Path, health: dict):
+    class Handler(SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=str(root), **kwargs)
+
         def log_message(self, fmt, *args):
-            self.server.log.info("request %s", fmt % args)
+            pass
 
-        def _json(self, status, data):
-            body = json.dumps(data).encode()
-            self.send_response(status)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
+        def end_headers(self):
+            if self.path.split("?", 1)[0] in ("/", "/index.html"):
+                self.send_header("Cache-Control", "no-store")
+            else:
+                self.send_header("Cache-Control", "public, max-age=3600")
+            super().end_headers()
 
         def do_GET(self):
-            path = urlsplit(self.path).path
-            if path == "/__auto_offer_health":
-                return self._json(200, health)
-            rel = "index.html" if path == "/" else unquote(path).lstrip("/")
-            target = (app_dir / rel).resolve()
-            try:
-                target.relative_to(app_dir)
-            except ValueError:
-                return self.send_error(404)
-            if not target.is_file():
-                return self.send_error(404)
-            body = target.read_bytes()
-            self.send_response(200)
-            self.send_header("Content-Type", mimetypes.guess_type(target.name)[0] or "application/octet-stream")
-            self.send_header("Cache-Control", "public, max-age=31536000, immutable" if FINGERPRINTED.search(target.name) else "no-store")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
-
-        def do_POST(self):
-            if urlsplit(self.path).path != "/__auto_offer_shutdown" or self.client_address[0] not in ("127.0.0.1", "::1"):
-                return self.send_error(404)
-            if not hmac.compare_digest(self.headers.get("X-Auto-Offer-Shutdown", ""), token):
-                return self.send_error(403)
-            self._json(200, {"status": "stopping"})
-            threading.Thread(target=self.server.shutdown, daemon=True).start()
+            if self.path.split("?", 1)[0] == HEALTH:
+                body = json.dumps(health).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            super().do_GET()
 
     return Handler
 
 
-def serve(app_dir, identity, state_path, log, server_class=ThreadingHTTPServer):
-    """Bind first, then create all secret/state data in the owning process."""
+def serve(root, state_file, host, port, identity, on_ready=None):
+    started = datetime.now(timezone.utc).isoformat()
     instance_id = str(uuid.uuid4())
-    token = secrets.token_urlsafe(32)
     health = {
         **identity,
         "pid": os.getpid(),
+        "start_time": started,
         "instance_id": instance_id,
-        "start_time": datetime.now(timezone.utc).isoformat(),
     }
-    server = server_class((identity["host"], identity["port"]), handler_factory(app_dir, health, token))
-    server.log = log
-    state = {**health, "shutdown_token": token}
+    server = ThreadingHTTPServer((host, port), make_handler(root, health))
+    atomic_json(state_file, health)
+    if on_ready:
+        on_ready(server)
+    if os.name == "nt":
+        try:
+            import ctypes
+            ctypes.windll.kernel32.SetConsoleTitleW("Auto Offer Server — close this window to stop")
+        except (AttributeError, OSError):
+            pass
+    console_print("Auto Offer работает: http://127.0.0.1:8765/#/")
+    console_print("Чтобы остановить приложение, закройте это окно.")
     try:
-        atomic_json(state_path, state)
         server.serve_forever()
+    except KeyboardInterrupt:
+        pass
     finally:
         server.server_close()
-        remove_owned_state(state_path, instance_id, log)
+        remove_owned_state(state_file, instance_id)

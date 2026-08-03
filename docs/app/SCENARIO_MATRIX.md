@@ -111,16 +111,14 @@ F1–F4 остаются verified. Gate проверяет full workflow, reload
 
 Статус `verified` для Pilot 1.0 означает прохождение автоматического сценария, а не только наличие production-кода. Полный жизненный цикл review подтверждает `PilotWorkflow.test.tsx`; восстановление draft, конфликт revision и stale settings — `SessionPage.pilot.test.tsx`; неизменяемость ссылки на каталог — `catalog-snapshot.pilot.test.ts`; профиль 500 строк и ограниченный рендеринг — `PilotVolume.test.tsx`.
 
-## Windows launcher L1–L7
+## Windows launcher scenarios
 
-| ID | Online/offline contract | Ownership contract | Статус |
-| --- | --- | --- | --- |
-| L1 first start | pinned download + full runtime receipt | OS-backed mutex | verified in Windows ZIP/BAT E2E; manual clean-Windows pending |
-| L2 repeat | no download | compatible health reused | verified in Windows ZIP/BAT E2E; manual pending |
-| L3 updated release | runtime reusable | fingerprint + authenticated shutdown | unit-covered; cross-release E2E pending |
-| L4 offline repeat | root/health available | full receipt revalidated | verified in Windows ZIP/BAT E2E; manual pending |
-| L5 already running | browser handoff | identity/fingerprint checked | verified by concurrent BAT E2E; manual pending |
-| L6 normal stop | offline capable | token + health + state | verified in Windows ZIP/BAT E2E; manual pending |
-| L7 recovery | damaged runtime repaired; previous restored offline | foreign listener untouched | verified in Windows E2E + unit contracts; manual pending |
-
-**Manual clean-Windows acceptance pending.** Статусы не означают изменение Pilot 1.0, matcher или storage contracts.
+| ID | Scenario | Automated coverage | Status |
+|---|---|---|---|
+| L1 | First clean-Windows launch | Windows E2E workflow | implemented, manual pending |
+| L2 | Unchanged repeat | fingerprint/unit + E2E repeat | implemented, manual pending |
+| L3 | Updated ZIP | dependency/build fingerprints | implemented, manual pending |
+| L4 | Offline repeat | Windows E2E second start | implemented, manual pending |
+| L5 | Already running | health identity unit/integration | implemented, manual pending |
+| L6 | Остановка приложения | закрытие отдельного окна Auto Offer Server | implemented, manual pending |
+| L7 | Failure/recovery | retry/checksum/atomic publication tests | implemented, manual pending |
