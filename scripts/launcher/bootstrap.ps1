@@ -191,8 +191,10 @@ try {
   $expected = @('schema_version', 'launcher_version', 'app_identity', 'python', 'download_hosts', 'host', 'port', 'health_path', 'shutdown_path', 'start_url', 'runtime_paths')
   $actual = @($m.PSObject.Properties.Name)
   if (@(Compare-Object $expected $actual).Count -ne 0) { throw 'Runtime manifest has missing or unknown fields' }
-  if ($m.python -eq $null -or @(Compare-Object @('version', 'url', 'sha256', 'executable') @($m.python.PSObject.Properties.Name)).Count -ne 0) { throw 'Python manifest has missing or unknown fields' }
-  if ($m.runtime_paths -eq $null -or @(Compare-Object @('root', 'python', 'logs', 'server_state') @($m.runtime_paths.PSObject.Properties.Name)).Count -ne 0) { throw 'Runtime paths have missing or unknown fields' }
+  if ($m.python -isnot [PSCustomObject]) { throw 'Python manifest must be an object' }
+  if (@(Compare-Object @('version', 'url', 'sha256', 'executable') @($m.python.PSObject.Properties.Name)).Count -ne 0) { throw 'Python manifest has missing or unknown fields' }
+  if ($m.runtime_paths -isnot [PSCustomObject]) { throw 'Runtime paths must be an object' }
+  if (@(Compare-Object @('root', 'python', 'logs', 'server_state') @($m.runtime_paths.PSObject.Properties.Name)).Count -ne 0) { throw 'Runtime paths have missing or unknown fields' }
   if ((($m.schema_version -isnot [int]) -and ($m.schema_version -isnot [long])) -or $m.schema_version -ne 1) { throw 'Runtime manifest schema is invalid' }
   if ($m.launcher_version -isnot [string] -or $m.launcher_version -ne '1.0.0' -or $m.app_identity -isnot [string] -or $m.app_identity -ne 'auto-offer') { throw 'Runtime manifest identity is invalid' }
   if ($m.host -isnot [string] -or $m.host -ne '127.0.0.1' -or (($m.port -isnot [int]) -and ($m.port -isnot [long])) -or $m.port -ne 8765 -or $m.start_url -isnot [string] -or $m.start_url -ne 'http://127.0.0.1:8765/#/') { throw 'Runtime manifest has an invalid fixed origin' }
