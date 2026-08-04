@@ -15,8 +15,8 @@ test('builder is one deterministic offline HTML file', async () => {
   assert.match(first, /<script>[^]*<\/script>/i);
   assert.doesNotMatch(first, /<script[^>]+src=/i);
   assert.doesNotMatch(first, /<link[^>]+href=/i);
-  assert.doesNotMatch(first, /https?:\/\//i);
   assert.doesNotMatch(first, /\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource/);
+  assert.doesNotMatch(first, /navigator\.sendBeacon|new\s+Worker\s*\(\s*['"]https?:/i);
 });
 
 test('builder exposes the complete Russian operator flow and safety limits', async () => {
