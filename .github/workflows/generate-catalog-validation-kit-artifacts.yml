@@ -1,7 +1,9 @@
 name: Generate catalog validation kit artifacts
 
 on:
-  pull_request:
+  push:
+    branches:
+      - feature/catalog-validation-kit-artifacts
 
 permissions:
   contents: write
@@ -10,10 +12,11 @@ jobs:
   generate:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feature/catalog-validation-kit
+          ref: feature/catalog-validation-kit-artifacts
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -42,4 +45,4 @@ jobs:
             exit 0
           fi
           git commit -m "build: generate catalog validation kit artifacts"
-          git push origin HEAD:feature/catalog-validation-kit
+          git push origin HEAD:feature/catalog-validation-kit-artifacts
