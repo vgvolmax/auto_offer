@@ -6,11 +6,17 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   annotation-contract:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feature/catalog-validation-kit
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -27,6 +33,25 @@ jobs:
         run: npm run generate:catalog-validation-kit
       - name: Generate offline catalog validator builder
         run: npm run generate:catalog-validation-kit-builder
+      - name: Commit generated artifacts once
+        if: github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            schemas/annotation/class-specific \
+            schemas/annotation/generated \
+            schemas/annotation/class-schema-registry.json \
+            annotation-kits/catalog-annotation-kit.json \
+            annotation-kits/request-annotation-kit.json \
+            annotation-kits/annotation-kits-manifest.json \
+            annotation-kits/catalog-validation-kit.mjs \
+            tools/catalog-validation-kit-builder.html
+          if ! git diff --cached --quiet; then
+            git commit -m "build: generate catalog validation kit artifacts"
+            git push origin HEAD:feature/catalog-validation-kit
+          fi
       - name: Check annotation schemas
         run: npm run check:annotation-schemas
       - name: Test production taxonomy
