@@ -16,25 +16,38 @@ test('chat prompts exist, are complete, and identify their contracts', async () 
     const kit = JSON.parse(await read(`annotation-kits/${kind}-annotation-kit.json`));
     assert.ok(prompt.trim());
     assert.doesNotMatch(prompt, /\b(?:TODO|TBD|FIXME)\b/i);
-    assert.match(prompt, new RegExp(`${kind}-annotation-kit\\.json`));
+    if (kind === 'catalog') assert.match(prompt, /catalog-validation-kit\.mjs/);
+    else assert.match(prompt, /request-annotation-kit\.json/);
     assert.ok(prompt.includes(kit.root_schema_id));
     assert.ok(prompt.includes(`${kind}_bundle`));
     for (const forbidden of ['matching', 'product_id', 'offer_id']) {
       assert.ok(prompt.includes(forbidden), `${file} must prohibit ${forbidden}`);
     }
-    assert.match(prompt, /embedded `schemas_by_id`/);
+    assert.match(prompt, /schemas_by_id/);
     assert.match(prompt, /скачиваемый UTF-8\s+JSON-файл/);
     assert.ok(prompt.length < 15_000, 'prompt must reference, not embed, the large kit');
     assert.ok(prompt.length * 5 < (await read(`annotation-kits/${kind}-annotation-kit.json`)).length);
   }
 });
 
-test('catalog prompt preserves source and records interpretation', async () => {
+test('catalog prompt preserves source, records interpretation, and requires full validation', async () => {
   const prompt = await read(files.catalog);
-  for (const term of ['source.raw_fields', 'evidence', 'unknown_fields', 'ambiguities', 'RFC 6901']) {
-    assert.ok(prompt.includes(term), `catalog prompt must mention ${term}`);
-  }
+  for (const term of [
+    'source.raw_fields',
+    'evidence',
+    'unknown_fields',
+    'ambiguities',
+    'RFC 6901',
+    'annotationKit',
+    'classSchemaRegistry',
+    'validateCatalogBundle',
+    'valid: true',
+    'code',
+    'path',
+  ]) assert.ok(prompt.includes(term), `catalog prompt must mention ${term}`);
   assert.match(prompt, /Не нормализуй исходные SKU, GTIN/);
+  assert.match(prompt, /node catalog-validation-kit\.mjs/);
+  assert.match(prompt, /не считается готовым/i);
 });
 
 test('request prompt requires sparse constraints and explicit-only substitution', async () => {
@@ -48,11 +61,12 @@ test('operator workflow lists both three-attachment flows and validators', async
   const workflow = await read('docs/CHAT_ANNOTATION_WORKFLOW.md');
   for (const file of [
     'CATALOG_ANNOTATION_PROMPT.md',
-    'catalog-annotation-kit.json',
+    'catalog-validation-kit.mjs',
+    'catalog-validation-kit-builder.html',
     'REQUEST_ANNOTATION_PROMPT.md',
     'request-annotation-kit.json',
   ]) assert.ok(workflow.includes(file));
   assert.match(workflow, /три (?:типа )?вложения/g);
-  assert.ok(workflow.includes('npm run validate:catalog-bundle -- <file>'));
+  assert.ok(workflow.includes('node catalog-validation-kit.mjs <file>'));
   assert.ok(workflow.includes('npm run validate:request-bundle -- <file>'));
 });
