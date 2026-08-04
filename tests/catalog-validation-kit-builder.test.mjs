@@ -17,6 +17,9 @@ test('builder is one deterministic offline HTML file', async () => {
   assert.doesNotMatch(first, /<link[^>]+href=/i);
   assert.doesNotMatch(first, /\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource/);
   assert.doesNotMatch(first, /navigator\.sendBeacon|new\s+Worker\s*\(\s*['"]https?:/i);
+  assert.match(first, /Content-Security-Policy/);
+  assert.match(first, /connect-src 'none'/);
+  assert.match(first, /worker-src blob:/);
 });
 
 test('builder exposes the complete Russian operator flow and safety limits', async () => {
@@ -38,7 +41,7 @@ test('builder exposes the complete Russian operator flow and safety limits', asy
   assert.match(html, /MAX_TOTAL_BYTES\s*=\s*150\s*\*\s*1024\s*\*\s*1024/);
 });
 
-test('builder uses shared preflight/generation code and performs smoke validation before download', async () => {
+test('builder uses shared generation code and isolates smoke validation before download', async () => {
   const html = await buildCatalogValidationKitBuilderHtml({ root });
   for (const marker of [
     'classifyCatalogValidationInputs',
@@ -49,6 +52,9 @@ test('builder uses shared preflight/generation code and performs smoke validatio
     'MISSING_EVIDENCE',
     'catalog-validation-kit.mjs',
     'catalog-validation-kit-diagnostics.json',
+    'catalog-validation-kit-smoke',
   ]) assert.ok(html.includes(marker), `Missing builder marker: ${marker}`);
+  assert.match(html, /new Worker\(workerUrl/);
+  assert.match(html, /worker\.terminate\(\)/);
   assert.match(html, /buildButton\.disabled\s*=\s*!state\.preflight\?\.ok/);
 });
