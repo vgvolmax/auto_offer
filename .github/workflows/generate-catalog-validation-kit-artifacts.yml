@@ -1,9 +1,7 @@
 name: Generate catalog validation kit artifacts
 
 on:
-  push:
-    branches:
-      - feature/catalog-validation-kit
+  pull_request:
 
 permissions:
   contents: write
