@@ -1,0 +1,47 @@
+name: Generate catalog validation kit artifacts
+
+on:
+  push:
+    branches:
+      - feature/catalog-validation-kit
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/catalog-validation-kit
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run generate:annotation-schemas
+      - run: npm run generate:annotation-kits
+      - run: npm run generate:catalog-validation-kit
+      - run: npm run generate:catalog-validation-kit-builder
+      - name: Commit generated artifacts
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            schemas/annotation/class-specific \
+            schemas/annotation/generated \
+            schemas/annotation/class-schema-registry.json \
+            annotation-kits/catalog-annotation-kit.json \
+            annotation-kits/request-annotation-kit.json \
+            annotation-kits/annotation-kits-manifest.json \
+            annotation-kits/catalog-validation-kit.mjs \
+            tools/catalog-validation-kit-builder.html
+          if git diff --cached --quiet; then
+            echo "Generated artifacts are already current."
+            exit 0
+          fi
+          git commit -m "build: generate catalog validation kit artifacts"
+          git push origin HEAD:feature/catalog-validation-kit
