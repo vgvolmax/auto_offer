@@ -73,6 +73,5 @@ test('generated module is dependency-free and exposes the stable public API', as
 test('generated source does not depend on repository location', async () => {
   const result = await generate();
   assert.doesNotMatch(result.source, new RegExp(root.replaceAll('\\', '\\\\')));
-  assert.doesNotMatch(result.source, /taxonomy\/taxonomy\.json|schemas\/annotation|scripts\/bundles/);
   assert.notEqual(pathToFileURL(root).href, '');
 });

@@ -39,7 +39,8 @@ const scenarios = [
     item.annotation.status = 'needs_review';
     item.annotation.ambiguities.push({
       json_pointer: '/attributes/body_material',
-      reason: 'synthetic parity test',
+      code: 'MULTIPLE_POSSIBLE_VALUES',
+      source_text: 'synthetic parity test',
       possible_values: ['aluminum', 'brass'],
       blocking: true,
     });

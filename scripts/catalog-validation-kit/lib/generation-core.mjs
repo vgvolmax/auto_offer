@@ -120,7 +120,7 @@ function generatedModuleSource({ metadata, kit, registry, ajvRuntimeSource, bund
     '      ajv.addSchema(kit.schemas_by_id[schemaId], schemaId);',
     '    }',
     '    const catalogBundleValidator = ajv.getSchema(kit.root_schema_id);',
-    "    const catalogItemBaseSchemaId = Object.keys(kit.schemas_by_id).find(id => id.endsWith('/catalog-item-base.schema.json'));",
+    "    const catalogItemBaseSchemaId = Object.keys(kit.schemas_by_id).find(id => id.endsWith('/catalog-item-annotation.base.schema.json'));",
     '    const catalogItemBaseValidator = catalogItemBaseSchemaId ? ajv.getSchema(catalogItemBaseSchemaId) : null;',
     "    if (!catalogBundleValidator) throw new Error('Catalog bundle root schema did not compile');",
     "    if (!catalogItemBaseValidator) throw new Error('Catalog item base schema did not compile');",
