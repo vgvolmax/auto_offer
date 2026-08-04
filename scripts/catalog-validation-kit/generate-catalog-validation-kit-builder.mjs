@@ -14,6 +14,7 @@ function htmlDocument(script) {
 <html lang="ru">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' data: blob:; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src blob:">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Сборщик catalog-validation-kit.mjs</title>
   <!-- MAX_FILE_BYTES = 50 * 1024 * 1024; MAX_TOTAL_BYTES = 150 * 1024 * 1024 -->
