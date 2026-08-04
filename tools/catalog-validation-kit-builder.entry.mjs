@@ -7,8 +7,45 @@ import { buildCatalogValidationKit } from '../scripts/catalog-validation-kit/lib
 
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 150 * 1024 * 1024;
+const SMOKE_TIMEOUT_MS = 30_000;
 const AJV_RUNTIME_SOURCE = decodeText(__CATALOG_AJV_RUNTIME_BASE64__);
 const SMOKE_FIXTURE = __CATALOG_SMOKE_FIXTURE__;
+const SMOKE_WORKER_SOURCE = `
+self.onmessage = async event => {
+  const { source, fixture } = event.data;
+  const moduleUrl = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+  try {
+    const module = await import(moduleUrl);
+    const valid = await module.validateCatalogBundle(structuredClone(fixture));
+    if (!valid.valid) throw new Error('Smoke fixture was rejected by generated validator');
+
+    const structural = structuredClone(fixture);
+    structural.extra = true;
+    const structuralResult = await module.validateCatalogBundle(structural);
+    if (!structuralResult.errors.some(item => item.code === 'BUNDLE_SCHEMA_INVALID')) {
+      throw new Error('Structural smoke mutation was not detected');
+    }
+
+    const semantic = structuredClone(fixture);
+    semantic.items[0].catalog_item.annotation.evidence = [];
+    const semanticResult = await module.validateCatalogBundle(semantic);
+    if (!semanticResult.errors.some(item => item.code === 'MISSING_EVIDENCE')) {
+      throw new Error('Semantic smoke mutation was not detected');
+    }
+    self.postMessage({
+      ok: true,
+      result: { valid: true, checks: ['valid_fixture', 'BUNDLE_SCHEMA_INVALID', 'MISSING_EVIDENCE'] },
+    });
+  } catch (cause) {
+    self.postMessage({
+      ok: false,
+      error: cause instanceof Error ? cause.message : String(cause),
+    });
+  } finally {
+    URL.revokeObjectURL(moduleUrl);
+  }
+};
+`;
 
 const state = {
   files: [],
@@ -128,28 +165,25 @@ async function acceptFiles(selected) {
 }
 
 async function smokeTest(source) {
-  const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+  const workerUrl = URL.createObjectURL(new Blob([SMOKE_WORKER_SOURCE], { type: 'text/javascript' }));
+  const worker = new Worker(workerUrl, { type: 'module', name: 'catalog-validation-kit-smoke' });
   try {
-    const module = await import(url);
-    const valid = await module.validateCatalogBundle(structuredClone(SMOKE_FIXTURE));
-    if (!valid.valid) throw new Error('Smoke fixture was rejected by generated validator');
-
-    const structural = structuredClone(SMOKE_FIXTURE);
-    structural.extra = true;
-    const structuralResult = await module.validateCatalogBundle(structural);
-    if (!structuralResult.errors.some(item => item.code === 'BUNDLE_SCHEMA_INVALID')) {
-      throw new Error('Structural smoke mutation was not detected');
-    }
-
-    const semantic = structuredClone(SMOKE_FIXTURE);
-    semantic.items[0].catalog_item.annotation.evidence = [];
-    const semanticResult = await module.validateCatalogBundle(semantic);
-    if (!semanticResult.errors.some(item => item.code === 'MISSING_EVIDENCE')) {
-      throw new Error('Semantic smoke mutation was not detected');
-    }
-    return { valid: true, checks: ['valid_fixture', 'BUNDLE_SCHEMA_INVALID', 'MISSING_EVIDENCE'] };
+    return await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Smoke-test timed out')), SMOKE_TIMEOUT_MS);
+      worker.onmessage = event => {
+        clearTimeout(timeout);
+        if (event.data?.ok) resolve(event.data.result);
+        else reject(new Error(event.data?.error ?? 'Smoke-test failed'));
+      };
+      worker.onerror = event => {
+        clearTimeout(timeout);
+        reject(new Error(event.message || 'Smoke-test worker failed'));
+      };
+      worker.postMessage({ source, fixture: SMOKE_FIXTURE });
+    });
   } finally {
-    URL.revokeObjectURL(url);
+    worker.terminate();
+    URL.revokeObjectURL(workerUrl);
   }
 }
 
