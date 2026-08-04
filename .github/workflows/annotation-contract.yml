@@ -21,6 +21,12 @@ jobs:
         run: npm run taxonomy:validate-production
       - name: Generate annotation schemas
         run: npm run generate:annotation-schemas
+      - name: Generate annotation kits
+        run: npm run generate:annotation-kits
+      - name: Generate autonomous catalog validator
+        run: npm run generate:catalog-validation-kit
+      - name: Generate offline catalog validator builder
+        run: npm run generate:catalog-validation-kit-builder
       - name: Check annotation schemas
         run: npm run check:annotation-schemas
       - name: Test production taxonomy
@@ -36,6 +42,15 @@ jobs:
       - name: Build browser app
         run: npm run app:build
       - name: Ensure generated contracts are committed
-        run: git diff --exit-code -- schemas/annotation/class-specific schemas/annotation/generated schemas/annotation/class-schema-registry.json
+        run: >-
+          git diff --exit-code --
+          schemas/annotation/class-specific
+          schemas/annotation/generated
+          schemas/annotation/class-schema-registry.json
+          annotation-kits/catalog-annotation-kit.json
+          annotation-kits/request-annotation-kit.json
+          annotation-kits/annotation-kits-manifest.json
+          annotation-kits/catalog-validation-kit.mjs
+          tools/catalog-validation-kit-builder.html
       - name: Check formatting
         run: git diff --check
