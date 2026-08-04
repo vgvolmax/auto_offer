@@ -55,6 +55,7 @@ export async function buildCatalogAjvRuntimeSource() {
       sourcemap: false,
       rollupOptions: {
         input: 'virtual:catalog-validation-kit-ajv-runtime',
+        preserveEntrySignatures: 'strict',
         output: {
           format: 'es',
           inlineDynamicImports: true,
