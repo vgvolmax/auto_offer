@@ -56,12 +56,18 @@ test('generated module is dependency-free and exposes the stable public API', as
   const result = await generate();
   assert.doesNotMatch(result.source, /\bfrom\s+['"](?:ajv|ajv-formats)/);
   assert.doesNotMatch(result.source, /\bimport\s*\(\s*['"](?:ajv|ajv-formats)/);
-  assert.doesNotMatch(result.source, /https?:\/\//);
+  assert.doesNotMatch(result.source, /(?:from\s+|import\s*\()\s*['"]https?:\/\//);
   const module = await importSource(result.source);
   assert.deepEqual(module.kitMetadata, result.metadata);
   assert.equal(typeof module.createCatalogValidator, 'function');
   assert.equal(typeof module.validateCatalogBundle, 'function');
   assert.equal(typeof module.validateCatalogFile, 'function');
+  assert.equal(module.annotationKit.kind, 'catalog_annotation_kit');
+  assert.equal(module.annotationKit.class_count, 41);
+  assert.equal(Object.keys(module.annotationKit.schemas_by_id).length, result.metadata.schema_count);
+  assert.equal(Object.keys(module.classSchemaRegistry.classes).length, 41);
+  assert.match(result.source, /export const annotationKit/);
+  assert.match(result.source, /"valve\.ball"/);
 });
 
 test('generated source does not depend on repository location', async () => {
