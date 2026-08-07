@@ -143,13 +143,17 @@ test('canonical workflow owns heavy regression and repository hygiene', async ()
   const appBuildOwners = workflows.filter(({ source }) => /\bnpm(?:\.cmd)?\s+run\s+app:build\b/.test(stripCommentLines(source)));
   assert.deepEqual(appBuildOwners.map(({ path: workflowPath }) => workflowPath), [canonicalWorkflow]);
   assert.equal(countMatches(canonical, /\bnpm(?:\.cmd)?\s+run\s+app:build\b/g), 1, 'canonical workflow must build the app once');
+  assert.deepEqual(invokedNpmScripts(canonical), ['app:build'], 'canonical workflow must not repeat npm test children directly');
 
   assert.equal(countMatches(canonical, /\bnpm(?:\.cmd)?\s+ci\b/g), 1, 'canonical workflow must install from the lockfile once');
   assert.match(canonical, /node-version:\s*20\b/, 'canonical workflow must use Node.js 20');
   assert.match(canonical, /cache:\s*npm\b/, 'canonical workflow must use the npm cache');
-  assert.doesNotMatch(canonical, /\bnpm(?:\.cmd)?\s+run\s+typecheck:app\b/, 'typecheck is already part of npm test');
   assert.match(canonical, /name:\s*Reject disabled or focused tests\b/, 'canonical workflow must keep the disabled/focused-test guard');
-  assert.match(canonical, /git\s+grep\s+-n\s+-E/, 'canonical workflow must scan regression paths for disabled/focused tests');
+  assert.match(
+    canonical,
+    /git\s+grep\s+-n\s+-E[^\n]*--\s+scripts\/launcher\s+app\/src\s+tests\b/,
+    'canonical workflow must scan all established regression paths for disabled/focused tests',
+  );
   assert.match(canonical, /git\s+diff\s+--check\b/, 'canonical workflow must keep the repository whitespace check');
 });
 
