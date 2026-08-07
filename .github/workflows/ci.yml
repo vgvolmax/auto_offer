@@ -27,6 +27,21 @@ jobs:
         run: npm ci
       - name: Run full test suite
         run: npm test
+      - name: Reject disabled or focused tests
+        shell: bash
+        run: |
+          set +e
+          matches=$(git grep -n -E '(skip|only)\(' -- scripts/launcher app/src tests)
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            printf '%s\n' "$matches"
+            echo '::error::Disabled or focused tests are not allowed in repository regression paths.'
+            exit 1
+          fi
+          if [ "$status" -ne 1 ]; then
+            exit "$status"
+          fi
       - name: Build browser app
         run: npm run app:build
       - name: Check formatting
