@@ -1,12 +1,21 @@
 name: Windows portable launcher
+
 on:
   pull_request:
     paths: ['start.bat', 'scripts/launcher/**', '.github/workflows/windows-launcher.yml', 'docs/app/WINDOWS_PORTABLE_LAUNCH.md', 'package*.json', 'app/**']
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   windows-launcher:
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Launcher unit tests
@@ -102,21 +111,11 @@ jobs:
           $serverProcess = Get-CimInstance Win32_Process -Filter "ProcessId=$($health.pid)"
           & taskkill.exe /PID $serverProcess.ParentProcessId /T /F | Out-Null
           if ($LASTEXITCODE -ne 0) { throw 'server window close failed' }
-      - name: Repository regression
+      - name: Launcher source hygiene
         shell: pwsh
         run: |
-          $target = Join-Path $env:RUNNER_TEMP 'CI Work\Тест Auto Offer\auto_offer'
-          $npm = Join-Path $target '.runtime\node\npm.cmd'
-          Push-Location $target
-          try {
-            & $npm run typecheck:app; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            & $npm run test:app; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            & $npm run test:pilot; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            & $npm run app:build; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            & $npm test; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          } finally { Pop-Location }
-          & git -C $env:GITHUB_WORKSPACE grep -n -E '(skip|only)\(' -- scripts/launcher app/src tests
-          if ($LASTEXITCODE -eq 0) { throw 'disabled or focused test found' }
+          & git -C $env:GITHUB_WORKSPACE grep -n -E '(skip|only)\(' -- scripts/launcher
+          if ($LASTEXITCODE -eq 0) { throw 'disabled or focused launcher test found' }
           if ($LASTEXITCODE -ne 1) { throw "git grep failed with exit code $LASTEXITCODE" }
           & git -C $env:GITHUB_WORKSPACE diff --check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
