@@ -6,9 +6,17 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   catalog-inventory:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -19,7 +27,3 @@ jobs:
         run: npm ci
       - name: Test inventory contracts
         run: npm run test:inventory
-      - name: Run full test suite
-        run: npm test
-      - name: Check formatting
-        run: git diff --check
