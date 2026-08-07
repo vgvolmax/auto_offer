@@ -83,7 +83,7 @@ function countMatches(source, pattern) {
 function countNpmRun(command, scriptName) {
   return countMatches(
     command,
-    new RegExp(`\\bnpm(?:\\.cmd)?\\s+run\\s+${escapeRegExp(scriptName)}\\b`, 'g'),
+    new RegExp(`\\bnpm(?:\\.cmd)?\\s+run\\s+${escapeRegExp(scriptName)}(?=\\s|&&|\\|\\||;|$)`, 'g'),
   );
 }
 
