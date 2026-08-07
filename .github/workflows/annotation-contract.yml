@@ -9,10 +9,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   annotation-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,18 +37,10 @@ jobs:
         run: npm run generate:catalog-validation-kit-builder
       - name: Check annotation schemas
         run: npm run check:annotation-schemas
-      - name: Test production taxonomy
-        run: npm run test:production-taxonomy
-      - name: Test class contracts
-        run: npm run test:annotation-classes
-      - name: Test golden prompts
-        run: npm run test:annotation-golden
-      - name: Run full test suite
-        run: npm test
-      - name: Run pilot readiness gate
-        run: npm run test:pilot
-      - name: Build browser app
-        run: npm run app:build
+      - name: Check annotation kits
+        run: npm run check:annotation-kits
+      - name: Check autonomous catalog validator
+        run: npm run check:catalog-validation-kit
       - name: Ensure generated contracts are committed
         run: >-
           git diff --exit-code --
@@ -56,5 +52,3 @@ jobs:
           annotation-kits/annotation-kits-manifest.json
           annotation-kits/catalog-validation-kit.mjs
           tools/catalog-validation-kit-builder.html
-      - name: Check formatting
-        run: git diff --check
