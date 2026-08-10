@@ -1,19 +1,19 @@
 {
-  "kit_version": "1.1.0",
+  "kit_version": "1.2.0",
   "kits": {
     "catalog": {
-      "bytes": 389822,
+      "bytes": 390513,
       "class_count": 41,
       "path": "annotation-kits/catalog-annotation-kit.json",
       "schema_count": 48,
-      "sha256": "198449011b0eb7831c60c1cb09ae3c2c96f124fc8cd49ba9f3659828cd7ace70"
+      "sha256": "9e40a0fca1d53c597912cf9cbce6a36886c87a0ecde4be2cb2e04c9fa307ee02"
     },
     "request": {
-      "bytes": 601854,
+      "bytes": 602345,
       "class_count": 41,
       "path": "annotation-kits/request-annotation-kit.json",
       "schema_count": 47,
-      "sha256": "e44ce8fb956e3f5240acf6ad61f3fcc4f80ad11c5dfe5264229392ff6c641685"
+      "sha256": "916647edffa7e3ccac386235e8e19ece51ad2474fbf85775f9a7a41c2a623641"
     }
   },
   "manifest_schema_version": "1.0.0",

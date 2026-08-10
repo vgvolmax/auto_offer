@@ -88,7 +88,7 @@ export async function buildKits(root = repositoryRoot) {
     }
     kits[kind] = {
       kit_schema_version: '1.0.0',
-      kit_version: '1.1.0',
+      kit_version: '1.2.0',
       kind: `${kind}_annotation_kit`,
       taxonomy_version: taxonomy.taxonomy_version,
       annotation_schema_version: registry.schema_version,
@@ -122,7 +122,7 @@ export async function generateKits(root = repositoryRoot) {
   }
   const manifest = {
     manifest_schema_version: '1.0.0',
-    kit_version: '1.1.0',
+    kit_version: '1.2.0',
     taxonomy_version: kits.catalog.taxonomy_version,
     kits: manifestKits,
   };

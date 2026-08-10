@@ -25,6 +25,7 @@ beforeEach(async () => {
 });
 afterEach(() => vi.unstubAllGlobals());
 describe("IndexedDB repositories — A2-A5, H1, G5", () => {
+  it("rejects a stale reviewed catalog revision and preserves the winner",async()=>{const original={...createCatalogRecord(catalog as any),recordId:"review-cas"},winner={...original,semanticRevision:1,updatedAt:"winner"},stale={...original,semanticRevision:1,updatedAt:"stale"};await catalogsRepository.save(original);await catalogsRepository.updateReviewedCatalog({recordId:original.recordId,expectedSemanticRevision:0,next:winner});await expect(catalogsRepository.updateReviewedCatalog({recordId:original.recordId,expectedSemanticRevision:0,next:stale})).rejects.toMatchObject({code:"CATALOG_REVISION_CHANGED"});expect(await catalogsRepository.get(original.recordId)).toEqual(winner)});
   it("updates matching settings with revision CAS and preserves the winner", async () => {
     const c = createCatalogRecord(catalog as any);
     const s = createDraftSession(request as any, [c], "cas");

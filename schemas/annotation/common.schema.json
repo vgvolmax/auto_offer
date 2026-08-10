@@ -178,6 +178,16 @@
         }
       }
     },
+    "operatorConfirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["json_pointer", "value", "confirmed_at"],
+      "properties": {
+        "json_pointer": { "$ref": "#/$defs/jsonPointer" },
+        "value": {},
+        "confirmed_at": { "type": "string", "format": "date-time" }
+      }
+    },
     "stringConstraint": {
       "oneOf": [
         {

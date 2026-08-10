@@ -107,6 +107,10 @@
         "source_sha256": {
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
+        },
+        "catalog_revision": {
+          "type": "integer",
+          "minimum": 0
         }
       }
     },

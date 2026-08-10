@@ -114,6 +114,7 @@ export async function runSessionMatching(input: {
       requestBundle: session.requestBundle,
       catalogs: catalogs.map((catalog) => ({
         catalogRecordId: catalog.recordId,
+        catalogRevision: catalog.semanticRevision,
         bundle: catalog.bundle,
       })),
       policy,

@@ -62,6 +62,7 @@ export function SessionPage() {
         locked={session.status === "confirmed"}
         externalBusy={reviewRefreshing}
       />
+      {run && !current && <p className="warning-text" role="status">{session.status === "confirmed" ? "Каталог изменился после подтверждения результата. Чтобы пересчитать подбор, верните результат к редактированию." : "Каталог или настройки изменились после последнего подбора. Результат устарел."}</p>}
       {run && <MatchRunSummaryView run={run} current={current} />}{" "}
       {run && (
         <MatchResultsPanel

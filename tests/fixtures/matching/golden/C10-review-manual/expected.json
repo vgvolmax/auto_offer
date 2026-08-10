@@ -5,7 +5,7 @@
   "policy_registry_version": "pilot-1.0.0",
   "taxonomy_version": "1.0.0",
   "request_id": "request-001",
-  "input_fingerprint": "c52a43a90bcb3c57d7cf7fc8689025ec8e15f7aadf4325368a99f676d9a557a8",
+  "input_fingerprint": "fed3b11173739596fbfb170ac59726ba84a9e1cb49023681da914eafabcc97e3",
   "policy": {
     "schema_version": "1.0.0",
     "kind": "matching_policy",
@@ -30,7 +30,8 @@
     {
       "catalog_record_id": "record-main",
       "catalog_id": "synthetic-valves",
-      "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "catalog_revision": 0
     }
   ],
   "lines": [
