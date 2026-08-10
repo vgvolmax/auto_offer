@@ -1,11 +1,12 @@
 import type {CatalogItem} from './catalog';
 import {createBrowserValidationContext} from '../validation/create-browser-validation-context';
+import {collectUnresolvedReviewPointers} from './catalog-review-reasons';
 
 export type CatalogEditField={jsonPointer:string;fieldId:string;portIndex?:number;kind:'enum'|'number'|'boolean'|'rational_inch'|'unsupported';required:boolean;currentValue?:unknown;options?:Array<{value:unknown;taxonomyLabel?:string}>;confirmedAt?:string;technicalReason?:string};
 const pointerValue=(item:CatalogItem,pointer:string)=>pointer.slice(1).split('/').reduce<unknown>((value,key)=>value&&typeof value==='object'?(value as Record<string,unknown>)[key]:undefined,item);
 export function buildCatalogEditFields(item:CatalogItem):CatalogEditField[]{
   if(!item.class_id)return[];const {taxonomy}=createBrowserValidationContext(),classDefinition=(taxonomy.classes as Record<string,any>)[item.class_id];if(!classDefinition)return[];
-  const annotation=item.annotation??{},pointers=[...(annotation.unknown_fields??[]),...(annotation.issues??[]).map(x=>x.json_pointer).filter(Boolean),...(annotation.ambiguities??[]).filter(x=>x.blocking!==false).map(x=>x.json_pointer),...(annotation.operator_confirmations??[]).map(x=>x.json_pointer)];
+  const annotation=item.annotation??{},pointers=[...collectUnresolvedReviewPointers(annotation),...(annotation.operator_confirmations??[]).map(x=>x.json_pointer)];
   return [...new Set(pointers.filter((x):x is string=>Boolean(x)))].map(jsonPointer=>{
     const attribute=/^\/attributes\/([^/]+)$/.exec(jsonPointer),port=/^\/ports\/(\d+)\/([^/]+)$/.exec(jsonPointer);let definition:any,fieldId:string,portIndex:number|undefined;
     if(attribute){fieldId=attribute[1];definition=classDefinition.attributes?.[fieldId]}
