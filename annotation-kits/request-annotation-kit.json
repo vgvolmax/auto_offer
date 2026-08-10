@@ -47,7 +47,7 @@
   },
   "kind": "request_annotation_kit",
   "kit_schema_version": "1.0.0",
-  "kit_version": "1.0.0",
+  "kit_version": "1.1.0",
   "root_schema_id": "https://example.local/schemas/bundles/request-bundle.schema.json",
   "schemas_by_id": {
     "https://example.local/schemas/annotation/class-specific/accessory.floor_heating.request.schema.json": {

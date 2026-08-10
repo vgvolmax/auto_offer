@@ -47,7 +47,7 @@
   },
   "kind": "catalog_annotation_kit",
   "kit_schema_version": "1.0.0",
-  "kit_version": "1.0.0",
+  "kit_version": "1.1.0",
   "root_schema_id": "https://example.local/schemas/bundles/catalog-bundle.schema.json",
   "schemas_by_id": {
     "https://example.local/schemas/annotation/catalog-item-annotation.base.schema.json": {
@@ -8025,6 +8025,52 @@
       ],
       "title": "Generated catalog class dispatcher"
     },
+    "https://example.local/schemas/annotation/unsupported-catalog-item.schema.json": {
+      "$id": "https://example.local/schemas/annotation/unsupported-catalog-item.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "annotation": {
+          "additionalProperties": false,
+          "properties": {
+            "reason_code": {
+              "enum": [
+                "NO_TAXONOMY_CLASS",
+                "AMBIGUOUS_CLASS",
+                "UNCLASSIFIABLE_SOURCE"
+              ]
+            },
+            "status": {
+              "const": "unsupported"
+            }
+          },
+          "required": [
+            "status",
+            "reason_code"
+          ],
+          "type": "object"
+        },
+        "schema_version": {
+          "const": "1.1.0"
+        },
+        "source_item_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "taxonomy_version": {
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "taxonomy_version",
+        "source_item_id",
+        "annotation"
+      ],
+      "title": "Unsupported catalog item",
+      "type": "object"
+    },
     "https://example.local/schemas/bundles/annotation-bundle-manifest.schema.json": {
       "$defs": {
         "annotatedAt": {
@@ -8096,7 +8142,14 @@
             "additionalProperties": false,
             "properties": {
               "catalog_item": {
-                "$ref": "https://example.local/schemas/annotation/generated/catalog-item.dispatch.schema.json"
+                "oneOf": [
+                  {
+                    "$ref": "https://example.local/schemas/annotation/generated/catalog-item.dispatch.schema.json"
+                  },
+                  {
+                    "$ref": "https://example.local/schemas/annotation/unsupported-catalog-item.schema.json"
+                  }
+                ]
               },
               "source": {
                 "$ref": "catalog-source.schema.json"

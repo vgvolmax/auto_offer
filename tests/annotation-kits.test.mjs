@@ -27,7 +27,7 @@ test('kits have the required structure, taxonomy, mappings, and closed reference
   for (const kind of ['catalog', 'request']) {
     const kit = await readJson(kitPath(kind));
     assert.equal(kit.kit_schema_version, '1.0.0');
-    assert.equal(kit.kit_version, '1.0.0');
+    assert.equal(kit.kit_version, '1.1.0');
     assert.equal(kit.kind, `${kind}_annotation_kit`);
     assert.equal(kit.root_schema_id, roots[kind]);
     assert.equal(kit.class_count, 41);
