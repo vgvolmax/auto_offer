@@ -9,6 +9,9 @@
       "catalog_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" }, "source_file_name": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/sourceFileName" },
       "source_sha256": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/sha256" }, "annotated_at": { "$ref": "annotation-bundle-manifest.schema.json#/$defs/annotatedAt" }, "item_count": { "type": "integer", "minimum": 1 }
     } },
-    "items": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["source", "catalog_item"], "properties": { "source": { "$ref": "catalog-source.schema.json" }, "catalog_item": { "$ref": "https://example.local/schemas/annotation/generated/catalog-item.dispatch.schema.json" } } } }
+    "items": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["source", "catalog_item"], "properties": { "source": { "$ref": "catalog-source.schema.json" }, "catalog_item": { "oneOf": [
+      { "$ref": "https://example.local/schemas/annotation/generated/catalog-item.dispatch.schema.json" },
+      { "$ref": "https://example.local/schemas/annotation/unsupported-catalog-item.schema.json" }
+    ] } } } }
   }
 }

@@ -22,3 +22,6 @@ describe('browser semantic validation parity',()=>{
     expect(result.errors.find(error=>error.code==='DUPLICATE_LINE_ID')?.path).toBe('/request_document/lines/1/line_id');
   });
 });
+
+import mixedCatalog from '../../../tests/fixtures/bundles/catalog.mixed.json';
+describe('mixed catalog browser parity',()=>{it('accepts unsupported alongside typed statuses',()=>{expect(validateCatalogBundle(mixedCatalog).valid).toBe(true);expect(mixedCatalog.catalog.item_count).toBe(mixedCatalog.items.length);expect('class_id' in mixedCatalog.items.at(-1)!.catalog_item).toBe(false)})});

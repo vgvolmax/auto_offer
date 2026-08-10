@@ -41,10 +41,6 @@ function matchLine(request, catalogIndex, policy, registry) {
 
   const classCandidates = catalogIndex.get(request.class_id) ?? [];
   for (const catalogCandidate of classCandidates) {
-    if (catalogCandidate.annotation_status === 'invalid') {
-      incrementTechnicalRejections(rejectionCounts, ['CATALOG_ITEM_INVALID']);
-      continue;
-    }
     const technical = evaluateCandidate(request, catalogCandidate, registry);
     if (technical.rejectionCodes.size > 0) {
       incrementTechnicalRejections(rejectionCounts, technical.rejectionCodes);

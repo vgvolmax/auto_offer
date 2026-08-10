@@ -1,0 +1,5 @@
+import {describe,expect,it} from 'vitest';
+import mixed from '../../../tests/fixtures/bundles/catalog.mixed.json';
+import {createCatalogRecord,getCatalogDiagnostics,getCatalogItemStatusCounts,type CatalogBundle} from './catalog';
+
+describe('catalog item status classification',()=>{it('counts mixed rows and creates actionable diagnostics',()=>{const bundle=mixed as CatalogBundle,counts=getCatalogItemStatusCounts(bundle);expect(counts).toEqual({total:4,validated:1,needsReview:1,invalid:1,unsupported:1,matchable:2,nonMatchable:2});const diagnostics=getCatalogDiagnostics(createCatalogRecord(bundle,0,'2026-08-10T00:00:00Z'));expect(diagnostics.summary).toEqual({total:4,validated:1,needs_review:1,invalid:1,unsupported:1,non_matchable:2});expect(diagnostics.excluded_items).toEqual(expect.arrayContaining([expect.objectContaining({source_item_id:'unsupported-1',status:'unsupported',reason_code:'NO_TAXONOMY_CLASS'}),expect.objectContaining({source_item_id:'invalid-1',status:'invalid',issues:expect.any(Array)})]))})});

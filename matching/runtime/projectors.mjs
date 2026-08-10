@@ -5,7 +5,7 @@ export function projectRequestLine(line) {
     quantity: line.quantity, annotation_status: line.annotation?.status };
 }
 export function projectCatalog(catalogRecordId, bundle) {
-  return bundle.items.map((offer) => { const item = offer.catalog_item; return {
+  return bundle.items.filter((offer) => ['validated', 'needs_review'].includes(offer.catalog_item?.annotation?.status)).map((offer) => { const item = offer.catalog_item; return {
     catalog_record_id: catalogRecordId, catalog_id: bundle.catalog.catalog_id,
     source_sha256: bundle.catalog.source_sha256, source_item_id: item.source_item_id,
     class_id: item.class_id, identity: item.identity ?? {}, attributes: item.attributes ?? {}, ports: item.ports ?? [],

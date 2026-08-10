@@ -95,3 +95,18 @@ test('catalog references are deterministic with partial priority', async () => {
   assert.deepEqual(firstResult.lines[0].candidates.map((candidate) => candidate.offer_ref.catalog_record_id), ['record-a', 'record-b']);
   assert.deepEqual(firstResult.catalog_refs.map(({ catalog_record_id }) => catalog_record_id), ['record-a', 'record-b']);
 });
+
+test('matcher index excludes invalid and unsupported while preserving needs-review policy', async () => {
+  const fixture=await loadGoldenScenario('tests/fixtures/matching/golden/D1-single-exact');
+  const catalog=structuredClone(fixture.catalogs[0].bundle),typed=structuredClone(catalog.items[0]);
+  typed.catalog_item.source_item_id='invalid-item';typed.catalog_item.annotation.status='invalid';typed.catalog_item.annotation.issues=[{code:'INVALID_ITEM'}];
+  const unsupported={source:structuredClone(typed.source),catalog_item:{schema_version:'1.1.0',taxonomy_version:catalog.taxonomy_version,source_item_id:'unsupported-item',annotation:{status:'unsupported',reason_code:'NO_TAXONOMY_CLASS'}}};
+  const review=structuredClone(catalog.items[0]);review.catalog_item.source_item_id='review-item';review.catalog_item.annotation.status='needs_review';review.catalog_item.annotation.issues=[{code:'REVIEW_REQUIRED'}];
+  catalog.items.push(typed,unsupported,review);catalog.catalog.item_count=catalog.items.length;
+  const run=(catalog_needs_review)=>runPilotMatcher({requestBundle:fixture.request,catalogs:[{catalogRecordId:'record-main',bundle:catalog}],policy:{...fixture.policy,catalog_needs_review},registry:pilotRegistry,engineVersion:'pilot-1.0.0'});
+  const excluded=await run('exclude'),manual=await run('manual_only');
+  assert.deepEqual(excluded.lines[0].candidates.map(x=>x.offer_ref.source_item_id),['synthetic-valve.ball-1']);
+  assert.deepEqual(manual.lines[0].candidates.map(x=>x.offer_ref.source_item_id),['review-item','synthetic-valve.ball-1']);
+  assert.equal(manual.lines[0].candidates.find(x=>x.offer_ref.source_item_id==='review-item').availability,'manual_only');
+  assert.equal(JSON.stringify(manual).includes('invalid-item'),false);assert.equal(JSON.stringify(manual).includes('unsupported-item'),false);
+});

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/annotation/unsupported-catalog-item.schema.json",
+  "title": "Unsupported catalog item",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "taxonomy_version", "source_item_id", "annotation"],
+  "properties": {
+    "schema_version": { "const": "1.1.0" },
+    "taxonomy_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "source_item_id": { "type": "string", "minLength": 1 },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason_code"],
+      "properties": {
+        "status": { "const": "unsupported" },
+        "reason_code": { "enum": ["NO_TAXONOMY_CLASS", "AMBIGUOUS_CLASS", "UNCLASSIFIABLE_SOURCE"] }
+      }
+    }
+  }
+}
