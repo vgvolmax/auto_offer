@@ -110,3 +110,19 @@ test('duplicate non-repeatable valve role remains rejected', () => {
   const result = validateAnnotation({ kind: 'catalog_item', data: valveItem(), taxonomy, registry, schemas: classSchemas });
   assert.ok(result.issues.some(issue => issue.code === 'DUPLICATE_PORT_ROLE'));
 });
+
+test('operator confirmation is distinct provenance and satisfies evidence policy', async () => {
+  const fixture=JSON.parse(await readFile('tests/fixtures/annotation/classes/fitting.radial.json','utf8')).golden.expected_output;
+  fixture.annotation.evidence=fixture.annotation.evidence.filter(x=>x.json_pointer!=='/attributes/profile');
+  fixture.annotation.operator_confirmations=[{json_pointer:'/attributes/profile',value:'b',confirmed_at:'2026-08-10T11:30:00.000Z'}];
+  const result=validateAnnotation({kind:'catalog_item',data:fixture,taxonomy,registry,schemas:classSchemas});
+  assert.equal(result.valid,true,JSON.stringify(result.issues));
+  assert.equal(result.issues.some(x=>x.code==='MISSING_EVIDENCE'&&x.path==='/attributes/profile'),false);
+});
+
+test('stale and duplicate operator confirmations are rejected', async () => {
+  const fixture=JSON.parse(await readFile('tests/fixtures/annotation/classes/fitting.radial.json','utf8')).golden.expected_output;
+  fixture.annotation.operator_confirmations=[{json_pointer:'/attributes/profile',value:'th',confirmed_at:'2026-08-10T11:30:00.000Z'},{json_pointer:'/attributes/profile',value:'b',confirmed_at:'2026-08-10T11:31:00.000Z'}];
+  const codes=new Set(validateAnnotation({kind:'catalog_item',data:fixture,taxonomy,registry,schemas:classSchemas}).issues.map(x=>x.code));
+  assert.ok(codes.has('OPERATOR_CONFIRMATION_VALUE_MISMATCH'));assert.ok(codes.has('DUPLICATE_OPERATOR_CONFIRMATION'));
+});

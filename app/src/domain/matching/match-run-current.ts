@@ -10,18 +10,20 @@ type CatalogRefSnapshot = {
   catalog_record_id: string;
   catalog_id: string;
   source_sha256: string;
+  catalog_revision?: number;
 };
 
 function canonicalizeCatalogRefs(
   refs: readonly CatalogRefSnapshot[],
 ): CatalogRefSnapshot[] {
   return refs
-    .map((ref) => ({ ...ref }))
+    .map((ref) => ({ ...ref, catalog_revision: ref.catalog_revision ?? 0 }))
     .sort((left, right) => {
       for (const field of [
         "catalog_record_id",
         "catalog_id",
         "source_sha256",
+        "catalog_revision",
       ] as const) {
         if (left[field] < right[field]) return -1;
         if (left[field] > right[field]) return 1;
@@ -51,6 +53,7 @@ export function isMatchRunCurrent(input: {
     catalog_record_id: catalog.recordId,
     catalog_id: catalog.catalogId,
     source_sha256: catalog.sourceSha256,
+    catalog_revision: catalog.semanticRevision ?? 0,
   }));
   return same(
     canonicalizeCatalogRefs(run.result.catalog_refs),

@@ -193,6 +193,10 @@
           "items": {
             "$ref": "common.schema.json#/$defs/evidence"
           }
+        },
+        "operator_confirmations": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/operatorConfirmation" }
         }
       }
     }

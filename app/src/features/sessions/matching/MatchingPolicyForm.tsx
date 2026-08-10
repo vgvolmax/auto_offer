@@ -130,7 +130,7 @@ export function MatchingPolicyForm({
           disabled={interactionDisabled || issues.length > 0}
           onClick={onRun}
         >
-          {state === "running" ? "Выполняется подбор…" : "Запустить подбор"}
+          {state === "running" ? "Выполняется подбор…" : state === "success-stale" ? "Перезапустить подбор" : "Запустить подбор"}
         </button>
         {busy && (
           <span role="status">

@@ -4,6 +4,7 @@ import { buildRequestPortContracts } from '../annotation/lib/request-port-contra
 const issue = (code, path, message, details) => ({ code, path, message, ...(details === undefined ? {} : { details }) });
 const escapeToken = value => String(value).replaceAll('~', '~0').replaceAll('/', '~1');
 const decodeToken = value => value.replaceAll('~1', '/').replaceAll('~0', '~');
+const deepEqual = (left, right) => JSON.stringify(left) === JSON.stringify(right);
 
 export function getCanonicalValueIds(taxonomy, valueSetId) {
   const valueSet = taxonomy?.value_sets?.[valueSetId];
@@ -108,7 +109,19 @@ export function validateAnnotation({ kind, data, taxonomy = {}, registry = { cla
       else if (target.value === null) add('EVIDENCE_POINTS_TO_EMPTY_VALUE', `${prefix}${evidence.json_pointer}`, 'Evidence cannot point to a null value');
     }
 
-    const evidencePointers = new Set((annotation.evidence ?? []).map(x => x.json_pointer));
+    const confirmationPointers = new Set();
+    for (const confirmation of annotation.operator_confirmations ?? []) {
+      const pointer = confirmation.json_pointer;
+      const target = pointerAt(item, pointer);
+      if (target.invalid) add('INVALID_OPERATOR_CONFIRMATION_POINTER', `${prefix}/annotation/operator_confirmations`, 'Operator confirmation pointer is not RFC 6901');
+      else if (!allowed.some(pattern => matches(pattern, pointer))) add('OPERATOR_CONFIRMATION_PATH_NOT_ALLOWED', `${prefix}${pointer}`, 'Operator confirmation pointer is not allowed for this class');
+      else if (!target.exists) add('OPERATOR_CONFIRMATION_TARGET_NOT_FOUND', `${prefix}${pointer}`, 'Operator confirmation target does not exist');
+      else if (!deepEqual(target.value, confirmation.value)) add('OPERATOR_CONFIRMATION_VALUE_MISMATCH', `${prefix}${pointer}`, 'Operator confirmation value differs from the current semantic value');
+      if (confirmationPointers.has(pointer)) add('DUPLICATE_OPERATOR_CONFIRMATION', `${prefix}/annotation/operator_confirmations`, 'Only one active operator confirmation is allowed per pointer');
+      confirmationPointers.add(pointer);
+    }
+
+    const evidencePointers = new Set([...(annotation.evidence ?? []).map(x => x.json_pointer), ...confirmationPointers]);
     const policy = registration.evidence_policy ?? {};
     walk(item, '', (value, pointer) => {
       if (!pointer || value === undefined || value === null) return;

@@ -16,10 +16,11 @@ function incrementTechnicalRejections(counts, codes) {
 
 function catalogReferences(catalogs, policy) {
   const priority = new Map(policy.catalog_priority.map((id, index) => [id, index]));
-  return catalogs.map(({ catalogRecordId, bundle }) => ({
+  return catalogs.map(({ catalogRecordId, catalogRevision, bundle }) => ({
     catalog_record_id: catalogRecordId,
     catalog_id: bundle.catalog.catalog_id,
     source_sha256: bundle.catalog.source_sha256,
+    catalog_revision: catalogRevision ?? 0,
   })).sort((left, right) =>
     (priority.get(left.catalog_record_id) ?? Infinity) - (priority.get(right.catalog_record_id) ?? Infinity)
     || ordinalCompare(left.catalog_id, right.catalog_id)

@@ -37,5 +37,6 @@ export function catalogReferences(catalogs) {
     catalog_record_id: input.catalog_record_id,
     catalog_id: bundle.catalog.catalog_id,
     source_sha256: bundle.catalog.source_sha256,
+    catalog_revision: input.catalog_revision ?? 0,
   }));
 }

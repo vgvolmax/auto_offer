@@ -1,0 +1,6 @@
+import type {CatalogEditField} from '../../domain/catalog-review-fields';
+const labels:Record<string,string>={profile:'Пресс-профиль',construction:'Тип фитинга',connection_kind:'Тип соединения',system:'Система труб',pipe_outer_diameter_mm:'Наружный диаметр трубы',pipe_wall_thickness_mm:'Толщина стенки трубы',nominal_diameter_dn:'Условный диаметр DN',thread_size:'Размер резьбы',thread_standard:'Стандарт резьбы',control_equipment:'Тип регулирующего оборудования',handle_type:'Тип рукоятки',tool_kind:'Тип инструмента'};
+const values:Record<string,string>={male_thread:'Наружная резьба',female_thread:'Внутренняя резьба',radial_press:'Радиальный пресс',axial_press:'Аксиальный пресс',compression:'Компрессионное соединение',socket_fusion:'Раструбная сварка',flange:'Фланец',sewer_socket:'Раструб',sewer_spigot:'Гладкий конец'};
+const humanize=(id:string)=>id.replaceAll('_',' ').replace(/^./,x=>x.toUpperCase());
+export function fieldLabel(field:CatalogEditField){const base=labels[field.fieldId]??humanize(field.fieldId);return field.portIndex===undefined?base:`${base} — сторона ${field.portIndex+1}`}
+export function valueLabel(value:unknown,taxonomyLabel?:string){if(typeof value!=='string')return String(value);return values[value]??taxonomyLabel??humanize(value)}

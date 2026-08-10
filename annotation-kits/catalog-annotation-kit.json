@@ -47,7 +47,7 @@
   },
   "kind": "catalog_annotation_kit",
   "kit_schema_version": "1.0.0",
-  "kit_version": "1.1.0",
+  "kit_version": "1.2.0",
   "root_schema_id": "https://example.local/schemas/bundles/catalog-bundle.schema.json",
   "schemas_by_id": {
     "https://example.local/schemas/annotation/catalog-item-annotation.base.schema.json": {
@@ -79,6 +79,12 @@
             "issues": {
               "items": {
                 "$ref": "common.schema.json#/$defs/annotationIssue"
+              },
+              "type": "array"
+            },
+            "operator_confirmations": {
+              "items": {
+                "$ref": "common.schema.json#/$defs/operatorConfirmation"
               },
               "type": "array"
             },
@@ -7696,6 +7702,25 @@
           "required": [
             "operator",
             "values"
+          ],
+          "type": "object"
+        },
+        "operatorConfirmation": {
+          "additionalProperties": false,
+          "properties": {
+            "confirmed_at": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "json_pointer": {
+              "$ref": "#/$defs/jsonPointer"
+            },
+            "value": {}
+          },
+          "required": [
+            "json_pointer",
+            "value",
+            "confirmed_at"
           ],
           "type": "object"
         },

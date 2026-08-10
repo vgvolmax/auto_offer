@@ -19,7 +19,7 @@ describe('browser-first matching adapter', () => {
 
     expect(result.kind).toBe('match_result');
     expect(result.lines[0]).toMatchObject({ resolution: 'single_exact' });
-    expect(result.input_fingerprint).toBe('d3d53ec94418396fec02f93f6a8c5321ab81c7e6848a06339ddff354ad724a30');
+    expect(result.input_fingerprint).toBe('eb141e2cd2fed1996be6afccbceda9f4cf684a58c67b6ec72bd376f63ec854a1');
     expect(result.input_fingerprint).toMatch(/^[0-9a-f]{64}$/);
   });
 });
