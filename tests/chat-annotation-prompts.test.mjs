@@ -11,7 +11,7 @@ const files = {
 const read = (file) => readFile(path.join(root, file), 'utf8');
 
 test('chat prompts exist, are complete, and identify their contracts', async () => {
-  for (const [kind, file] of Object.entries(files)) {
+  for (const [kind, file] of Object.entries(files).filter(([kind]) => kind === 'catalog')) {
     const prompt = await read(file);
     const kit = JSON.parse(await read(`annotation-kits/${kind}-annotation-kit.json`));
     assert.ok(prompt.trim());
@@ -29,6 +29,15 @@ test('chat prompts exist, are complete, and identify their contracts', async () 
   }
 });
 
+test('request step two uses only source and selected kit', async () => {
+  const prompt = await read(files.request);
+  assert.match(prompt, /request-source\.json/);
+  assert.match(prompt, /request-selected-kit\.json/);
+  assert.match(prompt, /request_bundle/);
+  assert.match(prompt, /embedded `schemas_by_id`/);
+  assert.match(prompt, /Не используй исходный\s+PDF, full request kit/);
+});
+
 test('catalog prompt preserves source and records interpretation', async () => {
   const prompt = await read(files.catalog);
   for (const term of ['source.raw_fields', 'evidence', 'unknown_fields', 'ambiguities', 'RFC 6901']) {
@@ -40,11 +49,11 @@ test('catalog prompt preserves source and records interpretation', async () => {
 test('request prompt requires sparse constraints and explicit-only substitution', async () => {
   const prompt = await read(files.request);
   assert.match(prompt, /sparse constraints/);
-  assert.match(prompt, /только если он\s+явно написан/);
+  assert.match(prompt, /явно написанного/);
   assert.match(prompt, /"policy":"unspecified","explicit":false,"raw_text":null/);
 });
 
-test('operator workflow lists both three-attachment flows and validators', async () => {
+test('operator workflow lists catalog and two-step request attachments and validators', async () => {
   const workflow = await read('docs/CHAT_ANNOTATION_WORKFLOW.md');
   for (const file of [
     'CATALOG_ANNOTATION_PROMPT.md',
@@ -52,7 +61,10 @@ test('operator workflow lists both three-attachment flows and validators', async
     'REQUEST_ANNOTATION_PROMPT.md',
     'request-annotation-kit.json',
   ]) assert.ok(workflow.includes(file));
-  assert.match(workflow, /три (?:типа )?вложения/g);
+  assert.ok(workflow.includes('REQUEST_PREPARE_PROMPT.md'));
+  assert.ok(workflow.includes('request-source.json'));
+  assert.ok(workflow.includes('request-selected-kit.json'));
+  assert.match(workflow, /Обязательно откройте новый чат/);
   assert.ok(workflow.includes('npm run validate:catalog-bundle -- <file>'));
   assert.ok(workflow.includes('npm run validate:request-bundle -- <file>'));
 });
