@@ -9,8 +9,10 @@ PDF, full request kit, GitHub, web, catalog data или внешние исто�
 selected kit. Это промежуточный kit, а не новый production contract.
 Production root: `https://example.local/schemas/bundles/request-bundle.schema.json`.
 
-Сохрани все строки, их порядок и `line_id`; источником фактов служит только
-`request-source.lines[].raw_text`. Для routed-строки разрешены исключительно class ids из соответствующей `line_candidates` записи. При одном кандидате используй
+Сохрани все строки, их порядок и `line_id`. `raw_text` — единственный источник
+semantic product facts, `quantity_raw` — единственный источник quantity, а
+`source_position` — только source location. Не бери факты из памяти, catalog,
+web, названия schema или предположений о типовом товаре. Для routed-строки разрешены исключительно class ids из соответствующей `line_candidates` записи. При одном кандидате используй
 его, если он соответствует строке; при нескольких выбери только среди них по
 `raw_text`. Не ищи иной класс.
 
@@ -24,6 +26,50 @@ unknown, ambiguity и `substitution_statement` по неизменным product
 разрешения/запрета замены используй ровно
 `{"policy":"unspecified","explicit":false,"raw_text":null}`. Не выполняй
 matching или подбор, не создавай `product_id` или `offer_id`.
+
+## Статусы и sparse-заявки
+
+Ключевой принцип: **SPARSE REQUEST IS VALID**. Заявка не обязана заполнять все
+optional поля schema. Ставь `annotation.status = "validated"`, если `class_id`
+определён достаточно уверенно, каждый записанный в output semantic fact
+подтверждён source, нет blocking ambiguity и production contract violation, а
+фактически написанное заказчиком можно честно представить. Отсутствие
+необязательных характеристик этому не мешает.
+
+**Optional missing != unknown.** Если optional property отсутствует в source,
+не добавляй её в `unknown_fields` только потому, что она существует в schema.
+`unknown_fields` не является checklist всех schema properties, которые не
+удалось заполнить: он предназначен только для реально значимого unresolved
+source fact, когда существующая production semantics требует указать его как
+неизвестный. Поле, вообще не упомянутое source, просто отсутствует. Отсутствие
+optional field само по себе не означает `needs_review`.
+
+Используй `needs_review` только при реальной блокирующей неопределённости,
+мешающей безопасно представить semantic facts: например, при двух
+противоречивых значениях materially important field или когда смысл явно
+указанного размера существенно неоднозначен. Ambiguity с `blocking: false`
+сама по себе не заставляет ставить `needs_review`; строка может оставаться
+`validated`, если неоднозначный факт не записан как constraint, а остальные
+факты надёжны. При `blocking: true` строка не может быть `validated`. Если
+нельзя честно выбрать production class, используй существующий unsupported
+flow с `AMBIGUOUS_CLASS`, а не произвольный `class_id` и `needs_review`.
+
+Не выдумывай отсутствующие характеристики ради `validated`. Например, для
+`fitting.ppr` из «Фитинг полипропиленовый - тройник 20 мм» можно записать
+подтверждённые материал, construction и диаметры портов, но нельзя выводить
+типичный `connection_kind = socket_fusion`. Production schema разрешает sparse
+ports: у port обязателен `role`, а `connection_kind` optional, поэтому его
+отсутствие не блокирует строку. Аналогично отсутствие `body_material` или
+`handle_type` у «Кран шаровый муфтовый, полнопроходной DN25» и отсутствие
+`diameter_mm` у «Монтажная направляющая SL-E1 (1м)» не являются причиной
+`needs_review`, если source их не задаёт и иной blocking ambiguity нет.
+
+Семантика `invalid` не меняется: используй его при реальном production-contract
+conflict или непредставимом сочетании фактов (например, source явно задаёт
+трёхходовую геометрию, которую выбранная class schema не может представить).
+Не скрывай такой конфликт через `validated`. Unsupported semantics также не
+меняется: отсутствие подходящего taxonomy class означает `NO_TAXONOMY_CLASS`,
+а невозможность честно выбрать класс — `AMBIGUOUS_CLASS`.
 
 До выдачи программно проверь обычный production bundle. Если routing не покрывает source line ровно один раз, candidate отсутствует в selected
 kit, kit неполон или полный bundle построить нельзя — остановись, назови
