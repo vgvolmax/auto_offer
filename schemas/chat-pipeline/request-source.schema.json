@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/chat-pipeline/request-source.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "source_file", "line_count", "lines"],
+  "properties": {
+    "kind": { "const": "request_source" },
+    "source_file": { "type": "string", "minLength": 1 },
+    "line_count": { "type": "integer", "minimum": 1 },
+    "lines": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["line_id", "raw_text", "quantity_raw"],
+        "properties": {
+          "line_id": { "type": "string", "minLength": 1 },
+          "raw_text": { "type": "string", "minLength": 1 },
+          "quantity_raw": { "type": ["string", "null"] },
+          "source_position": {
+            "type": "object", "additionalProperties": false, "minProperties": 1,
+            "properties": {
+              "page": { "type": "integer", "minimum": 1 }, "row": { "type": "integer", "minimum": 1 },
+              "sheet": { "type": "string", "minLength": 1 }, "cell": { "type": "string", "minLength": 1 },
+              "bounding_box": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "number" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}

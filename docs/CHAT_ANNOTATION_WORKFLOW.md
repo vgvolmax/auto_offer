@@ -14,19 +14,36 @@
 
 ## Разметка заявки
 
-1. Откройте новый чат.
-2. Прикрепите три вложения:
-   - `REQUEST_ANNOTATION_PROMPT.md`;
-   - `request-annotation-kit.json`;
-   - заявку.
-3. Отправьте: `Выполни инструкцию из приложенного промпта и создай готовые JSON-файлы.`
-4. Скачайте JSON.
-5. Проверьте файл: `npm run validate:request-bundle -- <file>`.
-6. Загрузите валидный файл в приложение.
+### Шаг 1 — подготовка
+
+1. Откройте новый чат и приложите `REQUEST_PREPARE_PROMPT.md`, полный
+   `request-annotation-kit.json` и исходную заявку.
+2. Отправьте: `Выполни подготовку заявки по приложенному промпту и создай два готовых JSON-файла.`
+3. Скачайте `request-source.json` и `request-selected-kit.json`.
+4. В dev workflow проверьте их:
+   - `npm run validate:request-source -- request-source.json`;
+   - `npm run validate:request-selected-kit -- request-annotation-kit.json request-selected-kit.json request-source.json`.
+
+Если taxonomy не представляет строку, routing нельзя «исправлять» выдуманным
+классом: подготовка должна остановиться.
+
+### Шаг 2 — разметка
+
+1. **Обязательно откройте новый чат.** Не продолжайте чат первого шага. Так
+   исходный документ и полный kit не останутся в контексте semantic annotation.
+2. Приложите `REQUEST_ANNOTATION_PROMPT.md`, `request-source.json` и
+   `request-selected-kit.json` — без исходной заявки и полного kit.
+3. Отправьте: `Выполни разметку заявки по приложенному промпту и создай готовый request_bundle JSON.`
+4. Скачайте final bundle и проверьте его полной production-командой:
+   `npm run validate:request-bundle -- <file>`.
+5. Только после успешной production validation загрузите bundle в Auto Offer.
 
 ## Исправление ошибок
 
-При exit code 1 сохраните диагностический JSON. Верните его в тот же чат вместе
+При exit code 1 сохраните диагностический JSON. Для request bundle верните его
+вместе с final bundle именно в чат STEP 2 (не возвращайтесь к PDF). Попросите
+исправить **только** диагностированные ошибки без полной переразметки. Для
+остальных bundle верните diagnostic в исходный чат вместе
 с полученным bundle и попросите исправить **только** указанные ошибки, без
 повторного толкования уже подтверждённых исходных данных. Скачайте исправленный
 файл и повторно запустите соответствующий validator.
