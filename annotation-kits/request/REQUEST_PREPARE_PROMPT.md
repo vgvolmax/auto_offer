@@ -5,10 +5,63 @@
 web, catalog data или внешним источникам. Kit — единственный источник
 допустимых `class_id` и contracts.
 
-Создай два скачиваемых UTF-8 JSON-файла: `request-source.json` по
-`schemas/chat-pipeline/request-source.schema.json` и
-`request-selected-kit.json` по
-`schemas/chat-pipeline/request-selected-kit.schema.json`.
+Создай два скачиваемых UTF-8 JSON-файла: `request-source.json` и
+`request-selected-kit.json`. Их точные обязательные top-level structures
+заданы ниже; другие файлы или schemas не нужны.
+
+### Форма `request-source.json`
+
+```json
+{
+  "kind": "request_source",
+  "source_file": "<имя исходного файла>",
+  "line_count": 1,
+  "lines": [
+    {
+      "line_id": "1",
+      "raw_text": "<исходный текст товарной позиции>",
+      "quantity_raw": null,
+      "source_position": {
+        "page": 1
+      }
+    }
+  ]
+}
+```
+
+Обязательны ровно четыре top-level поля: `kind`, `source_file`,
+`line_count`, `lines`; никаких других top-level fields. В каждой
+строке обязательны `line_id`, `raw_text`, `quantity_raw`;
+`source_position` optional. `quantity_raw` имеет тип string или `null`.
+Всегда `line_count === lines.length`.
+
+### Форма `request-selected-kit.json`
+
+```json
+{
+  "kind": "request_selected_annotation_kit",
+  "source_kit_version": "<fullKit.kit_version>",
+  "taxonomy_version": "<fullKit.taxonomy_version>",
+  "annotation_schema_version": "<fullKit.annotation_schema_version>",
+  "bundle_schema_version": "<fullKit.bundle_schema_version>",
+  "root_schema_id": "<fullKit.root_schema_id>",
+  "selected_class_ids": [],
+  "line_candidates": [],
+  "taxonomy": {},
+  "class_schema_ids": {},
+  "schemas_by_id": {}
+}
+```
+
+Эти 11 top-level полей обязательны, другие top-level fields
+запрещены. `source_kit_version` копируется из `fullKit.kit_version`;
+`taxonomy_version`, `annotation_schema_version`, `bundle_schema_version` и
+`root_schema_id` копируются из одноимённых полей full kit.
+`taxonomy.class_count` равен количеству selected classes, а
+`taxonomy.classes` содержит только selected classes.
+`class_schema_ids` содержит только selected classes. Schemas копируются
+из full kit без semantic изменений; dispatcher изменяется только
+фильтрацией `oneOf`.
 
 ## Оцифровка
 
