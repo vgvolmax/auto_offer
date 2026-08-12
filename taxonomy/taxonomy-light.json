@@ -1,0 +1,379 @@
+{
+  "class_count": 41,
+  "classes": [
+    {
+      "class_id": "accessory.floor_heating",
+      "definition_ru": "Комплектующие системы тёплого пола, не являющиеся трубами, коллекторами, арматурой или инструментом.",
+      "exclude_rules_ru": [
+        "Трубы",
+        "Коллекторы",
+        "Клапаны",
+        "Монтажный инструмент"
+      ],
+      "family_id": "floor_heating",
+      "include_rules_ru": [],
+      "name_ru": "Комплектующее тёплого пола"
+    },
+    {
+      "class_id": "accessory.pipe.protection",
+      "definition_ru": "Защитное комплектующее для труб",
+      "exclude_rules_ru": [],
+      "family_id": "pipe_protection",
+      "include_rules_ru": [],
+      "name_ru": "Защитное комплектующее для труб"
+    },
+    {
+      "class_id": "accessory.sanitary.pipe_rosette",
+      "definition_ru": "Сантехническая трубная розетка",
+      "exclude_rules_ru": [],
+      "family_id": "sanitary_accessories",
+      "include_rules_ru": [],
+      "name_ru": "Сантехническая трубная розетка"
+    },
+    {
+      "class_id": "accessory.valve_box",
+      "definition_ru": "Клапанный бокс",
+      "exclude_rules_ru": [
+        "Функциональные клапаны и краны"
+      ],
+      "family_id": "valve_accessories",
+      "include_rules_ru": [],
+      "name_ru": "Клапанный бокс"
+    },
+    {
+      "class_id": "conduit.corrugated",
+      "definition_ru": "Защитная гофрированная оболочка",
+      "exclude_rules_ru": [
+        "Напорные трубы ПНД"
+      ],
+      "family_id": "protection",
+      "include_rules_ru": [],
+      "name_ru": "Защитная гофрированная оболочка"
+    },
+    {
+      "class_id": "consumable.plumbing",
+      "definition_ru": "Сантехнический расходный материал",
+      "exclude_rules_ru": [
+        "Жидкие герметики",
+        "Теплоносители"
+      ],
+      "family_id": "consumables",
+      "include_rules_ru": [],
+      "name_ru": "Сантехнический расходный материал"
+    },
+    {
+      "class_id": "drain.floor",
+      "definition_ru": "Сливной трап",
+      "exclude_rules_ru": [],
+      "family_id": "drainage",
+      "include_rules_ru": [],
+      "name_ru": "Сливной трап"
+    },
+    {
+      "class_id": "fire_collar.pipe",
+      "definition_ru": "Противопожарная муфта для труб",
+      "exclude_rules_ru": [],
+      "family_id": "fire_protection",
+      "include_rules_ru": [],
+      "name_ru": "Противопожарная муфта для труб"
+    },
+    {
+      "class_id": "fitting.axial",
+      "definition_ru": "Аксиальный фитинг",
+      "exclude_rules_ru": [],
+      "family_id": "pressure_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Аксиальный фитинг"
+    },
+    {
+      "class_id": "fitting.brass.threaded",
+      "definition_ru": "Резьбовой латунный фитинг",
+      "exclude_rules_ru": [
+        "Краны и клапаны"
+      ],
+      "family_id": "threaded_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Резьбовой латунный фитинг"
+    },
+    {
+      "class_id": "fitting.compression.hdpe",
+      "definition_ru": "Компрессионный фитинг для ПНД",
+      "exclude_rules_ru": [
+        "Шаровые краны",
+        "Клапанные боксы"
+      ],
+      "family_id": "pressure_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Компрессионный фитинг для ПНД"
+    },
+    {
+      "class_id": "fitting.compression.multilayer",
+      "definition_ru": "Обжимной фитинг для многослойной трубы",
+      "exclude_rules_ru": [],
+      "family_id": "pressure_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Обжимной фитинг для многослойной трубы"
+    },
+    {
+      "class_id": "fitting.ppr",
+      "definition_ru": "Фитинг PP-R",
+      "exclude_rules_ru": [
+        "Клапаны",
+        "Коллекторы",
+        "Опоры",
+        "Аксессуары"
+      ],
+      "family_id": "pressure_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Фитинг PP-R"
+    },
+    {
+      "class_id": "fitting.radial",
+      "definition_ru": "Радиальный пресс-фитинг",
+      "exclude_rules_ru": [],
+      "family_id": "pressure_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Радиальный пресс-фитинг"
+    },
+    {
+      "class_id": "fitting.sewer.external",
+      "definition_ru": "Фитинг наружной канализации",
+      "exclude_rules_ru": [],
+      "family_id": "sewer_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Фитинг наружной канализации"
+    },
+    {
+      "class_id": "fitting.sewer.internal",
+      "definition_ru": "Фитинг внутренней канализации",
+      "exclude_rules_ru": [],
+      "family_id": "sewer_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Фитинг внутренней канализации"
+    },
+    {
+      "class_id": "fitting.sewer.low_noise",
+      "definition_ru": "Фитинг малошумной канализации",
+      "exclude_rules_ru": [],
+      "family_id": "sewer_fittings",
+      "include_rules_ru": [],
+      "name_ru": "Фитинг малошумной канализации"
+    },
+    {
+      "class_id": "fluid.heat_transfer",
+      "definition_ru": "Теплоноситель и антифриз",
+      "exclude_rules_ru": [],
+      "family_id": "fluids",
+      "include_rules_ru": [],
+      "name_ru": "Теплоноситель и антифриз"
+    },
+    {
+      "class_id": "insulation.pipe",
+      "definition_ru": "Теплоизоляция для труб",
+      "exclude_rules_ru": [],
+      "family_id": "insulation",
+      "include_rules_ru": [],
+      "name_ru": "Теплоизоляция для труб"
+    },
+    {
+      "class_id": "manifold.accessory",
+      "definition_ru": "Комплектующее коллектора",
+      "exclude_rules_ru": [],
+      "family_id": "manifolds",
+      "include_rules_ru": [],
+      "name_ru": "Комплектующее коллектора"
+    },
+    {
+      "class_id": "manifold.distribution",
+      "definition_ru": "Самостоятельный распределительный коллектор без обязательного полного комплекта управления контурами.",
+      "exclude_rules_ru": [],
+      "family_id": "manifolds",
+      "include_rules_ru": [],
+      "name_ru": "Распределительный коллектор"
+    },
+    {
+      "class_id": "manifold.group",
+      "definition_ru": "Комплектная группа с регулирующей или измерительной оснасткой.",
+      "exclude_rules_ru": [],
+      "family_id": "manifolds",
+      "include_rules_ru": [],
+      "name_ru": "Коллекторная группа"
+    },
+    {
+      "class_id": "pipe.hdpe",
+      "definition_ru": "Труба ПНД",
+      "exclude_rules_ru": [],
+      "family_id": "pressure_pipes",
+      "include_rules_ru": [],
+      "name_ru": "Труба ПНД"
+    },
+    {
+      "class_id": "pipe.multilayer",
+      "definition_ru": "Многослойная труба",
+      "exclude_rules_ru": [],
+      "family_id": "pressure_pipes",
+      "include_rules_ru": [],
+      "name_ru": "Многослойная труба"
+    },
+    {
+      "class_id": "pipe.pert",
+      "definition_ru": "Труба PE-RT",
+      "exclude_rules_ru": [],
+      "family_id": "pressure_pipes",
+      "include_rules_ru": [],
+      "name_ru": "Труба PE-RT"
+    },
+    {
+      "class_id": "pipe.pex_a",
+      "definition_ru": "Труба PE-Xa",
+      "exclude_rules_ru": [],
+      "family_id": "pressure_pipes",
+      "include_rules_ru": [],
+      "name_ru": "Труба PE-Xa"
+    },
+    {
+      "class_id": "pipe.ppr",
+      "definition_ru": "Труба PP-R",
+      "exclude_rules_ru": [],
+      "family_id": "pressure_pipes",
+      "include_rules_ru": [],
+      "name_ru": "Труба PP-R"
+    },
+    {
+      "class_id": "pipe.sewer.external",
+      "definition_ru": "Труба наружной канализации",
+      "exclude_rules_ru": [],
+      "family_id": "sewer_pipes",
+      "include_rules_ru": [],
+      "name_ru": "Труба наружной канализации"
+    },
+    {
+      "class_id": "pipe.sewer.internal",
+      "definition_ru": "Труба внутренней канализации",
+      "exclude_rules_ru": [],
+      "family_id": "sewer_pipes",
+      "include_rules_ru": [],
+      "name_ru": "Труба внутренней канализации"
+    },
+    {
+      "class_id": "pipe.sewer.low_noise",
+      "definition_ru": "Малошумная канализационная труба",
+      "exclude_rules_ru": [],
+      "family_id": "sewer_pipes",
+      "include_rules_ru": [],
+      "name_ru": "Малошумная канализационная труба"
+    },
+    {
+      "class_id": "sanitary.connector",
+      "definition_ru": "Санитарный соединитель и сифон",
+      "exclude_rules_ru": [],
+      "family_id": "sanitary_drainage",
+      "include_rules_ru": [],
+      "name_ru": "Санитарный соединитель и сифон"
+    },
+    {
+      "class_id": "seal.sewer",
+      "definition_ru": "Уплотнение канализации",
+      "exclude_rules_ru": [],
+      "family_id": "sewer_accessories",
+      "include_rules_ru": [],
+      "name_ru": "Уплотнение канализации"
+    },
+    {
+      "class_id": "sealant.plumbing",
+      "definition_ru": "Сантехнический герметик",
+      "exclude_rules_ru": [
+        "Лён",
+        "Нить",
+        "PTFE-лента",
+        "Смазка",
+        "Очиститель",
+        "Теплоноситель"
+      ],
+      "family_id": "consumables",
+      "include_rules_ru": [],
+      "name_ru": "Сантехнический герметик"
+    },
+    {
+      "class_id": "support.pipe",
+      "definition_ru": "Крепление и опора для труб",
+      "exclude_rules_ru": [
+        "Уплотнения канализации",
+        "Противопожарные муфты",
+        "Защитные втулки"
+      ],
+      "family_id": "mounting_accessories",
+      "include_rules_ru": [],
+      "name_ru": "Крепление и опора для труб"
+    },
+    {
+      "class_id": "tool.mounting",
+      "definition_ru": "Инструмент для монтажа труб",
+      "exclude_rules_ru": [],
+      "family_id": "tools",
+      "include_rules_ru": [],
+      "name_ru": "Инструмент для монтажа труб"
+    },
+    {
+      "class_id": "valve.ball",
+      "definition_ru": "Кран шаровой",
+      "exclude_rules_ru": [],
+      "family_id": "valves",
+      "include_rules_ru": [],
+      "name_ru": "Кран шаровой"
+    },
+    {
+      "class_id": "valve.check",
+      "definition_ru": "Обратный клапан",
+      "exclude_rules_ru": [],
+      "family_id": "valves",
+      "include_rules_ru": [],
+      "name_ru": "Обратный клапан"
+    },
+    {
+      "class_id": "valve.outdoor_tap",
+      "definition_ru": "Уличный и поливочный кран",
+      "exclude_rules_ru": [],
+      "family_id": "valves",
+      "include_rules_ru": [],
+      "name_ru": "Уличный и поливочный кран"
+    },
+    {
+      "class_id": "valve.pressure_control",
+      "definition_ru": "Клапан регулирования давления",
+      "exclude_rules_ru": [],
+      "family_id": "valves",
+      "include_rules_ru": [],
+      "name_ru": "Клапан регулирования давления"
+    },
+    {
+      "class_id": "valve.radiator",
+      "definition_ru": "Радиаторный клапан",
+      "exclude_rules_ru": [],
+      "family_id": "valves",
+      "include_rules_ru": [],
+      "name_ru": "Радиаторный клапан"
+    },
+    {
+      "class_id": "valve.shutoff.generic",
+      "definition_ru": "Запорный вентиль общего назначения",
+      "exclude_rules_ru": [
+        "Шаровые краны",
+        "Обратные клапаны",
+        "Радиаторные клапаны",
+        "Редукторы давления",
+        "Уличные краны",
+        "Коллекторы",
+        "Фитинги"
+      ],
+      "family_id": "valves",
+      "include_rules_ru": [],
+      "name_ru": "Запорный вентиль общего назначения"
+    }
+  ],
+  "kind": "taxonomy_light",
+  "schema_version": "1.0.0",
+  "status": "production",
+  "taxonomy_schema_version": "1.0.0",
+  "taxonomy_version": "1.0.0"
+}
