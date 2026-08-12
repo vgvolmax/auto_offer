@@ -46,12 +46,11 @@ export function buildSelectedRequestKit(fullKit, selectedClassIds, lineCandidate
 }
 
 export function validateSelectedRequestKit(fullKit, selectedKit, source) {
+  if (!source) fail('request-source is required');
   const expected = buildSelectedRequestKit(fullKit, selectedKit.selected_class_ids, selectedKit.line_candidates);
   if (!isDeepStrictEqual(stable(selectedKit), expected)) fail('Selected kit is not the canonical full-kit projection (version, taxonomy, schema, dispatcher, or dependency tampering detected)');
-  if (source) {
-    const sourceIds = source.lines.map((line) => line.line_id);
-    const candidateIds = selectedKit.line_candidates.map((line) => line.line_id);
-    if (!isDeepStrictEqual(candidateIds, sourceIds)) fail('line_candidates must correspond exactly, and in order, to request-source lines');
-  }
+  const sourceIds = source.lines.map((line) => line.line_id);
+  const candidateIds = selectedKit.line_candidates.map((line) => line.line_id);
+  if (!isDeepStrictEqual(candidateIds, sourceIds)) fail('line_candidates must correspond exactly, and in order, to request-source lines');
   return true;
 }

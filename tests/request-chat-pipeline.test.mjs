@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
@@ -42,5 +43,13 @@ test('selected request kit is stable, closed, filtered, and tamper evident', asy
     [{ line_id: '1', class_ids: ['valve.ball', 'valve.ball'] }],
     [{ line_id: '1', class_ids: ['not.real'] }],
   ]) assert.throws(() => buildSelectedRequestKit(full, [...new Set(invalid.flatMap((x) => x.class_ids))], invalid));
-  assert.throws(() => validateSelectedRequestKit(full, selected, { ...source, lines: source.lines.slice(0, 1) }), /exactly/);
+  assert.throws(() => validateSelectedRequestKit(full, selected), /required/);
+  assert.throws(() => validateSelectedRequestKit(full, selected, { ...source, line_count: 3, lines: [...source.lines, { line_id: '3', raw_text: 'Extra', quantity_raw: null }] }), /exactly/);
+  assert.throws(() => validateSelectedRequestKit(full, selected, { ...source, lines: [{ ...source.lines[0], line_id: 'unknown' }, source.lines[1]] }), /exactly/);
+});
+
+test('selected-kit CLI requires request source', () => {
+  const result = spawnSync(process.execPath, ['scripts/chat-pipeline/validate-request-selected-kit.mjs', 'full.json', 'selected.json'], { cwd: new URL('..', import.meta.url), encoding: 'utf8' });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Usage: validate:request-selected-kit -- <full-kit\.json> <selected-kit\.json> <request-source\.json>/);
 });
