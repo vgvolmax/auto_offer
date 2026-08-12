@@ -85,6 +85,7 @@ test('request prompt requires sparse constraints and explicit-only substitution'
 
 test('request prompt treats omitted optional properties as valid sparse input', async () => {
   const prompt = await read(files.request);
+  const normalized = prompt.replace(/\r\n/g, '\n');
   for (const marker of [
     'SPARSE REQUEST IS VALID',
     'Optional missing != unknown',
@@ -92,7 +93,7 @@ test('request prompt treats omitted optional properties as valid sparse input', 
     'Отсутствие\noptional field само по себе не означает `needs_review`',
     'Ambiguity с `blocking: false`\nсама по себе не заставляет ставить `needs_review`',
     'Не выдумывай отсутствующие характеристики ради `validated`',
-  ]) assert.ok(prompt.includes(marker), `annotation prompt must include ${marker}`);
+  ]) assert.ok(normalized.includes(marker), `annotation prompt must include ${marker}`);
 });
 
 test('operator workflow lists catalog and two-step request attachments and validators', async () => {
