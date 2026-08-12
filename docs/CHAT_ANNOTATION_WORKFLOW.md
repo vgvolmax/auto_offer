@@ -24,8 +24,7 @@
    - `npm run validate:request-source -- request-source.json`;
    - `npm run validate:request-selected-kit -- request-annotation-kit.json request-selected-kit.json request-source.json`.
 
-Если taxonomy не представляет строку, routing нельзя «исправлять» выдуманным
-классом: подготовка должна остановиться.
+Результат вида «39 source lines, 38 routed lines, 1 unsupported line» — успешный STEP 1: продолжайте STEP 2, не удаляя позицию. Непредставимую taxonomy строку нельзя «исправлять» выдуманным классом; она маршрутизируется в `unsupported_lines`.
 
 ### Шаг 2 — разметка
 

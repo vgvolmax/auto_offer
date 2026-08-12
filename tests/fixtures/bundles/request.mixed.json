@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "request_bundle",
+  "taxonomy_version": "1.0.0",
+  "annotation_kit_version": "1.0.0",
+  "source": {
+    "source_file_name": "Синтетическая заявка.xlsx",
+    "source_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "annotated_at": "2026-07-29T12:00:00Z",
+    "line_count": 2
+  },
+  "request_document": {
+    "schema_version": "1.1.0",
+    "taxonomy_version": "1.0.0",
+    "request_id": "request-001",
+    "document": {
+      "source_file": "Синтетическая заявка.xlsx",
+      "document_type": "product_request"
+    },
+    "lines": [
+      {
+        "annotation": {
+          "ambiguities": [],
+          "evidence": [
+            {
+              "json_pointer": "/class_id",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/constraints/attributes/body_material",
+              "source_text": "synthetic evidence"
+            },
+            {
+              "json_pointer": "/quantity",
+              "source_text": "10 шт"
+            }
+          ],
+          "issues": [],
+          "status": "validated",
+          "unknown_fields": []
+        },
+        "class_id": "valve.ball",
+        "constraints": {
+          "attributes": {
+            "body_material": {
+              "operator": "eq",
+              "value": "aluminum"
+            }
+          },
+          "ports": []
+        },
+        "line_id": "request-valve.ball",
+        "raw_text": "Синтетическая заявка: Кран шаровой",
+        "requested_identity": {},
+        "substitution_statement": {
+          "explicit": false,
+          "policy": "unspecified",
+          "raw_text": null
+        },
+        "quantity": {
+          "value": 10,
+          "unit": "piece"
+        }
+      },
+      {
+        "line_id": "2",
+        "raw_text": "Труба 20x2, 12X18H10T",
+        "quantity": {
+          "value": 10,
+          "unit": "meter"
+        },
+        "source_position": {
+          "page": 1,
+          "row": 2
+        },
+        "annotation": {
+          "status": "unsupported",
+          "reason_code": "NO_TAXONOMY_CLASS"
+        }
+      }
+    ]
+  }
+}

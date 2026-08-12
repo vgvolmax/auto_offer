@@ -86,7 +86,8 @@
         "CATALOG_NOT_SELECTED",
         "MATCH_LEVEL_NOT_ALLOWED",
         "EQUIVALENT_RULE_APPLIED",
-        "ALTERNATIVE_RULE_APPLIED"
+        "ALTERNATIVE_RULE_APPLIED",
+        "REQUEST_UNSUPPORTED"
       ]
     },
     "catalogRef": {
@@ -325,7 +326,8 @@
             "excluded_by_policy",
             "no_match",
             "request_review_required",
-            "request_invalid"
+            "request_invalid",
+            "request_unsupported"
           ]
         },
         "candidates": {

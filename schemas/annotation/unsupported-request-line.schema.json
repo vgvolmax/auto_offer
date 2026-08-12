@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/annotation/unsupported-request-line.schema.json",
+  "title": "Unsupported request line",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["line_id", "raw_text", "annotation"],
+  "properties": {
+    "line_id": { "type": "string", "minLength": 1 },
+    "raw_text": { "type": "string" },
+    "quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit"],
+      "properties": {
+        "value": { "type": "number", "exclusiveMinimum": 0 },
+        "unit": { "$ref": "common.schema.json#/$defs/canonicalQuantityUnit" }
+      }
+    },
+    "source_position": { "$ref": "common.schema.json#/$defs/sourcePosition" },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason_code"],
+      "properties": {
+        "status": { "const": "unsupported" },
+        "reason_code": { "enum": ["NO_TAXONOMY_CLASS", "AMBIGUOUS_CLASS", "UNCLASSIFIABLE_SOURCE"] }
+      }
+    }
+  }
+}

@@ -32,7 +32,12 @@ function reviewRequiredLine(request) {
   return { line_id: request.line_id, resolution: determineResolution([], [], false), candidates: [], excluded_candidates: [], rejection_summary: [{ code: 'REQUEST_REVIEW_REQUIRED', count: 1 }] };
 }
 
+function unsupportedLine(request) {
+  return { line_id: request.line_id, resolution: 'request_unsupported', candidates: [], excluded_candidates: [], rejection_summary: [{ code: 'REQUEST_UNSUPPORTED', count: 1 }] };
+}
+
 function matchLine(request, catalogIndex, policy, registry) {
+  if (request.annotation_status === 'unsupported') return unsupportedLine(request);
   if (request.annotation_status !== 'validated') return reviewRequiredLine(request);
 
   const maximumLevel = effectiveMaximumMatchLevel(request.substitution_statement, policy.max_match_level);

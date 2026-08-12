@@ -36,9 +36,10 @@ test('dispatchers reference every class exactly once', async () => {
   const catalog = await json('schemas/annotation/generated/catalog-item.dispatch.schema.json');
   const request = await json('schemas/annotation/generated/request-line.dispatch.schema.json');
   assert.equal(catalog.oneOf.length, 41);
-  assert.equal(request.oneOf.length, 41);
+  assert.equal(request.oneOf.length, 42);
   assert.equal(new Set(catalog.oneOf.map(item => item.$ref)).size, 41);
-  assert.equal(new Set(request.oneOf.map(item => item.$ref)).size, 41);
+  assert.equal(new Set(request.oneOf.map(item => item.$ref)).size, 42);
+  assert.equal(request.oneOf[0].$ref, '../unsupported-request-line.schema.json');
 });
 
 test('registry declares repeatable pipe_end only for pressure pipe classes', async () => {

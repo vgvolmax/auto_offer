@@ -16,7 +16,7 @@ export interface RequestBundle {
       raw_text: string;
       quantity?: { value: number; unit: string };
       class_id?: string;
-      annotation?: { status?: string };
+      annotation?: { status?: string; reason_code?: string };
     }>;
   };
   [key: string]: unknown;
@@ -44,6 +44,7 @@ interface SessionRecordBase {
   lineCount: number;
   validatedCount: number;
   needsReviewCount: number;
+  unsupportedCount: number;
   catalogRefs: Array<{
     recordId: string;
     catalogId: string;
@@ -68,6 +69,7 @@ export type StoredSessionRecord = Omit<
   | "matchingSettings"
   | "matchingRevision"
   | "latestMatchRunId"
+  | "unsupportedCount"
 > &
   Partial<
     Pick<
@@ -76,6 +78,7 @@ export type StoredSessionRecord = Omit<
       | "matchingSettings"
       | "matchingRevision"
       | "latestMatchRunId"
+      | "unsupportedCount"
     >
   > & { status?: SessionStatus; confirmation?: SessionConfirmation };
 
@@ -103,6 +106,9 @@ export function normalizeSessionRecord(
     ),
     matchingRevision: record.matchingRevision ?? 0,
     latestMatchRunId: record.latestMatchRunId ?? null,
+    unsupportedCount: record.requestBundle.request_document.lines.filter(
+      (line) => line.annotation?.status === "unsupported",
+    ).length,
   };
   if (record.status === "confirmed") return { ...base, status: "confirmed", confirmation: normalizeConfirmation(record.confirmation) };
   return { ...base, status: "draft", confirmation: undefined };
@@ -130,6 +136,8 @@ export function createDraftSession(
     lineCount: bundle.request_document.lines.length,
     validatedCount: statuses.filter((status) => status === "validated").length,
     needsReviewCount: statuses.filter((status) => status === "needs_review")
+      .length,
+    unsupportedCount: statuses.filter((status) => status === "unsupported")
       .length,
     catalogRefs: catalogs.map(({ recordId, catalogId, sourceSha256 }) => ({
       recordId,

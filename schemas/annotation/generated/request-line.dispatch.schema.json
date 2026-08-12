@@ -3,6 +3,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "oneOf": [
     {
+      "$ref": "../unsupported-request-line.schema.json"
+    },
+    {
       "$ref": "../class-specific/accessory.floor_heating.request.schema.json"
     },
     {

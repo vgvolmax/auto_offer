@@ -10566,6 +10566,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "oneOf": [
         {
+          "$ref": "../unsupported-request-line.schema.json"
+        },
+        {
           "$ref": "../class-specific/accessory.floor_heating.request.schema.json"
         },
         {
@@ -10969,6 +10972,67 @@
         "annotation"
       ],
       "title": "Base AI request line annotation (building block)",
+      "type": "object"
+    },
+    "https://example.local/schemas/annotation/unsupported-request-line.schema.json": {
+      "$id": "https://example.local/schemas/annotation/unsupported-request-line.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "annotation": {
+          "additionalProperties": false,
+          "properties": {
+            "reason_code": {
+              "enum": [
+                "NO_TAXONOMY_CLASS",
+                "AMBIGUOUS_CLASS",
+                "UNCLASSIFIABLE_SOURCE"
+              ]
+            },
+            "status": {
+              "const": "unsupported"
+            }
+          },
+          "required": [
+            "status",
+            "reason_code"
+          ],
+          "type": "object"
+        },
+        "line_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "quantity": {
+          "additionalProperties": false,
+          "properties": {
+            "unit": {
+              "$ref": "common.schema.json#/$defs/canonicalQuantityUnit"
+            },
+            "value": {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "value",
+            "unit"
+          ],
+          "type": "object"
+        },
+        "raw_text": {
+          "type": "string"
+        },
+        "source_position": {
+          "$ref": "common.schema.json#/$defs/sourcePosition"
+        }
+      },
+      "required": [
+        "line_id",
+        "raw_text",
+        "annotation"
+      ],
+      "title": "Unsupported request line",
       "type": "object"
     },
     "https://example.local/schemas/bundles/annotation-bundle-manifest.schema.json": {

@@ -110,3 +110,13 @@ test('matcher index excludes invalid and unsupported while preserving needs-revi
   assert.equal(manual.lines[0].candidates.find(x=>x.offer_ref.source_item_id==='review-item').availability,'manual_only');
   assert.equal(JSON.stringify(manual).includes('invalid-item'),false);assert.equal(JSON.stringify(manual).includes('unsupported-item'),false);
 });
+test('unsupported request line remains in result without matching candidates', async () => {
+  const fixture = await loadGoldenScenario('tests/fixtures/matching/golden/D1-single-exact');
+  const input = { requestBundle: structuredClone(fixture.request), catalogs: fixture.catalogs.map(({ input, bundle }) => ({ catalogRecordId: input.catalog_record_id, bundle })), policy: fixture.policy, registry: pilotRegistry, engineVersion: 'pilot-1.0.0' };
+  input.requestBundle.request_document.lines.push({ line_id: 'unsupported-2', raw_text: 'Труба 20x2, 12X18H10T', annotation: { status: 'unsupported', reason_code: 'NO_TAXONOMY_CLASS' } });
+  input.requestBundle.source.line_count++;
+  const result = await runPilotMatcher(input);
+  assert.equal(result.lines.length, 2); assert.ok(result.lines[0].candidates.length > 0);
+  assert.deepEqual(result.lines[1], { line_id: 'unsupported-2', resolution: 'request_unsupported', candidates: [], excluded_candidates: [], rejection_summary: [{ code: 'REQUEST_UNSUPPORTED', count: 1 }] });
+  const schemas = await loadMatchingSchemas(); assert.equal(schemas.result(result), true, JSON.stringify(schemas.result.errors));
+});
