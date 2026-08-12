@@ -38,18 +38,20 @@ test('request step two uses only source and selected kit', async () => {
   assert.match(prompt, /Не используй исходный\s+PDF, full request kit/);
 });
 
-test('request preparation prompt defines both intermediate artifact shapes', async () => {
+test('request preparation prompt defines source and routing artifact shapes', async () => {
   const prompt = await read('annotation-kits/request/REQUEST_PREPARE_PROMPT.md');
+  for (const file of ['taxonomy-light.json', 'request-source.json', 'request-routing.json']) assert.ok(prompt.includes(file));
   for (const key of ['kind', 'source_file', 'line_count', 'lines']) {
     assert.ok(prompt.includes(`"${key}"`), `request source shape must include ${key}`);
   }
-  for (const key of [
-    'kind', 'source_kit_version', 'taxonomy_version', 'annotation_schema_version',
-    'bundle_schema_version', 'root_schema_id', 'selected_class_ids', 'line_candidates',
-    'taxonomy', 'class_schema_ids', 'schemas_by_id',
-  ]) assert.ok(prompt.includes(`"${key}"`), `selected kit shape must include ${key}`);
+  for (const key of ['routes', 'decision', 'class_ids', 'reason_code']) {
+    assert.ok(prompt.includes(`"${key}"`), `routing shape must include ${key}`);
+  }
   assert.match(prompt, /line_count === lines\.length/);
-  assert.match(prompt, /source_kit_version.*fullKit\.kit_version/);
+  assert.match(prompt, /Не создавай `request-selected-kit\.json`/);
+  assert.doesNotMatch(prompt, /Создай[^.\n]*`request-selected-kit\.json`/);
+  assert.match(prompt, /ровно `class_ids`/);
+  assert.match(prompt, /Aliases `candidate_class_ids`/);
 });
 
 test('request preparation preserves the complete logical table row', async () => {
@@ -65,6 +67,8 @@ test('request preparation preserves the complete logical table row', async () =>
     '«или эквивалент»',
     'lossless serialization',
     'Количество остаётся отдельно в `quantity_raw`',
+    'Повторяющиеся или параллельные страницы/секции читай независимо',
+    'Запрещено копировать или переносить semantic values',
   ]) assert.ok(normalized.includes(marker), `preparation prompt must include ${marker}`);
 });
 
