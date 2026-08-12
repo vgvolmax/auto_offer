@@ -24,6 +24,12 @@
    - `npm run validate:request-source -- request-source.json`;
    - `npm run validate:request-selected-kit -- request-annotation-kit.json request-selected-kit.json request-source.json`.
 
+Для табличного PDF перед STEP 2 выборочно сопоставьте 2–3 строки
+`request-source.json` с исходной таблицей. Если source row содержала
+model/article, manufacturer или note, а `raw_text` сохранил только
+«Наименование», STEP 1 выполнен некорректно. Не продолжайте STEP 2 с
+потерянным source context: повторите STEP 1.
+
 Результат вида «39 source lines, 38 routed lines, 1 unsupported line» — успешный STEP 1: продолжайте STEP 2, не удаляя позицию. Непредставимую taxonomy строку нельзя «исправлять» выдуманным классом; она маршрутизируется в `unsupported_lines`.
 
 ### Шаг 2 — разметка
@@ -36,6 +42,10 @@
 4. Скачайте final bundle и проверьте его полной production-командой:
    `npm run validate:request-bundle -- <file>`.
 5. Только после успешной production validation загрузите bundle в Auto Offer.
+
+При диагностике помните: `needs_review` означает реальную блокирующую
+неопределённость, а не просто неполно заполненный schema object. Sparse-строка
+с уверенным `class_id` может иметь статус `validated`.
 
 ## Исправление ошибок
 

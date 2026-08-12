@@ -52,6 +52,22 @@ test('request preparation prompt defines both intermediate artifact shapes', asy
   assert.match(prompt, /source_kit_version.*fullKit\.kit_version/);
 });
 
+test('request preparation preserves the complete logical table row', async () => {
+  const prompt = await read('annotation-kits/request/REQUEST_PREPARE_PROMPT.md');
+  const normalized = prompt.replaceAll('**', '').replace(/\s+/g, ' ');
+  for (const marker of [
+    'вся логическая строка таблицы',
+    'все непустые product-defining cells',
+    'только из значения «Наименование»',
+    '«Тип/марка»',
+    '«Производитель», «Изготовитель»',
+    '«Примечание»',
+    '«или эквивалент»',
+    'lossless serialization',
+    'Количество остаётся отдельно в `quantity_raw`',
+  ]) assert.ok(normalized.includes(marker), `preparation prompt must include ${marker}`);
+});
+
 test('catalog prompt preserves source and records interpretation', async () => {
   const prompt = await read(files.catalog);
   for (const term of ['source.raw_fields', 'evidence', 'unknown_fields', 'ambiguities', 'RFC 6901']) {
@@ -65,6 +81,18 @@ test('request prompt requires sparse constraints and explicit-only substitution'
   assert.match(prompt, /sparse constraints/);
   assert.match(prompt, /явно написанного/);
   assert.match(prompt, /"policy":"unspecified","explicit":false,"raw_text":null/);
+});
+
+test('request prompt treats omitted optional properties as valid sparse input', async () => {
+  const prompt = await read(files.request);
+  for (const marker of [
+    'SPARSE REQUEST IS VALID',
+    'Optional missing != unknown',
+    '`unknown_fields` не является checklist',
+    'Отсутствие\noptional field само по себе не означает `needs_review`',
+    'Ambiguity с `blocking: false`\nсама по себе не заставляет ставить `needs_review`',
+    'Не выдумывай отсутствующие характеристики ради `validated`',
+  ]) assert.ok(prompt.includes(marker), `annotation prompt must include ${marker}`);
 });
 
 test('operator workflow lists catalog and two-step request attachments and validators', async () => {
