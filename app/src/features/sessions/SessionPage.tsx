@@ -37,7 +37,7 @@ export function SessionPage() {
           <dd>{session.requestFileName}</dd>
           <dt>Строк</dt>
           <dd>
-            {session.lineCount} (needs_review: {session.needsReviewCount})
+            {session.lineCount} (needs_review: {session.needsReviewCount}, unsupported: {session.unsupportedCount})
           </dd>
           <dt>Каталоги</dt>
           <dd>

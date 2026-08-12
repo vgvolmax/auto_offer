@@ -31,6 +31,7 @@ export async function generateClassContracts({ root = '.' } = {}) {
     ['request','request-line.dispatch.schema.json','Generated request class dispatcher']
   ]) {
     const oneOf = Object.values(registry.classes).map(entry => ({ $ref: `../${entry[`${kind}_schema`]}` }));
+    if (kind === 'request') oneOf.unshift({ $ref: '../unsupported-request-line.schema.json' });
     const schema = { $schema:'https://json-schema.org/draft/2020-12/schema', $id:`https://example.local/schemas/annotation/generated/${filename}`, title, oneOf };
     await writeFile(path.join(generatedDir, filename), canonicalJson(schema));
   }

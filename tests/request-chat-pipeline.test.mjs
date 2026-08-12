@@ -27,13 +27,13 @@ test('request source schema and cross-field invariants preserve intermediate dat
 test('selected request kit is stable, closed, filtered, and tamper evident', async () => {
   const full = await load('annotation-kits/request-annotation-kit.json');
   const candidates = [{ line_id: '1', class_ids: ['valve.ball'] }, { line_id: '2', class_ids: ['fitting.radial'] }];
-  const selected = buildSelectedRequestKit(full, ['valve.ball', 'fitting.radial'], candidates);
-  assert.deepEqual(selected, buildSelectedRequestKit(full, ['fitting.radial', 'valve.ball'], candidates));
+  const selected = buildSelectedRequestKit(full, ['valve.ball'], [candidates[0]], [{ line_id: '2', reason_code: 'NO_TAXONOMY_CLASS' }]);
+  assert.deepEqual(selected, buildSelectedRequestKit(full, ['valve.ball'], [candidates[0]], [{ line_id: '2', reason_code: 'NO_TAXONOMY_CLASS' }]));
   assert.equal(validateSelectedRequestKit(full, selected, source), true);
   for (const id of selected.selected_class_ids) assert.deepEqual(selected.schemas_by_id[selected.class_schema_ids[id]], full.schemas_by_id[full.class_schema_ids[id]]);
   assert.equal(Object.values(selected.class_schema_ids).some((id) => id.includes('pipe.hdpe')), false);
   const dispatchId = 'https://example.local/schemas/annotation/generated/request-line.dispatch.schema.json';
-  assert.deepEqual(selected.schemas_by_id[dispatchId].oneOf.map((x) => x.$ref), ['../class-specific/fitting.radial.request.schema.json', '../class-specific/valve.ball.request.schema.json']);
+  assert.deepEqual(selected.schemas_by_id[dispatchId].oneOf.map((x) => x.$ref), ['../unsupported-request-line.schema.json', '../class-specific/valve.ball.request.schema.json']);
   const tampered = structuredClone(selected);
   tampered.schemas_by_id[selected.class_schema_ids['valve.ball']].allOf[1].properties.class_id.const = 'falsified';
   assert.throws(() => validateSelectedRequestKit(full, tampered, source), /tampering/);
@@ -44,8 +44,23 @@ test('selected request kit is stable, closed, filtered, and tamper evident', asy
     [{ line_id: '1', class_ids: ['not.real'] }],
   ]) assert.throws(() => buildSelectedRequestKit(full, [...new Set(invalid.flatMap((x) => x.class_ids))], invalid));
   assert.throws(() => validateSelectedRequestKit(full, selected), /required/);
-  assert.throws(() => validateSelectedRequestKit(full, selected, { ...source, line_count: 3, lines: [...source.lines, { line_id: '3', raw_text: 'Extra', quantity_raw: null }] }), /exactly/);
-  assert.throws(() => validateSelectedRequestKit(full, selected, { ...source, lines: [{ ...source.lines[0], line_id: 'unknown' }, source.lines[1]] }), /exactly/);
+  assert.throws(() => validateSelectedRequestKit(full, selected, { ...source, line_count: 3, lines: [...source.lines, { line_id: '3', raw_text: 'Extra', quantity_raw: null }] }), /exactly|routed/);
+  assert.throws(() => validateSelectedRequestKit(full, selected, { ...source, lines: [{ ...source.lines[0], line_id: 'unknown' }, source.lines[1]] }), /exactly|routed/);
+});
+
+test('all-unsupported selected kit remains closed and valid', async () => {
+  const full = await load('annotation-kits/request-annotation-kit.json');
+  const unsupported = source.lines.map(({ line_id }) => ({ line_id, reason_code: 'NO_TAXONOMY_CLASS' }));
+  const selected = buildSelectedRequestKit(full, [], [], unsupported);
+  assert.deepEqual(selected.selected_class_ids, []); assert.deepEqual(selected.class_schema_ids, {});
+  assert.equal(validateSelectedRequestKit(full, selected, source), true);
+  assert.deepEqual(selected.schemas_by_id['https://example.local/schemas/annotation/generated/request-line.dispatch.schema.json'].oneOf.map(x => x.$ref), ['../unsupported-request-line.schema.json']);
+  for (const bad of [
+    [{ line_id: '1', reason_code: 'UNKNOWN' }, unsupported[1]],
+    [unsupported[0], unsupported[0]],
+    [{ line_id: 'unknown', reason_code: 'NO_TAXONOMY_CLASS' }, unsupported[1]],
+  ]) assert.throws(() => validateSelectedRequestKit(full, buildSelectedRequestKit(full, [], [], bad), source));
+  assert.throws(() => validateSelectedRequestKit(full, buildSelectedRequestKit(full, ['valve.ball'], [{ line_id: '1', class_ids: ['valve.ball'] }], unsupported), source), /exactly once/);
 });
 
 test('selected-kit CLI requires request source', () => {

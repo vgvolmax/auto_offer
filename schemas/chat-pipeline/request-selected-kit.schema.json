@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.local/schemas/chat-pipeline/request-selected-kit.schema.json",
   "type": "object", "additionalProperties": false,
-  "required": ["kind", "source_kit_version", "taxonomy_version", "annotation_schema_version", "bundle_schema_version", "root_schema_id", "selected_class_ids", "line_candidates", "taxonomy", "class_schema_ids", "schemas_by_id"],
+  "required": ["kind", "source_kit_version", "taxonomy_version", "annotation_schema_version", "bundle_schema_version", "root_schema_id", "selected_class_ids", "line_candidates", "unsupported_lines", "taxonomy", "class_schema_ids", "schemas_by_id"],
   "properties": {
     "kind": { "const": "request_selected_annotation_kit" },
     "source_kit_version": { "type": "string", "minLength": 1 },
@@ -10,8 +10,9 @@
     "annotation_schema_version": { "type": "string", "minLength": 1 },
     "bundle_schema_version": { "type": "string", "minLength": 1 },
     "root_schema_id": { "type": "string", "format": "uri" },
-    "selected_class_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-    "line_candidates": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["line_id", "class_ids"], "properties": { "line_id": { "type": "string", "minLength": 1 }, "class_ids": { "type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } } },
+    "selected_class_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "line_candidates": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["line_id", "class_ids"], "properties": { "line_id": { "type": "string", "minLength": 1 }, "class_ids": { "type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } } },
+    "unsupported_lines": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["line_id", "reason_code"], "properties": { "line_id": { "type": "string", "minLength": 1 }, "reason_code": { "enum": ["NO_TAXONOMY_CLASS", "AMBIGUOUS_CLASS", "UNCLASSIFIABLE_SOURCE"] } } } },
     "taxonomy": { "type": "object" }, "class_schema_ids": { "type": "object" }, "schemas_by_id": { "type": "object" }
   }
 }

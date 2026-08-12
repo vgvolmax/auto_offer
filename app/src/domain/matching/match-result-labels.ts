@@ -13,6 +13,7 @@ const reasons: Record<string, string> = {
   CATALOG_VALUE_MISSING: "В каталоге отсутствует требуемое значение",
   CATALOG_ITEM_INVALID: "Товар каталога не прошёл проверку",
   CATALOG_ITEM_NEEDS_REVIEW: "Товар каталога требует ручной проверки",
+  REQUEST_UNSUPPORTED: "Строка не поддерживается текущей taxonomy",
   REQUEST_REVIEW_REQUIRED: "Строка заявки требует ручной проверки",
   BRAND_NOT_INCLUDED: "Бренд не входит в разрешённые",
   BRAND_EXCLUDED: "Бренд исключён правилами",

@@ -47,13 +47,14 @@ web, catalog data или внешним источникам. Kit — единс
   "root_schema_id": "<fullKit.root_schema_id>",
   "selected_class_ids": [],
   "line_candidates": [],
+  "unsupported_lines": [],
   "taxonomy": {},
   "class_schema_ids": {},
   "schemas_by_id": {}
 }
 ```
 
-Эти 11 top-level полей обязательны, другие top-level fields
+Эти 12 top-level полей обязательны, другие top-level fields
 запрещены. `source_kit_version` копируется из `fullKit.kit_version`;
 `taxonomy_version`, `annotation_schema_version`, `bundle_schema_version` и
 `root_schema_id` копируются из одноимённых полей full kit.
@@ -78,8 +79,7 @@ ambiguities или semantic normalization.
 
 ## Routing и проекция
 
-Для каждой source line создай ровно одну запись `line_candidates` с тем же
-`line_id` и 1–3 уникальными production class ids. Уверенный выбор означает
+Для каждой source line создай ровно один routing entry: либо `line_candidates` с тем же `line_id` и 1–3 уникальными production class ids, либо `unsupported_lines` с `line_id` и `reason_code` (`NO_TAXONOMY_CLASS`, `AMBIGUOUS_CLASS`, `UNCLASSIFIABLE_SOURCE`). Эти массивы образуют XOR-покрытие всех source lines в исходном порядке внутри каждой проекции. Уверенный выбор означает
 одного кандидата; Top-2/Top-3 разрешён только при реальной неоднозначности.
 Не добавляй классы «на всякий случай».
 
@@ -92,7 +92,5 @@ transitive `$ref` closure. Копию production request dispatcher оставь
 неизменной кроме `oneOf`: отфильтруй его до refs выбранных классов, сохранив
 production-порядок. Не включай schemas иных production classes.
 
-Если строка не представима taxonomy, выдай `request-source.json`, сообщи
-`Позиция <line_id> не представима текущей taxonomy`, остановись и **не**
-выдавай selected kit как готовый. На этом шаге запрещены semantic annotation,
+Если одна или несколько строк не представимы taxonomy, сохрани их в source и `unsupported_lines`, честно укажи reason code, продолжи routing остальных строк и обязательно выдай оба файла. Не подставляй ближайший класс. Пустые `selected_class_ids`, `line_candidates` и `class_schema_ids` допустимы для полностью unsupported заявки; dispatcher всё равно сохраняет production unsupported ref. Остановить весь шаг можно лишь когда документ в целом нельзя надёжно прочитать или выделить его товарные позиции. На этом шаге запрещены semantic annotation,
 canonicalization, matching, подбор товара и создание `request_bundle`.

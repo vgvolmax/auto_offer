@@ -9,11 +9,11 @@
       "sha256": "9e40a0fca1d53c597912cf9cbce6a36886c87a0ecde4be2cb2e04c9fa307ee02"
     },
     "request": {
-      "bytes": 602345,
+      "bytes": 604076,
       "class_count": 41,
       "path": "annotation-kits/request-annotation-kit.json",
-      "schema_count": 47,
-      "sha256": "916647edffa7e3ccac386235e8e19ece51ad2474fbf85775f9a7a41c2a623641"
+      "schema_count": 48,
+      "sha256": "b4d8637740338b82c5d02b1033888484eff8adbf130b1e701cd715a3737d9fb4"
     }
   },
   "manifest_schema_version": "1.0.0",

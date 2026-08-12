@@ -10,10 +10,11 @@ selected kit. Это промежуточный kit, а не новый producti
 Production root: `https://example.local/schemas/bundles/request-bundle.schema.json`.
 
 Сохрани все строки, их порядок и `line_id`; источником фактов служит только
-`request-source.lines[].raw_text`. Для строки разрешены исключительно class ids
-из соответствующей `line_candidates` записи. При одном кандидате используй
+`request-source.lines[].raw_text`. Для routed-строки разрешены исключительно class ids из соответствующей `line_candidates` записи. При одном кандидате используй
 его, если он соответствует строке; при нескольких выбери только среди них по
 `raw_text`. Не ищи иной класс.
+
+Для каждой записи `unsupported_lines` создай production unsupported request line: сохрани `line_id`, `raw_text`, доступную `source_position` и честно canonicalized `quantity`; annotation содержит только `status: "unsupported"` и переданный `reason_code`. Не добавляй `class_id`, `requested_identity`, `constraints` или `substitution_statement`. Если Top-2/Top-3 после полной проверки нельзя честно разрешить, также допустим unsupported с `AMBIGUOUS_CLASS`; при недостаточном source — `UNCLASSIFIABLE_SOURCE`. Не подменяй это `needs_review` с произвольным классом.
 
 Canonicalize quantity на этом шаге по production rules. Формируй
 `requested_identity`, sparse constraints, attributes и ports только из явно
@@ -24,11 +25,9 @@ unknown, ambiguity и `substitution_statement` по неизменным product
 `{"policy":"unspecified","explicit":false,"raw_text":null}`. Не выполняй
 matching или подбор, не создавай `product_id` или `offer_id`.
 
-До выдачи программно проверь обычный production bundle. Если отсутствует
-candidate для source line, candidates пусты, candidate отсутствует в selected
+До выдачи программно проверь обычный production bundle. Если routing не покрывает source line ровно один раз, candidate отсутствует в selected
 kit, kit неполон или полный bundle построить нельзя — остановись, назови
 конкретную проблему и `line_id`, не создавая правдоподобный частичный файл.
 
-После файла сообщи только line count и количества `validated`, `needs_review`
-и `invalid`. Финальной инстанцией истины остаётся внешний запуск
+После файла сообщи только line count и количества `validated`, `needs_review`, `invalid` и `unsupported`. Финальной инстанцией истины остаётся внешний запуск
 `npm run validate:request-bundle -- <file>`.
