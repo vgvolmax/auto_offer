@@ -24,21 +24,20 @@ export function MatchLineCard(p: {
   return (
     <article className="card match-line">
       <button
+        aria-label={`${line.lineId}: ${line.requestText}`}
         aria-expanded={p.expanded}
         aria-controls={id}
         onClick={p.onToggle}
       >
         <strong>
-          {line.position}. {line.lineId}
-        </strong>{" "}
-        — {line.requestText}
+          {line.position}. {line.requestText}
+        </strong>
       </button>
       <p>
         {line.quantityLabel ?? "Количество не указано"}
-        {line.classId && ` · ${line.classId}`} ·{" "}
-        {getResolutionLabel(line.resolution)} · Предложений:{" "}
+        {" · "}{getResolutionLabel(line.resolution)} · Предложений:{" "}
         {line.candidates.length} ·{" "}
-        {line.decisionKind === "selected_offer" ? `Выбран: ${line.selectedOfferRef?.source_item_id}` : line.decisionKind === "no_offer" ? "Без предложения" : "Решение не принято"}
+        {line.decisionKind === "selected_offer" ? `✓ Выбран: ${line.selectedOfferRef?.source_item_id}` : line.decisionKind === "no_offer" ? "✓ Без предложения" : "Без решения"}
       </p>
       {p.expanded && (
         <div id={id}>
@@ -62,11 +61,11 @@ export function MatchLineCard(p: {
           <NoOfferDecisionCard lineId={line.lineId} selected={line.decisionKind === "no_offer"} disabled={p.disabled || !line.canMarkNoOffer} onSelect={p.onNoOffer} onClear={p.onClear} />
           {!line.candidates.length && line.rejectionSummary.length > 0 && (
             <section>
-              <h4>Почему предложения не подошли</h4>
+              <h4>Почему ничего не найдено</h4>
               <ul>
                 {line.rejectionSummary.map((x) => (
                   <li key={x.code}>
-                    {x.label} — {x.count}
+                    {x.label}{x.code === "REQUEST_UNSUPPORTED" ? "" : ` — ${x.count}`}
                   </li>
                 ))}
               </ul>

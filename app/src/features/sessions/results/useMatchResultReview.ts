@@ -9,6 +9,7 @@ import type { LineFeedback } from "../../../domain/matching/line-feedback";
 import {
   clearDecisionForLine,
   markNoOfferForLine,
+  markNoOfferForLines,
   selectOfferForLine,
 } from "../../../domain/matching/update-selection";
 import {
@@ -109,6 +110,10 @@ export function useMatchResultReview(input: {
       return matches && f;
     });
   }, [view, filter, query]);
+  const bulkEligibleLineIds = useMemo(
+    () => view?.lines.filter((line) => !line.hasDecision && line.candidates.length === 0 && line.canMarkNoOffer).map((line) => line.lineId) ?? [],
+    [view],
+  );
   const setFilter = (x: ResultFilter) => {
       setFilterValue(x);
       setLimit(MATCH_RESULTS_BATCH_SIZE);
@@ -185,6 +190,30 @@ export function useMatchResultReview(input: {
       setFeedbackExpandedState((current) => new Set(current).add(lineId));
     return saved;
   };
+  const markAllWithoutOptions = async (): Promise<boolean> => {
+    if (!selection || !bulkEligibleLineIds.length || state.kind === "saving" || !input.current || input.writeLocked)
+      return false;
+    setState({ kind: "saving", selectionState: selection, savingLineId: "__bulk_no_offer__" });
+    try {
+      const next = await markNoOfferForLines({
+        sessionId: input.session.sessionId,
+        matchRunId: input.run.id,
+        lineIds: bulkEligibleLineIds,
+        expectedSelectionRevision: selection.revision,
+        repositories: appRepositories,
+      });
+      setState({ kind: "ready", selectionState: next });
+      return true;
+    } catch (e) {
+      if (e instanceof Error && "code" in e && e.code === "STALE_SELECTION_STATE") {
+        const fresh = await appRepositories.selectionStates.get(input.run.id);
+        setState({ kind: "error", selectionState: fresh, message: "Решения изменились в другой вкладке. Данные обновлены." });
+      } else {
+        setState({ kind: "error", selectionState: selection, message: "Не удалось сохранить решения без предложения." });
+      }
+      return false;
+    }
+  };
   const setFeedbackExpanded = (lineId: string, open: boolean) =>
     setFeedbackExpandedState((current) => {
       const next = new Set(current);
@@ -228,6 +257,8 @@ export function useMatchResultReview(input: {
     toggle,
     selectOffer,
     markNoOffer,
+    markAllWithoutOptions,
+    bulkEligibleCount: bulkEligibleLineIds.length,
     clearDecision,
     saveFeedback,
     clearFeedback,
