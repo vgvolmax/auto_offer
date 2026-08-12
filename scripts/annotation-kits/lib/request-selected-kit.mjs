@@ -1,5 +1,4 @@
-import { isDeepStrictEqual } from 'node:util';
-import { externalRefs, stable } from './annotation-kits.mjs';
+import { externalRefs, jsonDeepEqual, stableJsonValue as stable } from '../../lib/json-contract-utils.mjs';
 
 const DISPATCH = 'https://example.local/schemas/annotation/generated/request-line.dispatch.schema.json';
 const UNSUPPORTED = 'https://example.local/schemas/annotation/unsupported-request-line.schema.json';
@@ -32,7 +31,7 @@ export function buildSelectedRequestKit(fullKit, selectedClassIds, lineCandidate
   const union = exactUnion(lineCandidates);
   validateUnsupportedLines(unsupportedLines);
   const selected = [...new Set(selectedClassIds)].sort();
-  if (!isDeepStrictEqual(selected, union)) fail('selected_class_ids must equal the exact candidate union');
+  if (!jsonDeepEqual(selected, union)) fail('selected_class_ids must equal the exact candidate union');
   selected.forEach((id) => { if (!fullKit.class_schema_ids[id]) fail(`Unknown class_id: ${id}`); });
   const sourceDispatcher = fullKit.schemas_by_id[DISPATCH];
   const classSchemaIds = Object.fromEntries(selected.map((id) => [id, fullKit.class_schema_ids[id]]));
@@ -60,13 +59,13 @@ export function buildSelectedRequestKit(fullKit, selectedClassIds, lineCandidate
 export function validateSelectedRequestKit(fullKit, selectedKit, source) {
   if (!source) fail('request-source is required');
   const expected = buildSelectedRequestKit(fullKit, selectedKit.selected_class_ids, selectedKit.line_candidates, selectedKit.unsupported_lines);
-  if (!isDeepStrictEqual(stable(selectedKit), expected)) fail('Selected kit is not the canonical full-kit projection (version, taxonomy, schema, dispatcher, or dependency tampering detected)');
+  if (!jsonDeepEqual(stable(selectedKit), expected)) fail('Selected kit is not the canonical full-kit projection (version, taxonomy, schema, dispatcher, or dependency tampering detected)');
   const sourceIds = source.lines.map((line) => line.line_id);
   const candidateIds = selectedKit.line_candidates.map((line) => line.line_id);
   const unsupportedIds = selectedKit.unsupported_lines.map((line) => line.line_id);
   const sourceSet = new Set(sourceIds);
   for (const id of [...candidateIds, ...unsupportedIds]) if (!sourceSet.has(id)) fail(`Unknown routed line_id: ${id}`);
   if (new Set([...candidateIds, ...unsupportedIds]).size !== candidateIds.length + unsupportedIds.length) fail('Each source line must be routed exactly once (candidate XOR unsupported)');
-  if (!isDeepStrictEqual(candidateIds, sourceIds.filter((id) => candidateIds.includes(id))) || !isDeepStrictEqual(unsupportedIds, sourceIds.filter((id) => unsupportedIds.includes(id))) || candidateIds.length + unsupportedIds.length !== sourceIds.length) fail('Routing entries must cover source lines exactly once and preserve source order');
+  if (!jsonDeepEqual(candidateIds, sourceIds.filter((id) => candidateIds.includes(id))) || !jsonDeepEqual(unsupportedIds, sourceIds.filter((id) => unsupportedIds.includes(id))) || candidateIds.length + unsupportedIds.length !== sourceIds.length) fail('Routing entries must cover source lines exactly once and preserve source order');
   return true;
 }
