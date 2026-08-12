@@ -13,7 +13,7 @@ const reasons: Record<string, string> = {
   CATALOG_VALUE_MISSING: "В каталоге отсутствует требуемое значение",
   CATALOG_ITEM_INVALID: "Товар каталога не прошёл проверку",
   CATALOG_ITEM_NEEDS_REVIEW: "Товар каталога требует ручной проверки",
-  REQUEST_UNSUPPORTED: "Строка не поддерживается текущей taxonomy",
+  REQUEST_UNSUPPORTED: "Нет подходящего класса в текущей taxonomy",
   REQUEST_REVIEW_REQUIRED: "Строка заявки требует ручной проверки",
   BRAND_NOT_INCLUDED: "Бренд не входит в разрешённые",
   BRAND_EXCLUDED: "Бренд исключён правилами",
@@ -28,10 +28,11 @@ const resolutions: Record<string, string> = {
   multiple_exact: "Несколько точных",
   equivalent_only: "Только эквиваленты",
   alternative_only: "Только альтернативы",
-  excluded_by_policy: "Исключены правилами",
-  no_match: "Без совпадений",
-  request_review_required: "Проверка заявки",
-  request_invalid: "Ошибка заявки",
+  excluded_by_policy: "Исключено настройками",
+  no_match: "Совпадений не найдено",
+  request_unsupported: "Не поддерживается",
+  request_review_required: "Нужно проверить заявку",
+  request_invalid: "Ошибка в данных заявки",
 };
 export function formatMatchValue(value: unknown): string | undefined {
   if (value === undefined) return undefined;

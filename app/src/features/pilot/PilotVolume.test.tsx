@@ -54,7 +54,7 @@ describe("Pilot 1.0 volume readiness", () => {
   it("renders the existing 50-card batch and paginates/filter without mounting 500 cards", async () => {
     const fixture = await persistFixture();
     render(<MatchResultsPanel session={fixture.session} catalogs={fixture.catalogs} run={fixture.run} current locked={false} confirming={false} reopening={false} reviewRefreshing={false} onReviewRefreshingChange={() => undefined} onConfirm={async () => ({ ok: false, code: "REVIEW_INCOMPLETE", message: "not used" })} onReopen={async () => false} onRefreshSessionSnapshot={async () => true} />);
-    await screen.findByText(/Обработано 500 из 500/);
+    await screen.findByText(/500 позиций · 375 выбрано · 0 без вариантов · 0 требуют решения/);
     const cards = () => document.querySelectorAll("article.match-line");
     expect(cards()).toHaveLength(MATCH_RESULTS_BATCH_SIZE);
     expect(cards().length).toBeLessThan(500);

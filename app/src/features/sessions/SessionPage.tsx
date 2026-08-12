@@ -37,15 +37,15 @@ export function SessionPage() {
           <dd>{session.requestFileName}</dd>
           <dt>Строк</dt>
           <dd>
-            {session.lineCount} (needs_review: {session.needsReviewCount}, unsupported: {session.unsupportedCount})
+            {session.lineCount} строк · требуют проверки: {session.needsReviewCount} · не поддерживаются: {session.unsupportedCount}
           </dd>
           <dt>Каталоги</dt>
           <dd>
             {catalogs.map((c) => (
               <div key={c.recordId}>
                 <strong>{c.catalogId}</strong> — {c.sourceFileName},{" "}
-                {c.itemCount} позиций (validated: {c.validatedCount},
-                needs_review: {c.needsReviewCount})
+                {c.itemCount} позиций (проверено: {c.validatedCount},
+                требуют проверки: {c.needsReviewCount})
               </div>
             ))}
           </dd>

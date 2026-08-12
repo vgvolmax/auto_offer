@@ -6,7 +6,7 @@ import { createCatalogRecord, type CatalogBundle } from "../catalog";
 import { createDraftSession } from "../session";
 import { appRepositories } from "../../storage/repositories";
 import { resetDatabaseConnection } from "../../storage/database";
-import { clearDecisionForLine, markNoOfferForLine, selectOfferForLine } from "./update-selection";
+import { clearDecisionForLine, markNoOfferForLine, markNoOfferForLines, selectOfferForLine } from "./update-selection";
 import { runSessionMatching } from "./run-session-matching";
 import { getDatabase } from "../../storage/database";
 
@@ -87,5 +87,29 @@ describe("selection application service", () => {
     expect(selectedAgain.decisions[line.line_id]).toMatchObject({ kind: "selected_offer", offerRef });
     expect(selectedAgain.feedback[line.line_id]).toEqual({ comment: "сохранить" });
     await expect(markNoOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId: line.line_id, expectedSelectionRevision: noOffer.revision, repositories: appRepositories })).rejects.toMatchObject({ code: "STALE_SELECTION_STATE" });
+  });
+  it("atomically marks only requested zero-candidate lines without changing feedback or other decisions", async () => {
+    const catalog = createCatalogRecord(catalogFixture as CatalogBundle);
+    const session = createDraftSession(request as any, [catalog], "bulk-no-offer");
+    await appRepositories.catalogs.save(catalog); await appRepositories.sessions.save(session);
+    const generated = await runSessionMatching({ sessionId: session.sessionId, settings: session.matchingSettings, repositories: appRepositories });
+    const source = generated.runRecord.result.lines[0] as any;
+    const run: any = { ...generated.runRecord, result: { ...generated.runRecord.result, lines: [source, { ...structuredClone(source), line_id: "empty-a", candidates: [], excluded_candidates: [] }, { ...structuredClone(source), line_id: "empty-b", candidates: [], excluded_candidates: [] }] } };
+    await (await getDatabase()).put("matchRuns", run);
+    let state = await appRepositories.selectionStates.getOrCreateForRun(run);
+    state = await appRepositories.selectionStates.saveFeedback({ sessionId: session.sessionId, matchRunId: run.id, lineId: "empty-a", expectedRevision: state.revision, feedback: { comment: "keep" } });
+    state = await selectOfferForLine({ sessionId: session.sessionId, matchRunId: run.id, lineId: source.line_id, offerRef: source.candidates[0].offer_ref, expectedSelectionRevision: state.revision, repositories: appRepositories });
+    const beforeRevision = state.revision;
+    const next = await markNoOfferForLines({ sessionId: session.sessionId, matchRunId: run.id, lineIds: ["empty-a", "empty-b"], expectedSelectionRevision: beforeRevision, repositories: appRepositories });
+    expect(next.revision).toBe(beforeRevision + 1);
+    expect(next.decisions[source.line_id]).toEqual(state.decisions[source.line_id]);
+    expect(next.feedback).toEqual(state.feedback);
+    expect(next.decisions["empty-a"]).toMatchObject({ kind: "no_offer" });
+    expect(next.decisions["empty-a"].confirmedAt).toBe(next.decisions["empty-b"].confirmedAt);
+    expect(await appRepositories.selectionStates.get(run.id)).toEqual(next);
+    await expect(markNoOfferForLines({ sessionId: session.sessionId, matchRunId: run.id, lineIds: ["empty-a"], expectedSelectionRevision: beforeRevision, repositories: appRepositories })).rejects.toMatchObject({ code: "STALE_SELECTION_STATE" });
+    await expect(markNoOfferForLines({ sessionId: session.sessionId, matchRunId: run.id, lineIds: ["missing"], expectedSelectionRevision: next.revision, repositories: appRepositories })).rejects.toMatchObject({ code: "LINE_NOT_FOUND" });
+    await expect(markNoOfferForLines({ sessionId: session.sessionId, matchRunId: run.id, lineIds: ["empty-a", "empty-a"], expectedSelectionRevision: next.revision, repositories: appRepositories })).rejects.toMatchObject({ code: "DUPLICATE_LINE_IDS" });
+    await expect(markNoOfferForLines({ sessionId: session.sessionId, matchRunId: run.id, lineIds: [source.line_id], expectedSelectionRevision: next.revision, repositories: appRepositories })).rejects.toMatchObject({ code: "LINE_HAS_CANDIDATES" });
   });
 });

@@ -69,6 +69,8 @@ export function MatchResultsPanel(input: {
       </section>
     );
   const busy = review.state.kind === "saving";
+  const bulkSaving = busy && review.state.kind === "saving" && review.state.savingLineId === "__bulk_no_offer__";
+  const withoutOptions = review.view.lines.filter((line) => line.candidates.length === 0).length;
   const confirm = async (request: {
     matchRunId: string;
     expectedSelectionRevision: number;
@@ -102,17 +104,14 @@ export function MatchResultsPanel(input: {
     <section className="card">
       <h2>Результаты подбора</h2>
       <p>
-        Обработано {review.view.decidedCount} из {review.view.lineCount} ·
-        выбрано товаров {review.view.selectedCount} · без предложения{" "}
-        {review.view.noOfferCount} · осталось {review.view.undecidedCount}
+        {review.view.lineCount} позиций · {review.view.selectedCount} выбрано ·{" "}
+        {withoutOptions} без вариантов · {review.view.undecidedCount} требуют решения
       </p>
-      <PilotDiagnosticsPanel info={buildPilotRuntimeInfo({
-        session: input.session,
-        catalogs: input.catalogs,
-        run: input.run,
-        selectionState: "selectionState" in review.state ? review.state.selectionState : undefined,
-        current: input.current,
-      })} />
+      {review.bulkEligibleCount > 0 && (
+        <button disabled={writeLocked || busy || !input.current} onClick={() => void review.markAllWithoutOptions()}>
+          {bulkSaving ? `Сохраняем ${review.bulkEligibleCount} строк…` : `Оставить без предложения ${review.bulkEligibleCount} строк без вариантов`}
+        </button>
+      )}
       {input.locked ? (
         <p className="warning-text">
           Это зафиксированный результат. Решения и обратная связь доступны
@@ -130,7 +129,16 @@ export function MatchResultsPanel(input: {
       {review.state.kind === "error" && (
         <p role="alert">{review.state.message}</p>
       )}
-      <section className="ai-export">
+      <details className="service-details">
+        <summary>Служебная информация и экспорт</summary>
+        <PilotDiagnosticsPanel info={buildPilotRuntimeInfo({
+          session: input.session,
+          catalogs: input.catalogs,
+          run: input.run,
+          selectionState: "selectionState" in review.state ? review.state.selectionState : undefined,
+          current: input.current,
+        })} />
+        <section className="ai-export">
         <h3>Экспорт для улучшения системы</h3>
         <p>
           JSON содержит исходную заявку, результат подбора, решения оператора и
@@ -192,7 +200,8 @@ export function MatchResultsPanel(input: {
         {exportStatus.kind === "error" && (
           <p role="alert">{exportStatus.message}</p>
         )}
-      </section>
+        </section>
+      </details>
       <MatchResultsToolbar
         query={review.query}
         filter={review.filter}

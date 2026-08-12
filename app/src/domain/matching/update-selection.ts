@@ -137,6 +137,25 @@ export async function markNoOfferForLine(input: {
     decision: { kind: "no_offer", confirmedAt: new Date().toISOString() },
   }); } catch (e) { return mapPersistenceError(e); }
 }
+export async function markNoOfferForLines(input: {
+  sessionId: string; matchRunId: string; lineIds: string[]; expectedSelectionRevision: number; repositories: AppRepositories;
+}): Promise<SelectionStateRecord> {
+  if (!input.lineIds.length)
+    throw new SelectionError("Не выбраны строки", "LINE_NOT_FOUND");
+  if (new Set(input.lineIds).size !== input.lineIds.length)
+    throw new SelectionError("Строки не должны повторяться", "DUPLICATE_LINE_IDS");
+  await context({ ...input, lineId: input.lineIds[0] });
+  try {
+    return await input.repositories.selectionStates.saveNoOfferDecisions({
+      sessionId: input.sessionId,
+      matchRunId: input.matchRunId,
+      lineIds: input.lineIds,
+      expectedRevision: input.expectedSelectionRevision,
+    });
+  } catch (e) {
+    return mapPersistenceError(e);
+  }
+}
 export async function clearDecisionForLine(input: {
   sessionId: string;
   matchRunId: string;
