@@ -16,13 +16,23 @@
 
 ### Шаг 1 — подготовка
 
-1. Откройте новый чат и приложите `REQUEST_PREPARE_PROMPT.md`, полный
-   `request-annotation-kit.json` и исходную заявку.
+1. Откройте новый чат и приложите `REQUEST_PREPARE_PROMPT.md`,
+   `taxonomy-light.json` и исходную заявку. Full request kit в чат не
+   прикладывайте.
 2. Отправьте: `Выполни подготовку заявки по приложенному промпту и создай два готовых JSON-файла.`
-3. Скачайте `request-source.json` и `request-selected-kit.json`.
+3. Скачайте `request-source.json` и `request-routing.json`.
 4. В dev workflow проверьте их:
    - `npm run validate:request-source -- request-source.json`;
-   - `npm run validate:request-selected-kit -- request-annotation-kit.json request-selected-kit.json request-source.json`.
+   - `npm run validate:request-routing -- request-routing.json request-source.json taxonomy/taxonomy-light.json`.
+5. Локально materialize canonical selected kit:
+   `npm run build:request-selected-kit -- request-annotation-kit.json request-source.json request-routing.json taxonomy/taxonomy-light.json request-selected-kit.json`.
+6. Проверьте generated artifact существующим validator:
+   `npm run validate:request-selected-kit -- request-annotation-kit.json request-selected-kit.json request-source.json`.
+
+Менеджер больше **не просит чат строить selected kit**.
+`request-selected-kit.json` — generated application artifact: на текущем
+ручном/dev этапе его детерминированно создаёт CLI, а в следующем UI PR это
+будет автоматически делать Auto Offer.
 
 Для табличного PDF перед STEP 2 выборочно сопоставьте 2–3 строки
 `request-source.json` с исходной таблицей. Если source row содержала
@@ -35,7 +45,7 @@ model/article, manufacturer или note, а `raw_text` сохранил толь
 ### Шаг 2 — разметка
 
 1. **Обязательно откройте новый чат.** Не продолжайте чат первого шага. Так
-   исходный документ и полный kit не останутся в контексте semantic annotation.
+   исходный документ и taxonomy-light не останутся в контексте semantic annotation.
 2. Приложите `REQUEST_ANNOTATION_PROMPT.md`, `request-source.json` и
    `request-selected-kit.json` — без исходной заявки и полного kit.
 3. Отправьте: `Выполни разметку заявки по приложенному промпту и создай готовый request_bundle JSON.`
