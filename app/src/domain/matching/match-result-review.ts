@@ -311,7 +311,9 @@ export function buildMatchResultReviewView(input: {
           .map(check)
           .filter((x): x is MatchCheckView => Boolean(x)),
         selected,
-        suggested: false,
+        // Every offer returned by the semantic matcher is its recommendation.
+        // Pilot recommendations continue to be assigned below only for single_exact.
+        suggested: run.runKind === "semantic" && !excluded,
         selectable: input.current && !excluded && Boolean(found),
         resultPosition: 0,
         semanticRationaleRu: text(value.semanticRationaleRu),

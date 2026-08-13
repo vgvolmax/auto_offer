@@ -32,6 +32,11 @@ describe("match result review", () => {
       semanticRationaleRu: "Обоснование 0", semanticDifferencesRu: ["Отличие"], checks: [], differences: [],
     });
     expect(view.lines[2].candidates[0].availability).toBe("manual_only");
+    expect(view.lines.slice(0, 3).map((line) => line.candidates[0].suggested)).toEqual([
+      true,
+      true,
+      true,
+    ]);
     expect(view.lines[3]).toMatchObject({ semanticRecommendation: "no_offer", semanticReasonCode: "NO_ELIGIBLE_OFFER", semanticRationaleRu: "Диагностика" });
     expect(view.lines[4]).toMatchObject({ candidates: [], canSelectCandidate: false, canMarkNoOffer: false, hasDecision: false });
     expect(view.undecidedCount).toBe(all.length);
