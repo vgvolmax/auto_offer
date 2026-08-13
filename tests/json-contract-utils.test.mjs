@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {jsonDeepEqual,stableJsonValue} from '../scripts/lib/json-contract-utils.mjs';
+test('JSON equality ignores object key order but preserves array order and primitive types',()=>{assert.equal(jsonDeepEqual({b:[1,null],a:'1'},{a:'1',b:[1,null]}),true);assert.equal(jsonDeepEqual([1,2],[2,1]),false);assert.equal(jsonDeepEqual(1,'1'),false);assert.deepEqual(stableJsonValue({z:1,a:{d:2,c:3}}),{a:{c:3,d:2},z:1})});
+test('browser-safe request core has no Node builtin imports',async()=>{for(const file of ['../scripts/chat-pipeline/lib/request-routing-core.mjs','../scripts/chat-pipeline/lib/request-selected-kit-from-routing.mjs','../scripts/annotation-kits/lib/request-selected-kit.mjs']){const source=await import('node:fs/promises').then(({readFile})=>readFile(new URL(file,import.meta.url),'utf8'));assert.doesNotMatch(source,/from ['"]node:/)}});

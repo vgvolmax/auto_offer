@@ -2,6 +2,8 @@ import { createHash } from 'node:crypto';
 import { readFile, readdir, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { externalRefs, stableJsonValue } from '../../lib/json-contract-utils.mjs';
+export { externalRefs } from '../../lib/json-contract-utils.mjs';
 
 export const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 export const roots = {
@@ -9,13 +11,7 @@ export const roots = {
   request: 'https://example.local/schemas/bundles/request-bundle.schema.json',
 };
 
-export function stable(value) {
-  if (Array.isArray(value)) return value.map(stable);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
-  }
-  return value;
-}
+export function stable(value) { return stableJsonValue(value); }
 
 export function jsonBytes(value) {
   return Buffer.from(`${JSON.stringify(stable(value), null, 2)}\n`);
@@ -34,18 +30,6 @@ async function jsonFiles(directory) {
   return nested.flat();
 }
 
-export function externalRefs(schema, baseId = schema.$id) {
-  const refs = new Set();
-  function visit(value) {
-    if (!value || typeof value !== 'object') return;
-    if (typeof value.$ref === 'string' && !value.$ref.startsWith('#')) {
-      refs.add(new URL(value.$ref, baseId).href.split('#')[0]);
-    }
-    for (const child of Object.values(value)) visit(child);
-  }
-  visit(schema);
-  return [...refs].sort();
-}
 
 export async function buildKits(root = repositoryRoot) {
   const taxonomy = await json(path.join(root, 'taxonomy/taxonomy.json'));

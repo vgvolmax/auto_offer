@@ -1,5 +1,5 @@
 import { buildSelectedRequestKit } from '../../annotation-kits/lib/request-selected-kit.mjs';
-import { projectRequestRouting, validateRequestRoutingObjects } from './request-routing.mjs';
+import { projectRequestRouting, validateRequestRoutingObjects } from './request-routing-core.mjs';
 
 export function buildSelectedRequestKitFromRouting({ fullKit, requestSource, routing, taxonomyLight, validators }) {
   if (!validators) throw new Error('Request routing validators are required');

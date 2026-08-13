@@ -1,0 +1,2 @@
+import {render,screen} from '@testing-library/react';import {describe,expect,it} from 'vitest';import {FileDropzone} from './FileDropzone';
+describe('FileDropzone',()=>{it('keeps JSON accept by default',()=>{render(<FileDropzone label="JSON" onFiles={()=>{}}/>);expect(document.querySelector('input')).toHaveAttribute('accept','application/json,.json')});it('applies custom source-document accept',()=>{const {container}=render(<FileDropzone label="Source" accept="*/*" onFiles={()=>{}}/>);expect(container.querySelector('input')).toHaveAttribute('accept','*/*')})});
