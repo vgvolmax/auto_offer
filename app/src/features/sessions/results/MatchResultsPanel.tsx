@@ -1,7 +1,6 @@
 import type { CatalogRecord } from "../../../domain/catalog";
 import type { MatchRunRecord } from "../../../domain/matching/match-run";
 import type { SessionRecord } from "../../../domain/session";
-import { MatchLineCard } from "./MatchLineCard";
 import { MatchResultsToolbar } from "./MatchResultsToolbar";
 import { useMatchResultReview } from "./useMatchResultReview";
 import { buildAiFeedbackExport } from "../../../domain/export/ai-feedback-export";
@@ -14,6 +13,8 @@ import { SessionReviewPanel } from "../review/SessionReviewPanel";
 import type { ConfirmReviewResult } from "../matching/useSessionMatching";
 import { PilotDiagnosticsPanel } from "../pilot/PilotDiagnosticsPanel";
 import { buildPilotRuntimeInfo } from "../../../domain/pilot/pilot-runtime";
+import { buildProposalTableView } from "../../../domain/presentation/proposal-table-view";
+import { ProposalTable } from "./ProposalTable";
 type ExportStatus =
   | { kind: "idle" }
   | { kind: "success" }
@@ -70,7 +71,8 @@ export function MatchResultsPanel(input: {
     );
   const busy = review.state.kind === "saving";
   const bulkSaving = busy && review.state.kind === "saving" && review.state.savingLineId === "__bulk_no_offer__";
-  const withoutOptions = review.view.lines.filter((line) => line.candidates.length === 0).length;
+  const proposal = buildProposalTableView(review.view);
+  const visibleProposal = buildProposalTableView({ ...review.view, lines: review.lines });
   const confirm = async (request: {
     matchRunId: string;
     expectedSelectionRevision: number;
@@ -102,10 +104,11 @@ export function MatchResultsPanel(input: {
   };
   return (
     <section className="card">
-      <h2>Результаты подбора</h2>
+      <h2>Заявка</h2>
       <p>
-        {review.view.lineCount} позиций · {review.view.selectedCount} выбрано ·{" "}
-        {withoutOptions} без вариантов · {review.view.undecidedCount} требуют решения
+        {proposal.summary.total} позиций · {proposal.summary.withOffer} с предложением ·{" "}
+        {proposal.summary.noOffer} без предложения · {proposal.summary.attention} требуют внимания ·{" "}
+        Не подтверждено: {proposal.summary.unconfirmed}
       </p>
       {review.bulkEligibleCount > 0 && (
         <button disabled={writeLocked || busy || !input.current} onClick={() => void review.markAllWithoutOptions()}>
@@ -215,33 +218,23 @@ export function MatchResultsPanel(input: {
         onQuery={review.setQuery}
         onFilter={review.setFilter}
       />
-      {review.lines.map((line) => (
-        <MatchLineCard
-          key={line.lineId}
-          line={line}
-          expanded={review.expanded.has(line.lineId)}
-          feedbackOpen={review.feedbackExpanded.has(line.lineId)}
-          disabled={!input.current || writeLocked || busy}
-          saving={
-            busy &&
-            review.state.kind === "saving" &&
-            review.state.savingLineId === line.lineId
-          }
-          onToggle={() => review.toggle(line.lineId)}
-          onSelect={(i) =>
-            void review.selectOffer(line.lineId, line.candidates[i].offerRef)
-          }
-          onNoOffer={() => review.markNoOffer(line.lineId)}
-          onFeedbackOpenChange={(open) =>
-            review.setFeedbackExpanded(line.lineId, open)
-          }
-          onClear={() => void review.clearDecision(line.lineId)}
-          onSaveFeedback={(feedback) =>
-            review.saveFeedback(line.lineId, feedback)
-          }
-          onClearFeedback={() => review.clearFeedback(line.lineId)}
-        />
-      ))}
+      <ProposalTable
+        rows={visibleProposal.rows}
+        expanded={review.expanded}
+        feedbackExpanded={review.feedbackExpanded}
+        disabled={!input.current || writeLocked || busy}
+        savingLineId={busy && review.state.kind === "saving" ? review.state.savingLineId : undefined}
+        onToggle={review.toggle}
+        onSelect={(lineId, index) => {
+          const line = review.view?.lines.find((item) => item.lineId === lineId);
+          if (line?.candidates[index]) void review.selectOffer(lineId, line.candidates[index].offerRef);
+        }}
+        onNoOffer={review.markNoOffer}
+        onFeedbackOpenChange={review.setFeedbackExpanded}
+        onClear={(lineId) => void review.clearDecision(lineId)}
+        onSaveFeedback={review.saveFeedback}
+        onClearFeedback={review.clearFeedback}
+      />
       {review.hasMore && (
         <button onClick={review.showMore}>Показать ещё</button>
       )}
