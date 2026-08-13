@@ -68,7 +68,7 @@ export async function buildSemanticMatchingCatalog({ requestBundle, catalogs, se
     request_id: requestBundle.request_document.request_id, class_ids: classIds, selection_policy: selectionPolicy,
     catalog_refs: catalogRefs, items,
   });
-  const packageFingerprint = await computeSemanticMatchingFingerprint(base, cryptoApi);
+  const packageFingerprint = await computeSemanticMatchingFingerprint({ requestBundle, matchingCatalog: base }, cryptoApi);
   return {
     ...base, package_fingerprint: packageFingerprint,
     summary: { catalog_count: catalogRefs.length, request_class_count: classIds.length, item_count: items.length },

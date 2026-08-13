@@ -10,7 +10,6 @@ The pure modules use JSON values and Web Crypto only. A Node wrapper owns filesy
 
 ## Determinism and validation
 
-Classes are the sorted unique `class_id` values already annotated on non-unsupported request lines. Catalogs follow explicit priority; items retain source order. Filtering is limited to taxonomy, class, usable identity, annotation eligibility, and explicit hard brand rules. The SHA-256 input is canonical JSON over all semantic package fields except the fingerprint and summary.
+Classes are the sorted unique `class_id` values already annotated on non-unsupported request lines. Catalogs follow explicit priority; items retain source order. Filtering is limited to taxonomy, class, usable identity, annotation eligibility, and explicit hard brand rules. The SHA-256 input is canonical JSON over the exact, full production request bundle plus all semantic package fields except the fingerprint and derived summary. This binds a result through its matching package to the specific request artifact without copying that request into the matching catalog.
 
 Validation runs schemas first, then exact provenance, line order/coverage, request-status decisions, compound offer existence and uniqueness, same-class selection, match-level ceiling, and repeated hard-policy checks. It fails closed and never repairs artifacts.
-

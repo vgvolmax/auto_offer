@@ -34,9 +34,34 @@ test('needs_review, brands, empty classes, priority and taxonomy fail closed', a
   await assert.rejects(buildSemanticMatchingCatalog({ requestBundle: request, catalogs: [catalog('a', [entry('')])], selectionPolicy: { ...policy, catalog_priority: ['a'] } }), /source_item_id/);
 });
 
-test('fingerprint is key-order invariant and changes with semantic input', async () => {
+test('fingerprint is key-order invariant and changes with package semantic input', async () => {
   const value = { schema_version: '1', taxonomy_version: '1', request_id: 'r', class_ids: ['x'], selection_policy: { b: 2, a: 1 }, catalog_refs: [], items: [] };
   const reordered = { ...value, selection_policy: { a: 1, b: 2 } };
-  assert.equal(await computeSemanticMatchingFingerprint(value), await computeSemanticMatchingFingerprint(reordered));
-  assert.notEqual(await computeSemanticMatchingFingerprint(value), await computeSemanticMatchingFingerprint({ ...value, request_id: 'other' }));
+  const fingerprint = (matchingCatalog, requestBundle = request) => computeSemanticMatchingFingerprint({ requestBundle, matchingCatalog });
+  assert.equal(await fingerprint(value), await fingerprint(reordered));
+  assert.notEqual(await fingerprint(value), await fingerprint({ ...value, request_id: 'other' }));
+  assert.notEqual(await fingerprint(value), await fingerprint({ ...value, items: [{ id: 'changed' }] }));
+  assert.notEqual(await fingerprint(value), await fingerprint({ ...value, selection_policy: { a: 2, b: 2 } }));
+  assert.notEqual(await fingerprint(value), await fingerprint({ ...value, catalog_refs: [{ semantic_revision: 1 }] }));
+});
+
+test('fingerprint changes when request semantics change without changing request_id, line_id or class_id', async () => {
+  const catalogs = [catalog('a', [entry('a-1')])];
+  const selectionPolicy = { ...policy, catalog_priority: ['a'] };
+  const changedRequest = structuredClone(request);
+  changedRequest.request_document.lines[0].attributes = { pressure_bar: 16 };
+  const packageA = await buildSemanticMatchingCatalog({ requestBundle: request, catalogs, selectionPolicy });
+  const packageB = await buildSemanticMatchingCatalog({ requestBundle: changedRequest, catalogs, selectionPolicy });
+  assert.notEqual(packageA.package_fingerprint, packageB.package_fingerprint);
+});
+
+test('fingerprint is invariant to request object key order and does not mutate inputs', async () => {
+  const value = { schema_version: '1', taxonomy_version: '1', request_id: 'r', class_ids: ['x'], selection_policy: {}, catalog_refs: [], items: [], package_fingerprint: 'f'.repeat(64), summary: { item_count: 0 } };
+  const reorderedRequest = { request_document: { lines: request.request_document.lines, request_id: 'r1' }, taxonomy_version: '1.0.0' };
+  const snapshot = structuredClone({ request, value });
+  assert.equal(
+    await computeSemanticMatchingFingerprint({ requestBundle: request, matchingCatalog: value }),
+    await computeSemanticMatchingFingerprint({ requestBundle: reorderedRequest, matchingCatalog: value }),
+  );
+  assert.deepEqual({ request, value }, snapshot);
 });
