@@ -30,3 +30,14 @@ test('strict result schema supports all variants and rejects confidence', async 
   variants.forEach((line) => assert.equal(validate(root(line)), true));
   assert.equal(validate(root({ ...variants[0], confidence: 0.9 })), false);
 });
+
+test('rejects stale semantic result after request content changes', async () => {
+  const matchingCatalog = await buildSemanticMatchingCatalog({ requestBundle: request, catalogs: [record], selectionPolicy: policy });
+  const result = { kind: 'semantic_match_result', schema_version: '1.0.0', taxonomy_version: '1.0.0', request_id: 'r', package_fingerprint: matchingCatalog.package_fingerprint, lines: [{ line_id: '1', decision: 'no_offer', reason_code: 'NO_TECHNICAL_MATCH', rationale_ru: 'Нет' }, { line_id: '2', decision: 'request_unsupported' }] };
+  assert.equal((await validateSemanticMatchResultObjects({ result, requestBundle: request, matchingCatalog })).valid, true);
+  const changedRequest = structuredClone(request);
+  changedRequest.request_document.lines[0].attributes = { pressure_bar: 16 };
+  const stale = await validateSemanticMatchResultObjects({ result, requestBundle: changedRequest, matchingCatalog });
+  assert.equal(stale.valid, false);
+  assert.ok(stale.errors.some(({ code }) => code === 'PACKAGE_TAMPERED'));
+});

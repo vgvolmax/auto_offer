@@ -20,8 +20,8 @@ export async function validateSemanticMatchResultObjects({ result, requestBundle
   if (result.taxonomy_version !== taxonomy || matchingCatalog.taxonomy_version !== taxonomy) errors.push(error('TAXONOMY_MISMATCH', 'Taxonomy versions must match exactly'));
   if (result.request_id !== requestId || matchingCatalog.request_id !== requestId) errors.push(error('REQUEST_ID_MISMATCH', 'Request IDs must match exactly'));
   if (result.package_fingerprint !== matchingCatalog.package_fingerprint) errors.push(error('FINGERPRINT_MISMATCH', 'Result fingerprint does not match package'));
-  const computed = await computeSemanticMatchingFingerprint(matchingCatalog, cryptoApi);
-  if (computed !== matchingCatalog.package_fingerprint) errors.push(error('PACKAGE_TAMPERED', 'Matching catalog fingerprint is invalid'));
+  const computed = await computeSemanticMatchingFingerprint({ requestBundle, matchingCatalog }, cryptoApi);
+  if (computed !== matchingCatalog.package_fingerprint) errors.push(error('PACKAGE_TAMPERED', 'Matching package fingerprint does not match the supplied request bundle and package content'));
 
   const requestLines = requestBundle.request_document.lines;
   if (result.lines.length !== requestLines.length) errors.push(error('LINE_COUNT_MISMATCH', 'Result must cover every request line exactly once', '/lines'));

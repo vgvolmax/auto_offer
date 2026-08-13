@@ -5,14 +5,16 @@ const FINGERPRINT_FIELDS = [
   'selection_policy', 'catalog_refs', 'items',
 ];
 
-export function projectSemanticMatchingFingerprintInput(value) {
-  return Object.fromEntries(FINGERPRINT_FIELDS.map((field) => [field, value[field]]));
+export function projectSemanticMatchingFingerprintInput({ requestBundle, matchingCatalog }) {
+  return {
+    request_bundle: requestBundle,
+    matching_package: Object.fromEntries(FINGERPRINT_FIELDS.map((field) => [field, matchingCatalog[field]])),
+  };
 }
 
-export async function computeSemanticMatchingFingerprint(value, cryptoApi = globalThis.crypto) {
+export async function computeSemanticMatchingFingerprint(input, cryptoApi = globalThis.crypto) {
   if (!cryptoApi?.subtle) throw new Error('Web Crypto subtle API is required');
-  const bytes = new TextEncoder().encode(canonicalJson(projectSemanticMatchingFingerprintInput(value)));
+  const bytes = new TextEncoder().encode(canonicalJson(projectSemanticMatchingFingerprintInput(input)));
   const digest = await cryptoApi.subtle.digest('SHA-256', bytes);
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 }
-
