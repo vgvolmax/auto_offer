@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://example.local/schemas/chat-pipeline/semantic-match-result.schema.json",
+  "$defs": {
+    "lineId": { "type": "string", "minLength": 1 }, "rationale": { "type": "string", "minLength": 1, "maxLength": 1000 },
+    "offerRef": { "type": "object", "additionalProperties": false, "required": ["catalog_record_id", "source_item_id"], "properties": { "catalog_record_id": { "type": "string", "minLength": 1 }, "source_item_id": { "type": "string", "minLength": 1 } } },
+    "offer": { "type": "object", "additionalProperties": false, "required": ["line_id", "decision", "offer_ref", "match_level", "rationale_ru", "differences_ru"], "properties": { "line_id": { "$ref": "#/$defs/lineId" }, "decision": { "const": "offer" }, "offer_ref": { "$ref": "#/$defs/offerRef" }, "match_level": { "enum": ["exact", "equivalent", "alternative"] }, "rationale_ru": { "$ref": "#/$defs/rationale" }, "differences_ru": { "type": "array", "maxItems": 10, "items": { "type": "string", "minLength": 1, "maxLength": 500 } } } },
+    "noOffer": { "type": "object", "additionalProperties": false, "required": ["line_id", "decision", "reason_code", "rationale_ru"], "properties": { "line_id": { "$ref": "#/$defs/lineId" }, "decision": { "const": "no_offer" }, "reason_code": { "enum": ["NO_ELIGIBLE_OFFER", "NO_TECHNICAL_MATCH", "POLICY_EXCLUDED", "CATALOG_DATA_INSUFFICIENT"] }, "rationale_ru": { "$ref": "#/$defs/rationale" } } },
+    "reroute": { "type": "object", "additionalProperties": false, "required": ["line_id", "decision", "reason_code", "rationale_ru"], "properties": { "line_id": { "$ref": "#/$defs/lineId" }, "decision": { "const": "reroute_required" }, "reason_code": { "const": "ROUTING_INSUFFICIENT" }, "rationale_ru": { "$ref": "#/$defs/rationale" } } },
+    "passthrough": { "type": "object", "additionalProperties": false, "required": ["line_id", "decision"], "properties": { "line_id": { "$ref": "#/$defs/lineId" }, "decision": { "enum": ["request_review_required", "request_invalid", "request_unsupported"] } } }
+  },
+  "type": "object", "additionalProperties": false, "required": ["kind", "schema_version", "taxonomy_version", "request_id", "package_fingerprint", "lines"],
+  "properties": { "kind": { "const": "semantic_match_result" }, "schema_version": { "const": "1.0.0" }, "taxonomy_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" }, "request_id": { "type": "string", "minLength": 1 }, "package_fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "lines": { "type": "array", "items": { "oneOf": [{ "$ref": "#/$defs/offer" }, { "$ref": "#/$defs/noOffer" }, { "$ref": "#/$defs/reroute" }, { "$ref": "#/$defs/passthrough" }] } } }
+}
