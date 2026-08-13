@@ -3,6 +3,39 @@ import { getReasonCodeLabel } from "./match-result-labels";
 import { buildMatchResultReviewView } from "./match-result-review";
 
 describe("match result review", () => {
+  it("preserves semantic decisions and resolves offers from the local catalog", () => {
+    const catalog: any = {
+      recordId: "record-1", catalogId: "local-catalog", sourceSha256: "local-sha", sourceFileName: "catalog.xlsx",
+      bundle: { items: [
+        { source: { raw_name: "Проверенный товар" }, catalog_item: { source_item_id: "valid", annotation: { status: "validated" } } },
+        { source: { raw_name: "Ручной товар" }, catalog_item: { source_item_id: "manual", annotation: { status: "needs_review" } } },
+      ] },
+    };
+    const decisions = ["exact", "equivalent", "alternative"].map((match_level, index) => ({
+      line_id: `offer-${index}`, decision: "offer", offer_ref: { catalog_record_id: "record-1", source_item_id: index === 2 ? "manual" : "valid" },
+      match_level, rationale_ru: `Обоснование ${index}`, differences_ru: ["Отличие"],
+    }));
+    const diagnostic = ["no_offer", "reroute_required", "request_review_required", "request_invalid", "request_unsupported"].map((decision) => ({
+      line_id: decision, decision, reason_code: decision === "reroute_required" ? "ROUTING_INSUFFICIENT" : "NO_ELIGIBLE_OFFER", rationale_ru: "Диагностика",
+    }));
+    const all = [...decisions, ...diagnostic];
+    const run: any = { id: "run", sessionId: "session", sessionRevision: 0, createdAt: "now", runKind: "semantic", result: { package_fingerprint: "fp", lines: all } };
+    const session: any = { requestBundle: { request_document: { lines: all.map((line) => ({ line_id: line.line_id, raw_text: line.line_id })) } } };
+    const selectionState: any = { matchRunId: "run", sessionId: "session", inputFingerprint: "fp", decisions: {}, feedback: {} };
+
+    const view = buildMatchResultReviewView({ session, catalogs: [catalog], run, selectionState, current: true });
+    expect(view.lines.map((line) => line.resolution)).toEqual([
+      "single_exact", "equivalent_only", "alternative_only", "no_match", "reroute_required", "request_review_required", "request_invalid", "request_unsupported",
+    ]);
+    expect(view.lines[0].candidates[0]).toMatchObject({
+      offerRef: { catalog_id: "local-catalog", source_sha256: "local-sha" }, availability: "eligible",
+      semanticRationaleRu: "Обоснование 0", semanticDifferencesRu: ["Отличие"], checks: [], differences: [],
+    });
+    expect(view.lines[2].candidates[0].availability).toBe("manual_only");
+    expect(view.lines[3]).toMatchObject({ semanticRecommendation: "no_offer", semanticReasonCode: "NO_ELIGIBLE_OFFER", semanticRationaleRu: "Диагностика" });
+    expect(view.lines[4]).toMatchObject({ candidates: [], canSelectCandidate: false, canMarkNoOffer: false, hasDecision: false });
+    expect(view.undecidedCount).toBe(all.length);
+  });
   it(
     "builds a safe review model from source metadata and full offer references",
     () => {
