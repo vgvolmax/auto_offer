@@ -36,9 +36,11 @@
 
 Спокойный рабочий интерфейс использует системный шрифт, минимальную высоту контролов 40 px, контрастные поверхности и единый focus ring. Все основные потоки доступны клавиатурой, динамические сообщения объявляются через `aria-live`, модальные поверхности имеют доступные названия, а reduced-motion отключает движение.
 
-## B4a matching workspace
+## Production matching workspace
 
-Draft route содержит неизменяемые источники, focused policy form (match level, needs_review, catalog priority и brand policy) и сводку последнего запуска. Application hook управляет явными состояниями loading/clean/dirty/saving/running/current/stale/error. Candidate review, manual selection и export planned и на этом экране отсутствуют.
+Пользовательский workflow состоит из STEP1 (source и routing), неизменённого STEP2 (request annotation), STEP3 (выбор наших товаров внешним ИИ) и review. Draft route содержит неизменяемые источники, «Правила предложения», подготовку трёх canonical-файлов для нового внешнего чата и импорт проверенного semantic result. Подготовка STEP3 валидирует и сохраняет текущие настройки, поэтому отдельный Save не является предварительным условием.
+
+Локальный Pilot matcher остаётся внутренним regression/fallback-механизмом без production UI action. Сохранённый ранее Pilot run по-прежнему открывается в review.
 # B4b result review
 
 The session page composes a dedicated result-review feature. Search, filters, expansion, and the 50-row display limit are local UI state. Selection is persisted separately; stale results remain inspectable while all decision controls are read-only. Final review and export remain planned.
@@ -52,9 +54,9 @@ AI export включается только для актуального run п
 
 После списка строк панель «Завершение проверки» показывает progress и counts, объясняет incomplete/stale состояние и открывает inline-подтверждение. После atomic confirm интерфейс показывает badge «Подтверждено», блокирует все matching/review controls и оставляет просмотр и AI JSON. Inline reopen предупреждает о смене статуса и возвращает редактирование без потери решений или feedback; browser modal не используется.
 
-## Pilot diagnostics
+## Internal Pilot diagnostics
 
-После получения результата `MatchResultsPanel` показывает закрытую по умолчанию read-only секцию «Диагностика пилота». Она использует уже загруженный SelectionState и отображает release/contracts/storage, фактические taxonomy версий bundles и идентификаторы session/run. AI feedback export является частью pilot flow; G1 остаётся planned.
+Для legacy Pilot run `MatchResultsPanel` показывает закрытую по умолчанию read-only секцию «Диагностика пилота». Для semantic run Pilot diagnostics не строятся и не показываются. AI feedback export остаётся независимым от STEP3 инструментом review.
 
 ## Windows delivery/runtime boundary
 

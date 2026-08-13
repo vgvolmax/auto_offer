@@ -64,4 +64,40 @@ describe("Pilot 1.0 volume readiness", () => {
     await waitFor(() => expect(cards()).toHaveLength(MATCH_RESULTS_BATCH_SIZE));
     expect(document.querySelectorAll("article.match-line").length).toBeLessThan(500);
   });
+
+  it("shows Pilot diagnostics only for legacy Pilot runs", async () => {
+    const fixture = await persistFixture();
+    const input = { session: fixture.session, catalogs: fixture.catalogs, current: true, locked: false, confirming: false, reopening: false, reviewRefreshing: false, onReviewRefreshingChange: () => undefined, onConfirm: async () => ({ ok: false as const, code: "REVIEW_INCOMPLETE" as const, message: "not used" }), onReopen: async () => false, onRefreshSessionSnapshot: async () => true };
+    const pilot = render(<MatchResultsPanel {...input} run={fixture.run} />);
+    expect(await screen.findByText("Диагностика пилота")).toBeInTheDocument();
+
+    pilot.unmount();
+    const semanticRun = {
+      ...fixture.run,
+      runKind: "semantic" as const,
+      result: {
+        kind: "semantic_match_result" as const,
+        schema_version: "1.0.0" as const,
+        taxonomy_version: "test",
+        request_id: fixture.session.requestBundle.request_document.request_id,
+        package_fingerprint: fixture.selectionState.inputFingerprint,
+        lines: fixture.session.requestBundle.request_document.lines.map((line) => ({
+          line_id: line.line_id,
+          decision: "no_offer" as const,
+          reason_code: "NO_ELIGIBLE_OFFER" as const,
+          rationale_ru: "Нет предложения",
+        })),
+      },
+      semanticContext: {
+        taxonomyVersion: "test",
+        requestId: fixture.session.requestBundle.request_document.request_id,
+        packageFingerprint: fixture.selectionState.inputFingerprint,
+        selectionPolicy: {} as never,
+        catalogRefs: [],
+      },
+    };
+    render(<MatchResultsPanel {...input} run={semanticRun} />);
+    await screen.findByText(/500 позиций/);
+    expect(screen.queryByText("Диагностика пилота")).not.toBeInTheDocument();
+  });
 });

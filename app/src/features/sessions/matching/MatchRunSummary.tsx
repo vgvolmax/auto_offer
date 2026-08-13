@@ -50,7 +50,7 @@ export function MatchRunSummaryView({ run, current }: { run: MatchRunRecord; cur
       <dl className="summary-grid">
         {run.runKind === "semantic" ? <SemanticMetrics run={run} /> : <PilotMetrics run={run} />}
       </dl>
-      <p className="notice">Источник: {run.runKind === "semantic" ? "Внешний чат" : "Pilot matcher"}.</p>
+      <p className="notice">Источник: {run.runKind === "semantic" ? "Подбор ИИ" : "Локальный подбор (legacy)"}.</p>
     </section>
   );
 }

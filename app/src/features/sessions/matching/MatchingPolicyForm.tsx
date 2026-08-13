@@ -13,7 +13,6 @@ export function MatchingPolicyForm({
   issues,
   onChange,
   onSave,
-  onRun,
   locked,
   externalBusy,
 }: {
@@ -23,7 +22,6 @@ export function MatchingPolicyForm({
   issues: SessionMatchingSettingsIssue[];
   onChange: (s: SessionMatchingSettings) => void;
   onSave: () => void;
-  onRun: () => void;
   locked: boolean;
   externalBusy: boolean;
 }) {
@@ -38,19 +36,20 @@ export function MatchingPolicyForm({
     state === "success-stale";
   return (
     <section className="card">
-      <h2>Настройка правил подбора</h2>
+      <h2>Правила предложения</h2>
+      <p>Эти правила ограничивают, какие товары ИИ может предложить.</p>
       {locked && (
         <p className="warning-text">
           Результат подтверждён. Верните его к редактированию, чтобы изменить
-          правила или запустить подбор заново.
+          правила или подготовить новый подбор для ИИ.
         </p>
       )}
       <fieldset disabled={interactionDisabled}>
-        <legend>Максимальный уровень подбора</legend>
+        <legend>Какие замены разрешены</legend>
         {[
-          ["exact", "Только точные"],
-          ["equivalent", "Точные и эквивалентные"],
-          ["alternative", "Все варианты, включая альтернативные"],
+          ["exact", "Только точное соответствие"],
+          ["equivalent", "Точное или эквивалент"],
+          ["alternative", "Можно предлагать альтернативы"],
         ].map(([value, label]) => (
           <label key={value} className="inline-check">
             <input
@@ -69,12 +68,11 @@ export function MatchingPolicyForm({
           </label>
         ))}
         <p className="hint">
-          Уровень ограничивает выдачу matcher, но не подтверждает предложение
-          автоматически.
+          ИИ сможет выбирать только варианты в пределах разрешённого уровня.
         </p>
       </fieldset>
       <fieldset disabled={interactionDisabled}>
-        <legend>Товары needs_review</legend>
+        <legend>Товары, которые требуют проверки</legend>
         <label className="inline-check">
           <input
             type="radio"
@@ -84,7 +82,7 @@ export function MatchingPolicyForm({
               onChange({ ...settings, catalogNeedsReview: "exclude" })
             }
           />
-          Исключать
+          Не использовать товары, которые требуют проверки
         </label>
         <label className="inline-check">
           <input
@@ -95,7 +93,7 @@ export function MatchingPolicyForm({
               onChange({ ...settings, catalogNeedsReview: "manual_only" })
             }
           />
-          Показывать только для ручной проверки
+          Разрешить их как варианты с обязательной ручной проверкой
         </label>
       </fieldset>
       <CatalogPriorityEditor
@@ -124,13 +122,6 @@ export function MatchingPolicyForm({
           onClick={onSave}
         >
           {state === "saving" ? "Сохранение…" : "Сохранить настройки"}
-        </button>
-        <button
-          className="button"
-          disabled={interactionDisabled || issues.length > 0}
-          onClick={onRun}
-        >
-          {state === "running" ? "Выполняется подбор…" : state === "success-stale" ? "Перезапустить подбор" : "Запустить подбор"}
         </button>
         {busy && (
           <span role="status">

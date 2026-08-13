@@ -59,12 +59,11 @@ export function SessionPage() {
         issues={matching.issues}
         onChange={matching.change}
         onSave={matching.save}
-        onRun={matching.run}
         locked={session.status === "confirmed"}
         externalBusy={reviewRefreshing}
       />
       <SemanticMatchingWorkspace sessionId={session.sessionId} settings={settings} disabled={session.status === "confirmed" || ["saving","running","confirming","reopening"].includes(matching.state.kind)} />
-      {run && !current && <p className="warning-text" role="status">{session.status === "confirmed" ? "Каталог изменился после подтверждения результата. Чтобы пересчитать подбор, верните результат к редактированию." : "Каталог или настройки изменились после последнего подбора. Результат устарел."}</p>}
+      {run && !current && <p className="warning-text" role="status">{session.status === "confirmed" ? "Каталог изменился после подтверждения результата. Чтобы подготовить новый подбор для ИИ, верните результат к редактированию." : "Подбор устарел. Подготовьте новые файлы для ИИ."}</p>}
       {run && <MatchRunSummaryView run={run} current={current} />}{" "}
       {run && (
         <MatchResultsPanel

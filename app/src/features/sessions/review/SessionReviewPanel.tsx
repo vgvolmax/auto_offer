@@ -95,7 +95,7 @@ export function SessionReviewPanel(input: {
       {!input.current && (
         <p className="warning-text">
           Результат нельзя подтвердить, потому что настройки или каталоги
-          изменились. Запустите подбор заново.
+          изменились. Подготовьте новый подбор для ИИ.
         </p>
       )}
       {input.error && <p role="alert">{input.error}</p>}

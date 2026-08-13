@@ -28,8 +28,10 @@ describe("SemanticMatchingWorkspace", () => {
       session: { requestBundle }, matchingCatalog,
     } as never);
     render(<SemanticMatchingWorkspace sessionId="session" settings={settings} disabled={false} />);
-    await userEvent.click(screen.getByRole("button", { name: "Подготовить файлы для чата" }));
+    expect(screen.getByRole("heading", { name: "Шаг 3 — Подбор наших товаров" })).toBeVisible();
+    await userEvent.click(screen.getByRole("button", { name: "Подготовить подбор для ИИ" }));
     await waitFor(() => expect(downloadTextFile).toHaveBeenCalledTimes(3));
+    expect(prepareSemanticMatchingPackage).toHaveBeenCalledWith(expect.objectContaining({ sessionId: "session", settings }));
     expect(vi.mocked(downloadTextFile).mock.calls.map(([name]) => name)).toEqual([
       "SEMANTIC_MATCH_PROMPT.md", "request_bundle.json", "semantic-matching-catalog.json",
     ]);
@@ -40,8 +42,8 @@ describe("SemanticMatchingWorkspace", () => {
 
   it("disables both operations", async () => {
     render(<SemanticMatchingWorkspace sessionId="session" settings={settings} disabled />);
-    expect(screen.getByRole("button", { name: "Подготовить файлы для чата" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Импортировать результат" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Подготовить подбор для ИИ" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Загрузить результат ИИ" })).toBeDisabled();
     expect(prepareSemanticMatchingPackage).not.toHaveBeenCalled();
     expect(importSemanticMatchResult).not.toHaveBeenCalled();
   });
@@ -78,6 +80,6 @@ describe("SemanticMatchingWorkspace", () => {
     await waitFor(() => expect(importSemanticMatchResult).toHaveBeenCalledWith(expect.objectContaining({
       sessionId: "session", semanticResult: result,
     })));
-    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Результат импортирован"));
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Подбор ИИ загружен"));
   });
 });
