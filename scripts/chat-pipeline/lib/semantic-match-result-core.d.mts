@@ -1,0 +1,1 @@
+export function validateSemanticMatchResultObjects(input:{result:unknown;requestBundle:any;matchingCatalog:any;validators?:Record<string,import('ajv').ValidateFunction>;cryptoApi?:Crypto}):Promise<{valid:boolean;errors?:Array<{code:string;path:string;message:string}>}>;

@@ -29,6 +29,12 @@ export function CandidateCard({
       {candidate.availability === "manual_only" && (
         <p>Каталог требует ручной проверки</p>
       )}
+      {candidate.semanticRationaleRu && (
+        <section><h5>Почему предложено</h5><p>{candidate.semanticRationaleRu}</p></section>
+      )}
+      {candidate.semanticDifferencesRu && candidate.semanticDifferencesRu.length > 0 && (
+        <section><h5>Отличия</h5><ul>{candidate.semanticDifferencesRu.map((value) => <li key={value}>{value}</li>)}</ul></section>
+      )}
       <label>
         <input
           type="radio"

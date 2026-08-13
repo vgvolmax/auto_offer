@@ -3,6 +3,7 @@ import type { SessionRecord } from "../session";
 import type { MatchRunRecord } from "./match-run";
 import { buildSessionMatchingPolicy } from "./session-policy";
 import { pilotPolicyRegistry } from "./pilot-config";
+import { buildSemanticSelectionPolicy } from "./semantic-session-matching";
 const same = (a: unknown, b: unknown) =>
   JSON.stringify(a) === JSON.stringify(b);
 
@@ -37,6 +38,22 @@ export function isMatchRunCurrent(input: {
   run: MatchRunRecord;
 }): boolean {
   const { session, run } = input;
+  if (run.runKind === "semantic") {
+    const byId = new Map(input.catalogs.map((catalog) => [catalog.recordId, catalog]));
+    const prioritized = run.semanticContext.selectionPolicy.catalog_priority.map((id) => byId.get(id));
+    if (prioritized.some((catalog) => !catalog)) return false;
+    const refs = (prioritized as CatalogRecord[]).map((catalog) => ({
+      catalog_record_id: catalog.recordId,
+      catalog_id: catalog.catalogId,
+      source_sha256: catalog.sourceSha256,
+      semantic_revision: catalog.semanticRevision,
+    }));
+    return run.sessionRevision === session.matchingRevision
+      && run.semanticContext.requestId === session.requestId
+      && run.semanticContext.taxonomyVersion === session.requestBundle.taxonomy_version
+      && same(run.semanticContext.selectionPolicy, buildSemanticSelectionPolicy(session.matchingSettings))
+      && same(run.semanticContext.catalogRefs, refs);
+  }
   if (
     run.sessionRevision !== session.matchingRevision ||
     run.result.request_id !== session.requestId

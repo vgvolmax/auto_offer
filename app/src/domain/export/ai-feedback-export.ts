@@ -1,3 +1,4 @@
+import { matchRunFingerprint } from "../matching/match-run";
 import type { CatalogRecord } from "../catalog";
 import type { MatchRunRecord } from "../matching/match-run";
 import { offerRefKey, type OfferRef } from "../matching/offer-ref";
@@ -34,7 +35,7 @@ export function buildAiFeedbackExport(input: { session: SessionRecord; catalogs:
     throw error;
   }
   if (session.status === "draft" && !input.current) throw new AiFeedbackExportError("Экспорт доступен только для текущего запуска", "AI_EXPORT_NOT_CURRENT");
-  if (run.sessionId !== session.sessionId || session.latestMatchRunId !== run.id || run.sessionRevision !== session.matchingRevision || selectionState.sessionId !== session.sessionId || selectionState.matchRunId !== run.id || selectionState.inputFingerprint !== run.result.input_fingerprint)
+  if (run.sessionId !== session.sessionId || session.latestMatchRunId !== run.id || run.sessionRevision !== session.matchingRevision || selectionState.sessionId !== session.sessionId || selectionState.matchRunId !== run.id || selectionState.inputFingerprint !== matchRunFingerprint(run))
     throw new AiFeedbackExportError("Состояние не соответствует запуску", "AI_EXPORT_STATE_MISMATCH");
   const requestLines = session.requestBundle.request_document.lines;
   const ids = new Set(requestLines.map((line) => line.line_id));
@@ -81,7 +82,7 @@ export function buildAiFeedbackExport(input: { session: SessionRecord; catalogs:
     schema_version: AI_FEEDBACK_EXPORT_SCHEMA_VERSION, export_type: "auto_offer_ai_feedback", exported_at: input.exportedAt ?? new Date().toISOString(),
     session: { session_id: session.sessionId, name: session.name, comment: session.comment, status: session.status, ...(session.status === "confirmed" && { confirmation: { ...session.confirmation } }), request_id: session.requestId, request_file_name: session.requestFileName, matching_revision: session.matchingRevision, matching_settings: session.matchingSettings, catalog_refs: session.catalogRefs, created_at: session.createdAt, updated_at: session.updatedAt },
     request_bundle: session.requestBundle,
-    match_run: { id: run.id, session_revision: run.sessionRevision, created_at: run.createdAt, input_fingerprint: run.result.input_fingerprint, result: run.result },
+    match_run: { id: run.id, session_revision: run.sessionRevision, created_at: run.createdAt, input_fingerprint: matchRunFingerprint(run), result: run.result },
     operator_review: { selection_state_schema_version: SELECTION_STATE_SCHEMA_VERSION, selection_state_revision: selectionState.revision, decided_count: lines.length, selected_offer_count: lines.filter((x) => x.decision.kind === "selected_offer").length, no_offer_count: lines.filter((x) => x.decision.kind === "no_offer").length, feedback_count: lines.filter((x) => x.feedback).length, lines },
     referenced_catalog_items,
   };

@@ -1,13 +1,41 @@
 import type { MatchRunRecord } from "../../../domain/matching/match-run";
-import { summarizeMatchResult } from "../../../domain/matching/match-run";
-export function MatchRunSummaryView({
-  run,
-  current,
-}: {
-  run: MatchRunRecord;
-  current: boolean;
-}) {
-  const s = summarizeMatchResult(run.result);
+import {
+  matchRunFingerprint,
+  summarizeMatchResult,
+  summarizeSemanticMatchResult,
+} from "../../../domain/matching/match-run";
+
+function PilotMetrics({ run }: { run: Extract<MatchRunRecord, { runKind: "pilot" }> }) {
+  const summary = summarizeMatchResult(run.result);
+  return <>
+    <dt>Строк всего</dt><dd>{summary.totalLines}</dd>
+    <dt>Точные одиночные</dt><dd>{summary.singleExact}</dd>
+    <dt>Несколько точных</dt><dd>{summary.multipleExact}</dd>
+    <dt>Только эквивалентные</dt><dd>{summary.equivalentOnly}</dd>
+    <dt>Только альтернативные</dt><dd>{summary.alternativeOnly}</dd>
+    <dt>Исключённые правилами</dt><dd>{summary.excludedByPolicy}</dd>
+    <dt>Без совпадений</dt><dd>{summary.noMatch}</dd>
+    <dt>Требуют проверки</dt><dd>{summary.requestReviewRequired}</dd>
+  </>;
+}
+
+function SemanticMetrics({ run }: { run: Extract<MatchRunRecord, { runKind: "semantic" }> }) {
+  const summary = summarizeSemanticMatchResult(run.result);
+  return <>
+    <dt>Строк всего</dt><dd>{summary.totalLines}</dd>
+    <dt>Точных предложений</dt><dd>{summary.exactOfferCount}</dd>
+    <dt>Эквивалентных предложений</dt><dd>{summary.equivalentOfferCount}</dd>
+    <dt>Альтернативных предложений</dt><dd>{summary.alternativeOfferCount}</dd>
+    <dt>Рекомендуется без предложения</dt><dd>{summary.noOfferRecommendedCount}</dd>
+    <dt>Требуется повторная маршрутизация</dt><dd>{summary.rerouteRequiredCount}</dd>
+    <dt>Требуют проверки заявки</dt><dd>{summary.requestReviewRequiredCount}</dd>
+    <dt>Ошибки в заявке</dt><dd>{summary.requestInvalidCount}</dd>
+    <dt>Не поддерживаются</dt><dd>{summary.requestUnsupportedCount}</dd>
+  </>;
+}
+
+export function MatchRunSummaryView({ run, current }: { run: MatchRunRecord; current: boolean }) {
+  const fingerprint = matchRunFingerprint(run);
   return (
     <section className="card" aria-label="Сводка подбора">
       <div className="row">
@@ -16,33 +44,13 @@ export function MatchRunSummaryView({
           {current ? "Актуальный" : "Настройки изменены — результат устарел"}
         </strong>
       </div>
-      <p>
-        {new Date(run.createdAt).toLocaleString("ru")} · fingerprint:{" "}
-        <code title={run.result.input_fingerprint}>
-          {run.result.input_fingerprint.slice(0, 12)}…
-        </code>
+      <p>{new Date(run.createdAt).toLocaleString("ru")} · fingerprint:{" "}
+        <code title={fingerprint}>{fingerprint.slice(0, 12)}…</code>
       </p>
       <dl className="summary-grid">
-        <dt>Строк всего</dt>
-        <dd>{s.totalLines}</dd>
-        <dt>Точные одиночные</dt>
-        <dd>{s.singleExact}</dd>
-        <dt>Несколько точных</dt>
-        <dd>{s.multipleExact}</dd>
-        <dt>Только эквивалентные</dt>
-        <dd>{s.equivalentOnly}</dd>
-        <dt>Только альтернативные</dt>
-        <dd>{s.alternativeOnly}</dd>
-        <dt>Исключённые правилами</dt>
-        <dd>{s.excludedByPolicy}</dd>
-        <dt>Без совпадений</dt>
-        <dd>{s.noMatch}</dd>
-        <dt>Требуют проверки</dt>
-        <dd>{s.requestReviewRequired}</dd>
+        {run.runKind === "semantic" ? <SemanticMetrics run={run} /> : <PilotMetrics run={run} />}
       </dl>
-      <p className="notice">
-        Просмотр предложений и ручной выбор будут доступны на следующем этапе.
-      </p>
+      <p className="notice">Источник: {run.runKind === "semantic" ? "Внешний чат" : "Pilot matcher"}.</p>
     </section>
   );
 }

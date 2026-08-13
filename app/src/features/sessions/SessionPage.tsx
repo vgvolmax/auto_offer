@@ -6,6 +6,7 @@ import { MatchRunSummaryView } from "./matching/MatchRunSummary";
 import { useSessionMatching } from "./matching/useSessionMatching";
 import { MatchResultsPanel } from "./results/MatchResultsPanel";
 import { useEffect, useState } from "react";
+import { SemanticMatchingWorkspace } from "./matching/SemanticMatchingWorkspace";
 export function SessionPage() {
   const { id } = useParams(),
     matching = useSessionMatching(id);
@@ -62,6 +63,7 @@ export function SessionPage() {
         locked={session.status === "confirmed"}
         externalBusy={reviewRefreshing}
       />
+      <SemanticMatchingWorkspace sessionId={session.sessionId} settings={settings} disabled={session.status === "confirmed" || ["saving","running","confirming","reopening"].includes(matching.state.kind)} />
       {run && !current && <p className="warning-text" role="status">{session.status === "confirmed" ? "Каталог изменился после подтверждения результата. Чтобы пересчитать подбор, верните результат к редактированию." : "Каталог или настройки изменились после последнего подбора. Результат устарел."}</p>}
       {run && <MatchRunSummaryView run={run} current={current} />}{" "}
       {run && (

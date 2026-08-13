@@ -1,0 +1,13 @@
+import { useRef, useState } from "react";
+import semanticPrompt from "../../../../../annotation-kits/matching/SEMANTIC_MATCH_PROMPT.md?raw";
+import type { SessionMatchingSettings } from "../../../domain/matching/session-policy";
+import { importSemanticMatchResult, prepareSemanticMatchingPackage, SemanticImportError } from "../../../domain/matching/semantic-session-matching";
+import { appRepositories } from "../../../storage/repositories";
+import { downloadTextFile } from "../../../lib/download-file";
+
+export function SemanticMatchingWorkspace({sessionId,settings,disabled}:{sessionId:string;settings:SessionMatchingSettings;disabled:boolean}){
+ const [busy,setBusy]=useState(false),[message,setMessage]=useState<string>(),file=useRef<HTMLInputElement>(null);
+ const prepare=async()=>{setBusy(true);setMessage(undefined);try{const prepared=await prepareSemanticMatchingPackage({sessionId,settings,repositories:appRepositories});downloadTextFile("SEMANTIC_MATCH_PROMPT.md",semanticPrompt,"text/markdown");downloadTextFile("request_bundle.json",JSON.stringify(prepared.session.requestBundle,null,2));downloadTextFile("semantic-matching-catalog.json",JSON.stringify(prepared.matchingCatalog,null,2));setMessage("Три файла подготовлены. Откройте новый внешний чат и приложите их.");}catch(e){setMessage(e instanceof Error?e.message:"Не удалось подготовить пакет");}finally{setBusy(false)}};
+ const importFile=async(e:React.ChangeEvent<HTMLInputElement>)=>{const selected=e.target.files?.[0];if(!selected)return;setBusy(true);setMessage(undefined);try{const parsed:unknown=JSON.parse(await selected.text());await importSemanticMatchResult({sessionId,semanticResult:parsed,repositories:appRepositories});setMessage("Результат импортирован. Открываем его для проверки…");window.location.reload();}catch(error){setMessage(error instanceof SyntaxError?"JSON результата имеет неверный формат":error instanceof SemanticImportError?error.message:error instanceof Error?error.message:"Файл не импортирован");}finally{e.target.value="";setBusy(false)}};
+ return <section className="card" aria-label="Подбор через внешний чат"><h2>Подбор через внешний чат</h2><p>Подготовьте три файла, откройте новый внешний LLM-чат, а затем загрузите только <code>semantic-match-result.json</code>. Встроенный LLM/API не используется.</p><div className="row"><button type="button" disabled={disabled||busy} onClick={prepare}>Подготовить файлы для чата</button><button type="button" disabled={disabled||busy} onClick={()=>file.current?.click()}>Импортировать результат</button><input ref={file} hidden type="file" accept="application/json,.json" onChange={importFile}/></div>{message&&<p role="status">{message}</p>}</section>;
+}

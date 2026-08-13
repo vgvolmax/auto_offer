@@ -1,3 +1,4 @@
+import { matchRunFingerprint, normalizeMatchRunRecord } from "../domain/matching/match-run";
 import { validateCompletedReview, CompletedReviewError } from "../domain/review/completed-review";
 import { SessionReviewError } from "../domain/review/session-review";
 import { normalizeSelectionStateRecord } from "../domain/matching/selection-state";
@@ -33,7 +34,7 @@ export function createSessionReviewRepository(dependencies: { now?: () => string
         const catalogs = [];
         for (const id of session.catalogRecordIds) { const catalog = await tx.objectStore("catalogs").get(id); if (!catalog) error(`Каталог ${id} не найден`, "CATALOG_RECORD_MISSING"); catalogs.push(catalog!); }
         let summary;
-        try { summary = validateCompletedReview({ session, catalogs, run: run!, selectionState, mode: "current_draft" }); }
+        try { summary = validateCompletedReview({ session, catalogs, run: normalizeMatchRunRecord(run!), selectionState, mode: "current_draft" }); }
         catch (cause) { if (cause instanceof CompletedReviewError) throw new SessionReviewError(cause.message, cause.code, cause.lineIds, { cause }); throw cause; }
         const timestamp = now();
         const confirmation: SessionConfirmation = { schemaVersion: SESSION_CONFIRMATION_SCHEMA_VERSION, ...summary, confirmedAt: timestamp };
@@ -58,7 +59,7 @@ export function createSessionReviewRepository(dependencies: { now?: () => string
         const rawState = await tx.objectStore("selectionStates").get(run!.id);
         if (!rawState) error("SelectionState не найден", "SELECTION_STATE_NOT_FOUND");
         const state = normalizeSelectionStateRecord(rawState!);
-        if (run!.result.input_fingerprint !== confirmed.confirmation.inputFingerprint || state.inputFingerprint !== confirmed.confirmation.inputFingerprint || state.revision !== confirmed.confirmation.selectionStateRevision) error("Подтверждённые данные изменились", "REVIEW_CONFIRMATION_MISMATCH");
+        if (matchRunFingerprint(normalizeMatchRunRecord(run!)) !== confirmed.confirmation.inputFingerprint || state.inputFingerprint !== confirmed.confirmation.inputFingerprint || state.revision !== confirmed.confirmation.selectionStateRevision) error("Подтверждённые данные изменились", "REVIEW_CONFIRMATION_MISMATCH");
         const draft: DraftSessionRecord = { ...confirmed, status: "draft", confirmation: undefined, updatedAt: now() };
         await tx.objectStore("sessions").put(draft); await tx.done; return draft;
       } catch (cause) { tx.abort(); await tx.done.catch(() => undefined); if (cause instanceof SessionReviewError) throw cause; throw new SessionReviewError("Не удалось вернуть результат", "SESSION_REVIEW_PERSIST_FAILED", [], { cause }); }

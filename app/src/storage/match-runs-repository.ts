@@ -1,5 +1,6 @@
+import { normalizeMatchRunRecord, type MatchRunRecord } from "../domain/matching/match-run";
 import type { MatchResult } from "../domain/matching";
-import type { MatchRunRecord } from "../domain/matching/match-run";
+import type { SemanticMatchResult } from "../domain/matching/semantic-types";
 import { normalizeSessionRecord } from "../domain/session";
 import { getDatabase } from "./database";
 import { createSelectionState } from "../domain/matching/selection-state";
@@ -13,7 +14,9 @@ export interface MatchRunRepository {
   saveLatest(input: {
     sessionId: string;
     expectedSessionRevision: number;
-    result: MatchResult;
+    result: MatchResult | SemanticMatchResult;
+    runKind?: "pilot" | "semantic";
+    semanticContext?: Extract<MatchRunRecord,{runKind:"semantic"}>["semanticContext"];
   }): Promise<MatchRunRecord>;
   deleteForSession(sessionId: string): Promise<void>;
 }
@@ -27,13 +30,14 @@ export function createMatchRunsRepository(dependencies: {
   const createSelectionStateForRun = dependencies.createSelectionStateForRun ?? createSelectionState;
   return {
   async get(id) {
-    return (await getDatabase()).get("matchRuns", id);
+    const record = await (await getDatabase()).get("matchRuns", id);
+    return record && normalizeMatchRunRecord(record);
   },
   async getLatestForSession(sessionId) {
     const db = await getDatabase();
     const session = await db.get("sessions", sessionId);
     return session?.latestMatchRunId
-      ? db.get("matchRuns", session.latestMatchRunId)
+      ? db.get("matchRuns", session.latestMatchRunId).then((record) => record && normalizeMatchRunRecord(record))
       : undefined;
   },
   async saveLatest(input) {
@@ -58,7 +62,9 @@ export function createMatchRunsRepository(dependencies: {
         sessionRevision: session.matchingRevision,
         createdAt,
         result: input.result,
-      };
+        runKind: input.runKind ?? "pilot",
+        ...(input.runKind === "semantic" ? { semanticContext: input.semanticContext! } : {}),
+      } as MatchRunRecord;
       await tx.objectStore("matchRuns").put(record);
       await tx.objectStore("selectionStates").put(createSelectionStateForRun(record));
       await tx

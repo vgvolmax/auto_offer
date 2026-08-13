@@ -1,3 +1,4 @@
+import { matchRunFingerprint, normalizeMatchRunRecord } from "../domain/matching/match-run";
 import type { MatchRunRecord } from "../domain/matching/match-run";
 import {
   createSelectionState,
@@ -46,7 +47,7 @@ export const selectionStatesRepository: SelectionStatesRepository = {
     if (existing) {
       if (
         existing.sessionId !== run.sessionId ||
-        existing.inputFingerprint !== run.result.input_fingerprint
+        existing.inputFingerprint !== matchRunFingerprint(normalizeMatchRunRecord(run))
       ) {
         tx.abort();
         throw new SelectionError(
@@ -132,7 +133,7 @@ export const selectionStatesRepository: SelectionStatesRepository = {
       const storedState = await tx.objectStore("selectionStates").get(input.matchRunId);
       if (!storedState) throw new SelectionError("SelectionState не найден", "SELECTION_STATE_RUN_MISMATCH");
       const state = normalizeSelectionStateRecord(storedState);
-      if (state.sessionId !== run.sessionId || state.inputFingerprint !== run.result.input_fingerprint)
+      if (state.sessionId !== run.sessionId || state.inputFingerprint !== matchRunFingerprint(normalizeMatchRunRecord(run)))
         throw new SelectionError("SelectionState не соответствует запуску", "SELECTION_STATE_RUN_MISMATCH");
       if (state.revision !== input.expectedRevision) throw new StaleSelectionStateError();
       const resultLines = Array.isArray(run.result.lines) ? run.result.lines : [];

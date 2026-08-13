@@ -6,6 +6,8 @@ import registry from '../../../schemas/annotation/class-schema-registry.json';
 import requestSourceSchema from '../../../schemas/chat-pipeline/request-source.schema.json';
 import requestRoutingSchema from '../../../schemas/chat-pipeline/request-routing.schema.json';
 import taxonomyLightSchema from '../../../schemas/chat-pipeline/taxonomy-light.schema.json';
+import semanticMatchingCatalogSchema from '../../../schemas/chat-pipeline/semantic-matching-catalog.schema.json';
+import semanticMatchResultSchema from '../../../schemas/chat-pipeline/semantic-match-result.schema.json';
 
 type ClassSchema = {validator:ValidateFunction;classId:string;schema:object};
 export interface BrowserValidationContext {
@@ -19,6 +21,8 @@ export interface BrowserValidationContext {
   requestSourceValidator:ValidateFunction;
   requestRoutingValidator:ValidateFunction;
   taxonomyLightValidator:ValidateFunction;
+  semanticMatchingCatalogValidator:ValidateFunction;
+  semanticMatchResultValidator:ValidateFunction;
 }
 
 function compiler(kit:typeof catalogKit|typeof requestKit) {
@@ -46,5 +50,5 @@ export function createBrowserValidationContext():BrowserValidationContext {
     catalogBundleValidator:get(catalogAjv,catalogKit.root_schema_id),requestBundleValidator:get(requestAjv,requestKit.root_schema_id),
     catalogItemBaseValidator:get(catalogAjv,'https://example.local/schemas/annotation/catalog-item-annotation.base.schema.json'),
     requestLineBaseValidator:get(requestAjv,'https://example.local/schemas/annotation/request-line-annotation.base.schema.json'),
-    requestSourceValidator:preparationAjv.compile(requestSourceSchema),requestRoutingValidator:preparationAjv.compile(requestRoutingSchema),taxonomyLightValidator:preparationAjv.compile(taxonomyLightSchema)};
+    requestSourceValidator:preparationAjv.compile(requestSourceSchema),requestRoutingValidator:preparationAjv.compile(requestRoutingSchema),taxonomyLightValidator:preparationAjv.compile(taxonomyLightSchema),semanticMatchingCatalogValidator:preparationAjv.compile(semanticMatchingCatalogSchema),semanticMatchResultValidator:preparationAjv.compile(semanticMatchResultSchema)};
 }

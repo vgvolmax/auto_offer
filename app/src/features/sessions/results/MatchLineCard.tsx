@@ -1,4 +1,4 @@
-import { getResolutionLabel } from "../../../domain/matching/match-result-labels";
+import { getReasonCodeLabel, getResolutionLabel } from "../../../domain/matching/match-result-labels";
 import type { MatchLineReviewView } from "../../../domain/matching/match-result-review";
 import { CandidateCard } from "./CandidateCard";
 import { ExcludedCandidates } from "./ExcludedCandidates";
@@ -48,6 +48,19 @@ export function MatchLineCard(p: {
           {line.resolution === "request_invalid" && (
             <p>Строка заявки не прошла проверку.</p>
           )}
+          {line.resolution === "request_unsupported" && <p>Строка заявки не поддерживается.</p>}
+          {line.semanticRecommendation === "reroute_required" && (
+            <section><h4>Требуется повторная маршрутизация заявки</h4>
+              {line.semanticReasonCode && <p>Причина: {getReasonCodeLabel(line.semanticReasonCode)}</p>}
+              {line.semanticRationaleRu && <p>{line.semanticRationaleRu}</p>}
+            </section>
+          )}
+          {line.semanticRecommendation === "no_offer" && (
+            <section><h4>Подбор через внешний чат рекомендует: без предложения</h4>
+              {line.semanticReasonCode && <p>Причина: {getReasonCodeLabel(line.semanticReasonCode)}</p>}
+              {line.semanticRationaleRu && <p>{line.semanticRationaleRu}</p>}
+            </section>
+          )}
           {line.candidates.map((x, i) => (
             <CandidateCard
               key={x.key}
@@ -58,7 +71,7 @@ export function MatchLineCard(p: {
               onClear={p.onClear}
             />
           ))}
-          <NoOfferDecisionCard lineId={line.lineId} selected={line.decisionKind === "no_offer"} disabled={p.disabled || !line.canMarkNoOffer} onSelect={p.onNoOffer} onClear={p.onClear} />
+          {line.canMarkNoOffer && <NoOfferDecisionCard lineId={line.lineId} selected={line.decisionKind === "no_offer"} disabled={p.disabled} onSelect={p.onNoOffer} onClear={p.onClear} />}
           {!line.candidates.length && line.rejectionSummary.length > 0 && (
             <section>
               <h4>Почему ничего не найдено</h4>
