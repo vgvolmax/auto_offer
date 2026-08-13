@@ -74,3 +74,16 @@ model/article, manufacturer или note, а `raw_text` сохранил толь
 - Репозиторий и отдельные 82 schemas прикладывать к сообщению не нужно.
 - Чат не выполняет matching или подбор товаров.
 - Приложение работает только с готовыми bundle-файлами.
+
+## SEMANTIC MATCHING — manual chat
+
+This provider-neutral phase is separate from deterministic Pilot 1.0 matching:
+
+1. Produce a validated production `request_bundle.json`.
+2. Select annotated catalog snapshots and the current matching policy.
+3. Build the deterministic `semantic-matching-catalog.json` with the pure semantic catalog builder.
+4. In a new external chat attach only `annotation-kits/matching/SEMANTIC_MATCH_PROMPT.md`, `request_bundle.json`, and `semantic-matching-catalog.json`.
+5. Save the single JSON response as `semantic-match-result.json`.
+6. Validate it with `npm run validate:semantic-match-result -- semantic-match-result.json request_bundle.json semantic-matching-catalog.json`.
+
+The validator checks schemas, provenance and fingerprint, exact line coverage/order, status decisions, compound offer existence, class and hard policy. Import into Auto Offer review is intentionally outside PR4 (planned for PR5); no LLM API or UI integration is introduced here.
