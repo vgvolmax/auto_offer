@@ -37,6 +37,10 @@ export function isMatchRunCurrent(input: {
   run: MatchRunRecord;
 }): boolean {
   const { session, run } = input;
+  if (run.runKind === "semantic") {
+    const byId=new Map(input.catalogs.map(c=>[c.recordId,c])); const refs=run.semanticContext.selectionPolicy.catalog_priority.map(id=>byId.get(id)).filter((c):c is CatalogRecord=>Boolean(c)).map(c=>({catalog_record_id:c.recordId,catalog_id:c.catalogId,source_sha256:c.sourceSha256,semantic_revision:c.semanticRevision}));
+    return run.sessionRevision===session.matchingRevision && run.semanticContext.requestId===session.requestId && same(run.semanticContext.catalogRefs,refs);
+  }
   if (
     run.sessionRevision !== session.matchingRevision ||
     run.result.request_id !== session.requestId

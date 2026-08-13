@@ -161,6 +161,7 @@ export async function runSessionMatching(input: {
       sessionId: session.sessionId,
       expectedSessionRevision: session.matchingRevision,
       result,
+      runKind: "pilot",
     });
     session = {
       ...session,

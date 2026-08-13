@@ -1,6 +1,6 @@
 import type { CatalogRecord } from "../catalog";
 import type { SessionRecord } from "../session";
-import type { MatchRunRecord } from "./match-run";
+import { matchRunFingerprint, normalizeMatchRunRecord, type MatchRunRecord } from "./match-run";
 import {
   formatMatchTarget,
   formatMatchValue,
@@ -164,11 +164,11 @@ export function buildMatchResultReviewView(input: {
   selectionState: SelectionStateRecord;
   current: boolean;
 }): MatchResultReviewView {
-  const { run, selectionState } = input;
+  const run = normalizeMatchRunRecord(input.run as never), { selectionState } = input;
   if (
     selectionState.matchRunId !== run.id ||
     selectionState.sessionId !== run.sessionId ||
-    selectionState.inputFingerprint !== run.result.input_fingerprint
+    selectionState.inputFingerprint !== matchRunFingerprint(run)
   )
     throw new SelectionError(
       "SelectionState не соответствует запуску",
@@ -203,7 +203,12 @@ export function buildMatchResultReviewView(input: {
         );
     }
   const lines: MatchLineReviewView[] = [];
-  array(run.result.lines).forEach((raw, index) => {
+  const resultLines: unknown[] = run.runKind === "pilot" ? array(run.result.lines) : run.result.lines.map((line) => {
+    if (line.decision !== "offer") return { ...line, resolution: line.decision === "no_offer" ? "no_match" : "request_review_required", candidates: [], excluded_candidates: [], rejection_summary: [] };
+    const catalog = input.catalogs.find((item) => item.recordId === line.offer_ref.catalog_record_id);
+    return { ...line, resolution: line.match_level === "exact" ? "single_exact" : line.match_level === "equivalent" ? "equivalent_only" : "alternative_only", candidates: catalog ? [{ offer_ref: { ...line.offer_ref, catalog_id: catalog.catalogId, source_sha256: catalog.sourceSha256 }, match_level: line.match_level, availability: "eligible", checks: [{scope:"semantic",target:"rationale",outcome:"pass",effect:"informational",code:"SEMANTIC_RATIONALE",actual:line.rationale_ru}], differences: line.differences_ru.map((value) => ({scope:"semantic",target:"difference",outcome:"different",effect:"informational",code:"SEMANTIC_DIFFERENCE",actual:value})) }] : [], excluded_candidates: [], rejection_summary: [] };
+  });
+  resultLines.forEach((raw, index) => {
     if (!object(raw) || !text(raw.line_id)) {
       diagnostics.push({
         code: "RESULT_LINE_INVALID",

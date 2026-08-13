@@ -1,5 +1,5 @@
 import type { MatchRunRecord } from "../../../domain/matching/match-run";
-import { summarizeMatchResult } from "../../../domain/matching/match-run";
+import { matchRunFingerprint, summarizeMatchResult } from "../../../domain/matching/match-run";
 export function MatchRunSummaryView({
   run,
   current,
@@ -7,7 +7,8 @@ export function MatchRunSummaryView({
   run: MatchRunRecord;
   current: boolean;
 }) {
-  const s = summarizeMatchResult(run.result);
+  const s = run.runKind === "pilot" ? summarizeMatchResult(run.result) : {totalLines:run.result.lines.length,singleExact:run.result.lines.filter(x=>x.decision==="offer"&&x.match_level==="exact").length,multipleExact:0,equivalentOnly:run.result.lines.filter(x=>x.decision==="offer"&&x.match_level==="equivalent").length,alternativeOnly:run.result.lines.filter(x=>x.decision==="offer"&&x.match_level==="alternative").length,excludedByPolicy:0,noMatch:run.result.lines.filter(x=>x.decision==="no_offer").length,requestReviewRequired:run.result.lines.filter(x=>x.decision==="request_review_required").length};
+  const fingerprint=matchRunFingerprint(run);
   return (
     <section className="card" aria-label="Сводка подбора">
       <div className="row">
@@ -18,8 +19,8 @@ export function MatchRunSummaryView({
       </div>
       <p>
         {new Date(run.createdAt).toLocaleString("ru")} · fingerprint:{" "}
-        <code title={run.result.input_fingerprint}>
-          {run.result.input_fingerprint.slice(0, 12)}…
+        <code title={fingerprint}>
+          {fingerprint.slice(0, 12)}…
         </code>
       </p>
       <dl className="summary-grid">
@@ -41,7 +42,7 @@ export function MatchRunSummaryView({
         <dd>{s.requestReviewRequired}</dd>
       </dl>
       <p className="notice">
-        Просмотр предложений и ручной выбор будут доступны на следующем этапе.
+        Источник: {run.runKind === "semantic" ? "внешний чат" : "Pilot matcher"}.
       </p>
     </section>
   );

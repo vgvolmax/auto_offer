@@ -38,9 +38,10 @@ async function context(input: {
   ).filter((x) => Boolean(x));
   if (!isMatchRunCurrent({ session, catalogs: catalogs as never[], run }))
     throw new SelectionError("Результат устарел", "MATCH_RUN_STALE");
-  const line = run.result.lines.find(
-    (x) => object(x) && x.line_id === input.lineId,
-  );
+  const rawLine = run.result.lines.find((x) => object(x) && x.line_id === input.lineId);
+  const semanticOffer = run.runKind === "semantic" && object(rawLine) && rawLine.decision === "offer" && object(rawLine.offer_ref) ? rawLine.offer_ref as unknown as {catalog_record_id:string;source_item_id:string} : undefined;
+  const semanticCatalog = semanticOffer ? catalogs.find((c) => c?.recordId === semanticOffer.catalog_record_id) : undefined;
+  const line = semanticOffer && semanticCatalog ? { ...(rawLine as Record<string,unknown>), candidates: [{ offer_ref: { ...semanticOffer, catalog_id: semanticCatalog.catalogId, source_sha256: semanticCatalog.sourceSha256 }, availability: "eligible" }] } : rawLine;
   if (!line || !object(line))
     throw new SelectionError("Строка не найдена", "LINE_NOT_FOUND");
   return { session, run, catalogs, line };
@@ -75,9 +76,9 @@ export async function selectOfferForLine(input: {
   if (existing?.kind === "selected_offer" && equalOfferRefs(existing.offerRef, input.offerRef))
     return state;
   const candidate = (
-    Array.isArray(ctx.line.candidates) ? ctx.line.candidates : []
+    Array.isArray((ctx.line as Obj).candidates) ? (ctx.line as Obj).candidates as unknown[] : []
   ).find(
-    (x) =>
+    (x: unknown) =>
       object(x) &&
       ref(x.offer_ref) &&
       equalOfferRefs(ref(x.offer_ref)!, input.offerRef),

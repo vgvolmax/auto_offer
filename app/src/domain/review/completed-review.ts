@@ -1,3 +1,4 @@
+import { matchRunFingerprint } from "../matching/match-run";
 import type { CatalogRecord } from "../catalog";
 import { getAllowedRelatedOfferSource } from "../matching/line-feedback-validation";
 import { isMatchRunCurrent } from "../matching/match-run-current";
@@ -26,7 +27,7 @@ export function validateCompletedReview(input: { session: SessionRecord; catalog
   if (input.mode === "current_draft") {
     if (session.status !== "draft" || session.latestMatchRunId !== run.id || !isMatchRunCurrent({ session, catalogs: input.catalogs, run })) fail("Результат подбора устарел", "REVIEW_NOT_CURRENT");
   } else if (session.status !== "confirmed") fail("Сессия не подтверждена", "REVIEW_CONFIRMATION_MISMATCH");
-  if (run.sessionId !== session.sessionId || selectionState.sessionId !== session.sessionId || selectionState.matchRunId !== run.id || selectionState.inputFingerprint !== run.result.input_fingerprint || run.result.request_id !== session.requestId)
+  if (run.sessionId !== session.sessionId || selectionState.sessionId !== session.sessionId || selectionState.matchRunId !== run.id || selectionState.inputFingerprint !== matchRunFingerprint(run) || run.result.request_id !== session.requestId)
     fail("Состояние проверки не соответствует запуску", "REVIEW_STATE_MISMATCH");
   const requestLines = session.requestBundle.request_document.lines;
   const requestIds = requestLines.map((line) => line.line_id);
@@ -52,7 +53,7 @@ export function validateCompletedReview(input: { session: SessionRecord; catalog
     if (feedback?.relatedOfferRef && !getAllowedRelatedOfferSource({ outcome: feedback.outcome, relatedOfferRef: feedback.relatedOfferRef, candidates, excludedCandidates })) fail("Связанный товар не принадлежит строке", "REVIEW_RESULT_INCONSISTENT", [lineId]);
   }
   const decisions = requestIds.map((id) => selectionState.decisions[id]);
-  const summary: CompletedReviewSummary = { matchRunId: run.id, inputFingerprint: run.result.input_fingerprint, matchingRevision: session.matchingRevision, selectionStateRevision: selectionState.revision, lineCount: requestIds.length, selectedOfferCount: decisions.filter((decision) => decision.kind === "selected_offer").length, noOfferCount: decisions.filter((decision) => decision.kind === "no_offer").length, feedbackCount: requestIds.filter((id) => selectionState.feedback[id]).length };
+  const summary: CompletedReviewSummary = { matchRunId: run.id, inputFingerprint: matchRunFingerprint(run), matchingRevision: session.matchingRevision, selectionStateRevision: selectionState.revision, lineCount: requestIds.length, selectedOfferCount: decisions.filter((decision) => decision.kind === "selected_offer").length, noOfferCount: decisions.filter((decision) => decision.kind === "no_offer").length, feedbackCount: requestIds.filter((id) => selectionState.feedback[id]).length };
   if (input.mode === "confirmed_snapshot") {
     const confirmation = session.status === "confirmed" ? session.confirmation : undefined;
     if (!confirmation || confirmation.matchRunId !== summary.matchRunId || confirmation.inputFingerprint !== summary.inputFingerprint || confirmation.matchingRevision !== summary.matchingRevision || confirmation.selectionStateRevision !== summary.selectionStateRevision || confirmation.lineCount !== summary.lineCount || confirmation.selectedOfferCount !== summary.selectedOfferCount || confirmation.noOfferCount !== summary.noOfferCount || confirmation.feedbackCount !== summary.feedbackCount)

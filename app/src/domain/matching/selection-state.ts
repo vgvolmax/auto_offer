@@ -65,14 +65,14 @@ export class SelectionError extends Error {
 }
 
 export function createSelectionState(
-  run: { id: string; sessionId: string; result: { input_fingerprint: string } },
+  run: { id: string; sessionId: string; result: { input_fingerprint?: string; package_fingerprint?: string } },
   now = new Date().toISOString(),
 ): SelectionStateRecord {
   return {
     schemaVersion: SELECTION_STATE_SCHEMA_VERSION,
     matchRunId: run.id,
     sessionId: run.sessionId,
-    inputFingerprint: run.result.input_fingerprint,
+    inputFingerprint: run.result.input_fingerprint ?? run.result.package_fingerprint!,
     revision: 0,
     decisions: {},
     feedback: {},

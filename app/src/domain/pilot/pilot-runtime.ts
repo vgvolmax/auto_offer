@@ -1,3 +1,4 @@
+import { matchRunFingerprint } from "../matching/match-run";
 import type { CatalogRecord } from "../catalog";
 import { AI_FEEDBACK_EXPORT_SCHEMA_VERSION } from "../export/ai-feedback-export";
 import { PILOT_MATCHING_ENGINE_VERSION, pilotPolicyRegistry } from "../matching/pilot-config";
@@ -58,7 +59,7 @@ export function buildPilotRuntimeInfo(input: {
       sessionId: input.session.sessionId, status: input.session.status,
       matchingRevision: input.session.matchingRevision, latestMatchRunId: input.session.latestMatchRunId,
       current: input.current,
-      ...(input.run && { inputFingerprint: input.run.result.input_fingerprint }),
+      ...(input.run && { inputFingerprint: matchRunFingerprint(input.run) }),
       ...(input.selectionState && { selectionStateRevision: input.selectionState.revision }),
     },
   };

@@ -68,6 +68,7 @@ export function createPilotVolumeFixture(): PilotVolumeFixture {
     source_item_id: "volume-0-0",
   };
   const run: MatchRunRecord = {
+    runKind: "pilot",
     id: "pilot-volume-run",
     sessionId: session.sessionId,
     sessionRevision: 0,

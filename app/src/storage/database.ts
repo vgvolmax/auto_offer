@@ -1,6 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type { CatalogRecord } from "../domain/catalog";
-import type { MatchRunRecord } from "../domain/matching/match-run";
+import type { StoredMatchRunRecord } from "../domain/matching/match-run";
 import type { StoredSessionRecord } from "../domain/session";
 import type { StoredSelectionStateRecord } from "../domain/matching/selection-state";
 
@@ -23,7 +23,7 @@ export interface AutoOfferDB extends DBSchema {
   settings: { key: string; value: { key: string; value: unknown } };
   matchRuns: {
     key: string;
-    value: MatchRunRecord;
+    value: StoredMatchRunRecord;
     indexes: { "by-session": string };
   };
   selectionStates: {
