@@ -10,6 +10,7 @@ import { equalOfferRefs, offerRefKey, type OfferRef } from "./offer-ref";
 import { SelectionError, type SelectionStateRecord } from "./selection-state";
 import type { LineDecision } from "./selection-state";
 import type { LineFeedback } from "./line-feedback";
+import { resolveSemanticOffer } from "./resolve-semantic-offer";
 export type MatchLevel = "exact" | "equivalent" | "alternative";
 export type CandidateAvailability = "eligible" | "manual_only";
 export type MatchLineResolution =
@@ -20,7 +21,9 @@ export type MatchLineResolution =
   | "excluded_by_policy"
   | "no_match"
   | "request_review_required"
-  | "request_invalid";
+  | "request_invalid"
+  | "reroute_required"
+  | "request_unsupported";
 export interface MatchCheckView {
   scope: string;
   target: string;
@@ -48,6 +51,8 @@ export interface CandidateReviewView {
   suggested: boolean;
   selectable: boolean;
   resultPosition: number;
+  semanticRationaleRu?: string;
+  semanticDifferencesRu?: string[];
 }
 export interface ExcludedCandidateReviewView extends CandidateReviewView {
   exclusionCodes: string[];
@@ -71,6 +76,9 @@ export interface MatchLineReviewView {
   selectable: boolean;
   canSelectCandidate: boolean;
   canMarkNoOffer: boolean;
+  semanticRecommendation?: "no_offer" | "reroute_required";
+  semanticReasonCode?: string;
+  semanticRationaleRu?: string;
 }
 export interface MatchResultReviewDiagnostic {
   code:
@@ -203,11 +211,39 @@ export function buildMatchResultReviewView(input: {
         );
     }
   const lines: MatchLineReviewView[] = [];
-  const resultLines: unknown[] = run.runKind === "pilot" ? array(run.result.lines) : run.result.lines.map((line) => {
-    if (line.decision !== "offer") return { ...line, resolution: line.decision === "no_offer" ? "no_match" : "request_review_required", candidates: [], excluded_candidates: [], rejection_summary: [] };
-    const catalog = input.catalogs.find((item) => item.recordId === line.offer_ref.catalog_record_id);
-    return { ...line, resolution: line.match_level === "exact" ? "single_exact" : line.match_level === "equivalent" ? "equivalent_only" : "alternative_only", candidates: catalog ? [{ offer_ref: { ...line.offer_ref, catalog_id: catalog.catalogId, source_sha256: catalog.sourceSha256 }, match_level: line.match_level, availability: "eligible", checks: [{scope:"semantic",target:"rationale",outcome:"pass",effect:"informational",code:"SEMANTIC_RATIONALE",actual:line.rationale_ru}], differences: line.differences_ru.map((value) => ({scope:"semantic",target:"difference",outcome:"different",effect:"informational",code:"SEMANTIC_DIFFERENCE",actual:value})) }] : [], excluded_candidates: [], rejection_summary: [] };
-  });
+  const resultLines: unknown[] = run.runKind === "pilot"
+    ? array(run.result.lines)
+    : run.result.lines.map((line) => {
+        if (line.decision !== "offer") {
+          return {
+            ...line,
+            resolution: line.decision === "no_offer" ? "no_match" : line.decision,
+            candidates: [],
+            excluded_candidates: [],
+            rejection_summary: [],
+            semanticRecommendation:
+              line.decision === "no_offer" || line.decision === "reroute_required"
+                ? line.decision
+                : undefined,
+          };
+        }
+        const resolved = resolveSemanticOffer(line.offer_ref, input.catalogs);
+        return {
+          ...line,
+          resolution: line.match_level === "exact" ? "single_exact" : line.match_level === "equivalent" ? "equivalent_only" : "alternative_only",
+          candidates: resolved ? [{
+            offer_ref: resolved.offerRef,
+            match_level: line.match_level,
+            availability: resolved.availability,
+            checks: [],
+            differences: [],
+            semanticRationaleRu: line.rationale_ru,
+            semanticDifferencesRu: line.differences_ru,
+          }] : [],
+          excluded_candidates: [],
+          rejection_summary: [],
+        };
+      });
   resultLines.forEach((raw, index) => {
     if (!object(raw) || !text(raw.line_id)) {
       diagnostics.push({
@@ -278,6 +314,8 @@ export function buildMatchResultReviewView(input: {
         suggested: false,
         selectable: input.current && !excluded && Boolean(found),
         resultPosition: 0,
+        semanticRationaleRu: text(value.semanticRationaleRu),
+        semanticDifferencesRu: array(value.semanticDifferencesRu).map(String),
       };
       return excluded
         ? {
@@ -338,7 +376,13 @@ export function buildMatchResultReviewView(input: {
       selectable: !brokenSelection && candidates.some((c) => c.selectable),
       canSelectCandidate: !brokenSelection && candidates.some((c) => c.selectable),
       canMarkNoOffer: input.current,
+      semanticRecommendation: text(raw.semanticRecommendation) as MatchLineReviewView["semanticRecommendation"],
+      semanticReasonCode: text(raw.reason_code),
+      semanticRationaleRu: text(raw.rationale_ru),
     });
+    if (resolution === "reroute_required") {
+      lines[lines.length - 1].canMarkNoOffer = false;
+    }
   });
   return {
     runId: run.id,

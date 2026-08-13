@@ -15,6 +15,11 @@ const reasons: Record<string, string> = {
   CATALOG_ITEM_NEEDS_REVIEW: "Товар каталога требует ручной проверки",
   REQUEST_UNSUPPORTED: "Нет подходящего класса в текущей taxonomy",
   REQUEST_REVIEW_REQUIRED: "Строка заявки требует ручной проверки",
+  NO_ELIGIBLE_OFFER: "Нет допустимых предложений",
+  NO_TECHNICAL_MATCH: "Нет технически подходящего товара",
+  POLICY_EXCLUDED: "Подходящие варианты исключены правилами",
+  CATALOG_DATA_INSUFFICIENT: "Недостаточно данных каталога",
+  ROUTING_INSUFFICIENT: "Требуется уточнить класс товара",
   BRAND_NOT_INCLUDED: "Бренд не входит в разрешённые",
   BRAND_EXCLUDED: "Бренд исключён правилами",
   BRAND_UNKNOWN_EXCLUDED: "Товар без определённого бренда исключён",
@@ -33,6 +38,7 @@ const resolutions: Record<string, string> = {
   request_unsupported: "Не поддерживается",
   request_review_required: "Нужно проверить заявку",
   request_invalid: "Ошибка в данных заявки",
+  reroute_required: "Требуется повторная маршрутизация заявки",
 };
 export function formatMatchValue(value: unknown): string | undefined {
   if (value === undefined) return undefined;

@@ -3,6 +3,7 @@ import { StaleSelectionStateError } from "../../storage/selection-states-reposit
 import { isMatchRunCurrent } from "./match-run-current";
 import { equalOfferRefs, offerRefKey, type OfferRef } from "./offer-ref";
 import { SelectionError, type SelectionStateRecord } from "./selection-state";
+import { resolveSemanticOffer } from "./resolve-semantic-offer";
 type Obj = Record<string, unknown>;
 const object = (x: unknown): x is Obj =>
   typeof x === "object" && x !== null && !Array.isArray(x);
@@ -39,9 +40,12 @@ async function context(input: {
   if (!isMatchRunCurrent({ session, catalogs: catalogs as never[], run }))
     throw new SelectionError("Результат устарел", "MATCH_RUN_STALE");
   const rawLine = run.result.lines.find((x) => object(x) && x.line_id === input.lineId);
-  const semanticOffer = run.runKind === "semantic" && object(rawLine) && rawLine.decision === "offer" && object(rawLine.offer_ref) ? rawLine.offer_ref as unknown as {catalog_record_id:string;source_item_id:string} : undefined;
-  const semanticCatalog = semanticOffer ? catalogs.find((c) => c?.recordId === semanticOffer.catalog_record_id) : undefined;
-  const line = semanticOffer && semanticCatalog ? { ...(rawLine as Record<string,unknown>), candidates: [{ offer_ref: { ...semanticOffer, catalog_id: semanticCatalog.catalogId, source_sha256: semanticCatalog.sourceSha256 }, availability: "eligible" }] } : rawLine;
+  const semanticOffer = run.runKind === "semantic" && object(rawLine) && rawLine.decision === "offer" && object(rawLine.offer_ref)
+    ? resolveSemanticOffer(rawLine.offer_ref as unknown as { catalog_record_id: string; source_item_id: string }, catalogs as never[])
+    : undefined;
+  const line = semanticOffer
+    ? { ...(rawLine as Record<string, unknown>), candidates: [{ offer_ref: semanticOffer.offerRef, availability: semanticOffer.availability }] }
+    : rawLine;
   if (!line || !object(line))
     throw new SelectionError("Строка не найдена", "LINE_NOT_FOUND");
   return { session, run, catalogs, line };
@@ -130,6 +134,8 @@ export async function markNoOfferForLine(input: {
   sessionId: string; matchRunId: string; lineId: string; expectedSelectionRevision: number; repositories: AppRepositories;
 }): Promise<SelectionStateRecord> {
   const ctx = await context(input);
+  if (ctx.run.runKind === "semantic" && (ctx.line as Obj).decision === "reroute_required")
+    throw new SelectionError("Для строки требуется повторная маршрутизация", "CANDIDATE_NOT_SELECTABLE");
   const state = await input.repositories.selectionStates.getOrCreateForRun(ctx.run);
   if (state.decisions[input.lineId]?.kind === "no_offer") return state;
   try { return await input.repositories.selectionStates.saveDecision({
