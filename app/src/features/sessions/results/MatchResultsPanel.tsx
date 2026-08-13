@@ -121,8 +121,8 @@ export function MatchResultsPanel(input: {
         !input.current && (
           <p className="warning-text">
             Результат построен по другим настройкам. Решения сохранены, но
-            редактирование недоступно. Верните настройки или запустите подбор
-            заново.
+            редактирование недоступно. Верните настройки или подготовьте новый
+            подбор для ИИ.
           </p>
         )
       )}
@@ -131,13 +131,20 @@ export function MatchResultsPanel(input: {
       )}
       <details className="service-details">
         <summary>Служебная информация и экспорт</summary>
-        <PilotDiagnosticsPanel info={buildPilotRuntimeInfo({
-          session: input.session,
-          catalogs: input.catalogs,
-          run: input.run,
-          selectionState: "selectionState" in review.state ? review.state.selectionState : undefined,
-          current: input.current,
-        })} />
+        {input.run.runKind === "pilot" && (
+          <PilotDiagnosticsPanel
+            info={buildPilotRuntimeInfo({
+              session: input.session,
+              catalogs: input.catalogs,
+              run: input.run,
+              selectionState:
+                "selectionState" in review.state
+                  ? review.state.selectionState
+                  : undefined,
+              current: input.current,
+            })}
+          />
+        )}
         <section className="ai-export">
         <h3>Экспорт для улучшения системы</h3>
         <p>

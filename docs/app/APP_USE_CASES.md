@@ -618,7 +618,7 @@
 
 ## B4a — session matching (implemented)
 
-Настройка policy, запуск matcher из draft-сессии, сохранение последнего `MatchResult` и derived summary реализованы. Просмотр кандидатов, ручной выбор и экспорт остаются planned.
+Production flow после STEP1/STEP2 показывает правила предложения, готовит canonical semantic package для внешнего чата и импортирует проверенный результат в существующий review. Запуска локального matcher в пользовательском интерфейсе нет. Pilot runtime и старые Pilot runs сохраняются только для regression, диагностики и fallback.
 # B4b implementation status
 
 Result line review, candidate details, checks and differences, excluded candidate review, manual candidate selection, and selection persistence are implemented. Final review and export are planned for B5; the complete end-to-end flow is not yet verified.
