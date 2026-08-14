@@ -71,7 +71,7 @@ export function MatchLineCard(p: {
               onClear={p.onClear}
             />
           ))}
-          {line.canMarkNoOffer && <NoOfferDecisionCard lineId={line.lineId} selected={line.decisionKind === "no_offer"} disabled={p.disabled} onSelect={p.onNoOffer} onClear={p.onClear} />}
+          {line.canMarkNoOffer && <NoOfferDecisionCard lineId={line.lineId} selected={line.decisionKind === "no_offer"} disabled={p.disabled} clearLabel={line.runKind === "semantic" ? "Вернуть результат ИИ" : undefined} onSelect={p.onNoOffer} onClear={p.onClear} />}
           {!line.candidates.length && line.rejectionSummary.length > 0 && (
             <section>
               <h4>Почему ничего не найдено</h4>

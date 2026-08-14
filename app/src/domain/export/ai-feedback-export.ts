@@ -6,19 +6,20 @@ import type { LineFeedback } from "../matching/line-feedback";
 import { SELECTION_STATE_SCHEMA_VERSION, type LineDecision, type SelectionStateRecord } from "../matching/selection-state";
 import type { RequestBundle, SessionConfirmation, SessionRecord, SessionStatus } from "../session";
 import type { SessionMatchingSettings } from "../matching/session-policy";
-import { equalOfferRefs } from "../matching/offer-ref";
 import { getAllowedRelatedOfferSource } from "../matching/line-feedback-validation";
 import { CompletedReviewError, validateCompletedReview } from "../review/completed-review";
+import { resolveSemanticOffer } from "../matching/resolve-semantic-offer";
 
 export type AiFeedbackExportErrorCode = "AI_EXPORT_NOT_CURRENT" | "AI_EXPORT_STATE_MISMATCH" | "AI_EXPORT_INCOMPLETE" | "AI_EXPORT_RESULT_INCONSISTENT";
 export class AiFeedbackExportError extends Error {
   constructor(message: string, public readonly code: AiFeedbackExportErrorCode, public readonly missingLineIds: string[] = []) { super(message); this.name = "AiFeedbackExportError"; }
 }
-export const AI_FEEDBACK_EXPORT_SCHEMA_VERSION = "1.1.0" as const;
+export const AI_FEEDBACK_EXPORT_SCHEMA_VERSION = "1.2.0" as const;
 export interface ReferencedCatalogItem { offer_ref: OfferRef; catalog: { record_id: string; catalog_id: string; source_sha256: string; source_file_name: string } | null; source: unknown | null; catalog_item: unknown | null; missing: boolean }
 export interface AiFeedbackSession { session_id: string; name: string; comment: string; status: SessionStatus; confirmation?: SessionConfirmation; request_id: string; request_file_name: string; matching_revision: number; matching_settings: SessionMatchingSettings; catalog_refs: SessionRecord["catalogRefs"]; created_at: string; updated_at: string }
 export interface AiFeedbackMatchRun { id: string; session_revision: number; created_at: string; input_fingerprint: string; result: MatchRunRecord["result"] }
-export interface AiFeedbackOperatorReview { selection_state_schema_version: typeof SELECTION_STATE_SCHEMA_VERSION; selection_state_revision: number; decided_count: number; selected_offer_count: number; no_offer_count: number; feedback_count: number; lines: Array<{ line_id: string; decision: LineDecision; feedback?: LineFeedback }> }
+/** Explicit operator overrides and feedback; the baseline system result remains in match_run.result. */
+export interface AiFeedbackOperatorReview { selection_state_schema_version: typeof SELECTION_STATE_SCHEMA_VERSION; selection_state_revision: number; decided_count: number; selected_offer_count: number; no_offer_count: number; feedback_count: number; lines: Array<{ line_id: string; decision?: LineDecision; feedback?: LineFeedback }> }
 export interface AiFeedbackExportV1 { schema_version: typeof AI_FEEDBACK_EXPORT_SCHEMA_VERSION; export_type: "auto_offer_ai_feedback"; exported_at: string; session: AiFeedbackSession; request_bundle: RequestBundle; match_run: AiFeedbackMatchRun; operator_review: AiFeedbackOperatorReview; referenced_catalog_items: ReferencedCatalogItem[] }
 type Obj = Record<string, unknown>;
 const object = (x: unknown): x is Obj => typeof x === "object" && x !== null && !Array.isArray(x);
@@ -49,28 +50,22 @@ export function buildAiFeedbackExport(input: { session: SessionRecord; catalogs:
   if (validResultLines.length !== rawResultLines.length || resultIds.size !== rawResultLines.length || resultIds.size !== ids.size || [...resultIds].some((id) => !ids.has(id)) || requestLines.some((line) => !resultIds.has(line.line_id)))
     throw new AiFeedbackExportError("Набор строк результата не соответствует заявке", "AI_EXPORT_RESULT_INCONSISTENT");
   const resultById = new Map(validResultLines.map((line) => [line.line_id as string, line]));
-  const missing = requestLines.filter((line) => !selectionState.decisions[line.line_id]).map((line) => line.line_id);
-  if (missing.length) throw new AiFeedbackExportError("Не по всем строкам принято решение", "AI_EXPORT_INCOMPLETE", missing);
   for (const requestLine of requestLines) {
     const lineId = requestLine.line_id;
     const resultLine = resultById.get(lineId)!;
     const candidates = Array.isArray(resultLine.candidates) ? resultLine.candidates : [];
     const excludedCandidates = Array.isArray(resultLine.excluded_candidates) ? resultLine.excluded_candidates : [];
-    const decision = selectionState.decisions[lineId] as LineDecision | undefined;
-    if (!decision || (decision.kind !== "selected_offer" && decision.kind !== "no_offer"))
-      throw new AiFeedbackExportError("Решение по строке повреждено", "AI_EXPORT_RESULT_INCONSISTENT");
-    if (decision.kind === "selected_offer") {
-      const decisionRef = ref(decision.offerRef);
-      const belongs = decisionRef && candidates.some((candidate) => object(candidate) && ref(candidate.offer_ref) && equalOfferRefs(ref(candidate.offer_ref)!, decisionRef));
-      if (!belongs) throw new AiFeedbackExportError("Выбранный товар не принадлежит строке", "AI_EXPORT_RESULT_INCONSISTENT");
-    }
     const feedback = selectionState.feedback[lineId];
     if (feedback?.relatedOfferRef && !getAllowedRelatedOfferSource({ outcome: feedback.outcome, relatedOfferRef: feedback.relatedOfferRef, candidates, excludedCandidates }))
       throw new AiFeedbackExportError("Связанный товар обратной связи не принадлежит строке", "AI_EXPORT_RESULT_INCONSISTENT");
   }
-  const lines = requestLines.map(({ line_id }) => ({ line_id, decision: selectionState.decisions[line_id]!, ...(selectionState.feedback[line_id] && { feedback: selectionState.feedback[line_id] }) }));
+  const lines = requestLines.map(({ line_id }) => ({ line_id, ...(selectionState.decisions[line_id] && { decision: selectionState.decisions[line_id] }), ...(selectionState.feedback[line_id] && { feedback: selectionState.feedback[line_id] }) }));
   const refs = new Map<string, OfferRef>();
   for (const raw of run.result.lines as unknown[]) if (object(raw)) for (const list of [raw.candidates, raw.excluded_candidates]) for (const value of Array.isArray(list) ? list : []) { const offer = object(value) && ref(value.offer_ref); if (offer) refs.set(offerRefKey(offer), offer); }
+  if (run.runKind === "semantic") for (const raw of run.result.lines) if (raw.decision === "offer") {
+    const resolved = resolveSemanticOffer(raw.offer_ref, input.catalogs);
+    if (resolved) refs.set(offerRefKey(resolved.offerRef), resolved.offerRef);
+  }
   for (const decision of Object.values(selectionState.decisions)) if (decision.kind === "selected_offer") refs.set(offerRefKey(decision.offerRef), decision.offerRef);
   for (const feedback of Object.values(selectionState.feedback)) if (feedback.relatedOfferRef) refs.set(offerRefKey(feedback.relatedOfferRef), feedback.relatedOfferRef);
   const referenced_catalog_items = [...refs].sort(([a],[b]) => a.localeCompare(b)).map(([, offer]): ReferencedCatalogItem => {
@@ -83,7 +78,7 @@ export function buildAiFeedbackExport(input: { session: SessionRecord; catalogs:
     session: { session_id: session.sessionId, name: session.name, comment: session.comment, status: session.status, ...(session.status === "confirmed" && { confirmation: { ...session.confirmation } }), request_id: session.requestId, request_file_name: session.requestFileName, matching_revision: session.matchingRevision, matching_settings: session.matchingSettings, catalog_refs: session.catalogRefs, created_at: session.createdAt, updated_at: session.updatedAt },
     request_bundle: session.requestBundle,
     match_run: { id: run.id, session_revision: run.sessionRevision, created_at: run.createdAt, input_fingerprint: matchRunFingerprint(run), result: run.result },
-    operator_review: { selection_state_schema_version: SELECTION_STATE_SCHEMA_VERSION, selection_state_revision: selectionState.revision, decided_count: lines.length, selected_offer_count: lines.filter((x) => x.decision.kind === "selected_offer").length, no_offer_count: lines.filter((x) => x.decision.kind === "no_offer").length, feedback_count: lines.filter((x) => x.feedback).length, lines },
+    operator_review: { selection_state_schema_version: SELECTION_STATE_SCHEMA_VERSION, selection_state_revision: selectionState.revision, decided_count: Object.keys(selectionState.decisions).length, selected_offer_count: lines.filter((x) => x.decision?.kind === "selected_offer").length, no_offer_count: lines.filter((x) => x.decision?.kind === "no_offer").length, feedback_count: lines.filter((x) => x.feedback).length, lines },
     referenced_catalog_items,
   };
 }
