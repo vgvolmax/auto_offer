@@ -34,10 +34,14 @@ export class SemanticImportError extends Error {
 export function getSemanticImportErrorMessage(errors: SemanticImportError["errors"]): string {
   const first = errors[0];
   if (!first) return "JSON результата имеет неверный формат";
+  if (first.code.includes("SCHEMA") || first.code.includes("VALIDATION")) {
+    const path = first.path || "/";
+    if (first.message.includes("required property is missing")) return `Неверный формат результата: отсутствует обязательное поле ${path}`;
+    if (first.message.includes("additional property is not allowed")) return `Неверный формат результата: лишнее поле ${path}`;
+    return `Неверный формат результата: поле ${path} ${first.message.replace(/^.*?:\s*/, "")}`;
+  }
   return importErrorMessages[first.code]
-    ?? (first.code.includes("SCHEMA") || first.code.includes("VALIDATION")
-      ? "JSON результата имеет неверный формат"
-      : "Файл результата не соответствует текущей сессии");
+    ?? "Файл результата не соответствует текущей сессии";
 }
 export async function importSemanticMatchResult(input:{sessionId:string;semanticResult:unknown;repositories:AppRepositories}){
  const session=await input.repositories.sessions.get(input.sessionId);if(!session)throw new SessionMatchingError("Сессия не найдена","SESSION_NOT_FOUND");if(session.status!=="draft")throw new SessionMatchingError("Подтверждённый результат доступен только для просмотра","SESSION_CONFIRMED");

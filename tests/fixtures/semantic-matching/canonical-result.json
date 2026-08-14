@@ -1,0 +1,36 @@
+{
+  "kind": "semantic_match_result",
+  "schema_version": "1.0.0",
+  "taxonomy_version": "1.0.0",
+  "request_id": "request-example",
+  "package_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "lines": [
+    {
+      "line_id": "32",
+      "decision": "offer",
+      "offer_ref": {
+        "catalog_record_id": "catalog-1",
+        "source_item_id": "item-1"
+      },
+      "match_level": "exact",
+      "rationale_ru": "Технические характеристики совпадают.",
+      "differences_ru": []
+    },
+    {
+      "line_id": "33",
+      "decision": "no_offer",
+      "reason_code": "NO_TECHNICAL_MATCH",
+      "rationale_ru": "Подходящего товара нет."
+    },
+    {
+      "line_id": "34",
+      "decision": "reroute_required",
+      "reason_code": "ROUTING_INSUFFICIENT",
+      "rationale_ru": "Строка направлена в неверный класс."
+    },
+    {
+      "line_id": "35",
+      "decision": "request_unsupported"
+    }
+  ]
+}

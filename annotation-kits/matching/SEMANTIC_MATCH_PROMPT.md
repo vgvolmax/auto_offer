@@ -26,4 +26,111 @@
 
 ## Output
 
-Один strict JSON object, every line, exact order, без aliases/additional fields. Offer: `line_id`, `decision`, `offer_ref`, `match_level`, `rationale_ru`, `differences_ru`. No-offer/reroute: contract reason и `rationale_ru`. Никаких markdown fences.
+Верни один strict JSON object следующей top-level формы:
+
+```json
+{
+  "kind": "semantic_match_result",
+  "schema_version": "1.0.0",
+  "taxonomy_version": "<copy exactly>",
+  "request_id": "<copy exactly>",
+  "package_fingerprint": "<copy exactly>",
+  "lines": []
+}
+```
+
+Единственное поле массива результатов называется `lines`. Не используй `results`, `items`, `matches`, `decisions` или другие aliases. Покрой every line в exact order. Никаких additional fields.
+
+Допустимы ровно четыре формы строки.
+
+**Offer** — никаких полей, кроме показанных:
+
+```json
+{
+  "line_id": "32",
+  "decision": "offer",
+  "offer_ref": {
+    "catalog_record_id": "catalog-1",
+    "source_item_id": "item-1"
+  },
+  "match_level": "exact",
+  "rationale_ru": "Технические характеристики совпадают.",
+  "differences_ru": []
+}
+```
+
+**No offer**:
+
+```json
+{
+  "line_id": "33",
+  "decision": "no_offer",
+  "reason_code": "NO_TECHNICAL_MATCH",
+  "rationale_ru": "Подходящего товара нет."
+}
+```
+
+**Reroute**:
+
+```json
+{
+  "line_id": "34",
+  "decision": "reroute_required",
+  "reason_code": "ROUTING_INSUFFICIENT",
+  "rationale_ru": "Строка направлена в неверный класс."
+}
+```
+
+**Passthrough**:
+
+```json
+{
+  "line_id": "35",
+  "decision": "request_unsupported"
+}
+```
+
+В passthrough значение `decision` — одно из `request_review_required`, `request_invalid`, `request_unsupported`. Passthrough содержит **только** `line_id` и `decision`: запрещены `rationale_ru`, `reason_code`, `differences_ru`, `offer_ref`, `match_level` и любые другие поля.
+
+## Canonical output example
+
+Следующий цельный пример имеет production-valid форму. В реальном результате буквально скопируй метаданные и идентификаторы из входных файлов и верни JSON без Markdown fences.
+
+```json
+{
+  "kind": "semantic_match_result",
+  "schema_version": "1.0.0",
+  "taxonomy_version": "1.0.0",
+  "request_id": "request-example",
+  "package_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "lines": [
+    {
+      "line_id": "32",
+      "decision": "offer",
+      "offer_ref": {
+        "catalog_record_id": "catalog-1",
+        "source_item_id": "item-1"
+      },
+      "match_level": "exact",
+      "rationale_ru": "Технические характеристики совпадают.",
+      "differences_ru": []
+    },
+    {
+      "line_id": "33",
+      "decision": "no_offer",
+      "reason_code": "NO_TECHNICAL_MATCH",
+      "rationale_ru": "Подходящего товара нет."
+    },
+    {
+      "line_id": "34",
+      "decision": "reroute_required",
+      "reason_code": "ROUTING_INSUFFICIENT",
+      "rationale_ru": "Строка направлена в неверный класс."
+    },
+    {
+      "line_id": "35",
+      "decision": "request_unsupported"
+    }
+  ]
+}
+```

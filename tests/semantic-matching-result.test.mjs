@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { buildSemanticMatchingCatalog, loadSemanticMatchingValidators, validateSemanticMatchResultObjects } from '../scripts/chat-pipeline/lib/semantic-matching.mjs';
 
 const request = { taxonomy_version: '1.0.0', request_document: { request_id: 'r', lines: [{ line_id: '1', class_id: 'x', annotation: { status: 'validated' } }, { line_id: '2', annotation: { status: 'unsupported' } }] } };
@@ -29,6 +30,38 @@ test('strict result schema supports all variants and rejects confidence', async 
   ];
   variants.forEach((line) => assert.equal(validate(root(line)), true));
   assert.equal(validate(root({ ...variants[0], confidence: 0.9 })), false);
+});
+
+test('canonical prompt result is production-schema valid', async () => {
+  const { result: validate } = await loadSemanticMatchingValidators();
+  const fixtureText = await readFile(new URL('./fixtures/semantic-matching/canonical-result.json', import.meta.url), 'utf8');
+  const prompt = await readFile(new URL('../annotation-kits/matching/SEMANTIC_MATCH_PROMPT.md', import.meta.url), 'utf8');
+  const canonicalBlock = prompt.match(/## Canonical output example[\s\S]*?```json\n([\s\S]*?)\n```/)?.[1];
+  assert.ok(canonicalBlock, 'prompt contains a canonical JSON example');
+  assert.deepEqual(JSON.parse(canonicalBlock), JSON.parse(fixtureText), 'prompt and canonical fixture stay synchronized');
+  assert.equal(validate(JSON.parse(fixtureText)), true, JSON.stringify(validate.errors));
+});
+
+test('schema diagnostics point to missing, aliased and additional properties', async () => {
+  const { result: validate } = await loadSemanticMatchingValidators();
+  const root = { kind: 'semantic_match_result', schema_version: '1.0.0', taxonomy_version: '1.0.0', request_id: 'r', package_fingerprint: 'a'.repeat(64), lines: [{ line_id: '17', decision: 'request_unsupported' }] };
+  const check = async (result) => validateSemanticMatchResultObjects({ result, requestBundle: {}, matchingCatalog: {}, validators: { result: validate } });
+
+  assert.equal(validate(root), true);
+
+  const aliased = structuredClone(root);
+  aliased.results = aliased.lines;
+  delete aliased.lines;
+  const aliasErrors = (await check(aliased)).errors;
+  assert.ok(aliasErrors.some(({ path, message }) => path === '/lines' && message.includes('required property is missing')));
+  assert.ok(aliasErrors.some(({ path, message }) => path === '/results' && message.includes('additional property is not allowed')));
+
+  const passthroughExtra = structuredClone(root);
+  passthroughExtra.lines[0].rationale_ru = 'Лишнее объяснение';
+  assert.ok((await check(passthroughExtra)).errors.some(({ path }) => path === '/lines/0/rationale_ru'));
+
+  const topLevelExtra = { ...root, confidence: 0.95 };
+  assert.ok((await check(topLevelExtra)).errors.some(({ path }) => path === '/confidence'));
 });
 
 test('rejects stale semantic result after request content changes', async () => {
