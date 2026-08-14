@@ -31,7 +31,7 @@ describe("match result review", () => {
       offerRef: { catalog_id: "local-catalog", source_sha256: "local-sha" }, availability: "eligible",
       semanticRationaleRu: "Обоснование 0", semanticDifferencesRu: ["Отличие"], checks: [], differences: [],
     });
-    expect(view.lines[2].candidates[0].availability).toBe("manual_only");
+    expect(view.lines[2].candidates[0]).toMatchObject({ availability: "eligible", annotationStatus: "needs_review" });
     expect(view.lines.slice(0, 3).map((line) => line.candidates[0].suggested)).toEqual([
       true,
       true,

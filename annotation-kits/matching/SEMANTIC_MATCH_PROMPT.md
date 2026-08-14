@@ -10,11 +10,17 @@
 
 ## Каждая строка
 
-Покрой **every line** ровно один раз и в **exact order** `request_document.lines`. `needs_review` → `request_review_required`; `invalid` → `request_invalid`; `unsupported` → `request_unsupported`.
+Покрой **every line** ровно один раз и в **exact order** `request_document.lines`. `validated` и `needs_review` участвуют в matching и для них допустимы `offer`, `no_offer` или `reroute_required`; `invalid` → `request_invalid`; `unsupported` → `request_unsupported`. `request_review_required` остаётся только legacy-формой и не используется новым flow для `needs_review`.
 
-Для `validated` используй только items **того же class_id**. Проверь explicit identity, attributes, ports, constraints и substitution meaning. Верни один лучший `offer`, либо `no_offer`, либо `reroute_required`, не candidate list. Не считай отсутствующее значение совпадением; не додумывай diameter/thread/material/manufacturer/brand; не игнорируй explicit mismatch, не подменяй product type и не считай текстовую похожесть достаточной. Недостаток evidence может дать `CATALOG_DATA_INSUFFICIENT`, но не invented item.
+## needs_review participates in matching
+
+`needs_review` — это качество/неполнота annotation, а не exclusion. Рассматривай товары и строки со статусами `validated` и `needs_review` наравне. Для них используй только items **того же class_id**. Проверь explicit identity, attributes, ports, constraints и substitution meaning. Верни один лучший `offer`, либо `no_offer`, либо `reroute_required`, не candidate list. Допустимым evidence при matching являются `source.raw_name`, `source.raw_fields`, `identity`, `attributes`, `ports` и `annotation_review`. `source.raw_name/raw_fields are valid evidence`: если normalized field отсутствует, но значение явно написано в source, используй его. Например, «Муфта комбинированная PPR наружная резьба 20x1/2» явно подтверждает PPR 20 и male thread 1/2 даже при потерянном normalized port. Но отсутствие значения одновременно в semantic fields и source запрещено трактовать как совпадение.
+
+Не считай отсутствующее значение совпадением; не додумывай diameter/thread/material/manufacturer/brand; не игнорируй explicit mismatch, не подменяй product type и не считай текстовую похожесть достаточной. Недостаток evidence может дать `CATALOG_DATA_INSUFFICIENT`, но не invented item.
 
 ## Match levels
+
+**match_level != annotation quality**: `match_level` характеризует соответствие товара заявке, а не качество annotation. Не понижай уровень автоматически по правилу `needs_review => alternative`. Товар `needs_review` может быть `exact`, если source или semantic fields однозначно подтверждают все требования конкретной заявки; неполнота по иному признаку остаётся отдельным предупреждением качества данных.
 
 `exact`: все product-defining требования совпадают без meaningful difference. `equivalent`: отличие сохраняет техническую эквивалентность и разрешено substitution policy. `alternative`: допустимая замена с meaningful difference. Не превышай `selection_policy.max_match_level` (`exact` < `equivalent` < `alternative`). Tie break: preferred brand, `catalog_priority`, source order. Не оптимизируй цену без explicit price condition.
 

@@ -28,7 +28,7 @@ export function CatalogReviewPage(){const{recordId}=useParams(),[record,setRecor
     try{
       await catalogsRepository.updateReviewedCatalog({recordId:editedSnapshot.recordId,expectedSemanticRevision:editedSnapshot.semanticRevision,next:result.record});
       setRecord(result.record);
-      setFeedback(result.becameValidated?'Позиция проверена и теперь участвует в подборе.':`Изменения сохранены. Осталось заполнить: ${result.remainingReviewCount}.`);
+      setFeedback(result.becameValidated?'Позиция проверена. Разметка подтверждена.':`Изменения сохранены. Осталось заполнить: ${result.remainingReviewCount}.`);
     }catch(error){
       if(!(error instanceof CatalogRevisionChangedError))throw error;
       await load();

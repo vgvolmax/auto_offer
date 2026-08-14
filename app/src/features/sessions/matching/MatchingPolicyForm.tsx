@@ -71,31 +71,6 @@ export function MatchingPolicyForm({
           ИИ сможет выбирать только варианты в пределах разрешённого уровня.
         </p>
       </fieldset>
-      <fieldset disabled={interactionDisabled}>
-        <legend>Товары, которые требуют проверки</legend>
-        <label className="inline-check">
-          <input
-            type="radio"
-            name="review"
-            checked={settings.catalogNeedsReview === "exclude"}
-            onChange={() =>
-              onChange({ ...settings, catalogNeedsReview: "exclude" })
-            }
-          />
-          Не использовать товары, которые требуют проверки
-        </label>
-        <label className="inline-check">
-          <input
-            type="radio"
-            name="review"
-            checked={settings.catalogNeedsReview === "manual_only"}
-            onChange={() =>
-              onChange({ ...settings, catalogNeedsReview: "manual_only" })
-            }
-          />
-          Разрешить их как варианты с обязательной ручной проверкой
-        </label>
-      </fieldset>
       <CatalogPriorityEditor
         locked={interactionDisabled}
         ids={settings.catalogPriority}

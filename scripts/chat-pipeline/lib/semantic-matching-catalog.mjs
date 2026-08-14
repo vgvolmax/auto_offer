@@ -46,7 +46,7 @@ export async function buildSemanticMatchingCatalog({ requestBundle, catalogs, se
       if (!item || !classIds.includes(item.class_id)) continue;
       const status = item.annotation?.status;
       if (status === 'invalid' || status === 'unsupported') continue;
-      if (status !== 'validated' && !(status === 'needs_review' && selectionPolicy.catalog_needs_review === 'manual_only')) continue;
+      if (!['validated', 'needs_review'].includes(status)) continue;
       if (!usableId(item.source_item_id)) throw new Error(`Eligible catalog item in ${catalog.recordId} has no usable source_item_id`);
       if (!brandAllowed(item.identity, selectionPolicy.brands)) continue;
       const offerKey = `${catalog.recordId}\0${item.source_item_id}`;
@@ -55,6 +55,11 @@ export async function buildSemanticMatchingCatalog({ requestBundle, catalogs, se
       items.push(clone({
         offer_ref: { catalog_record_id: catalog.recordId, source_item_id: item.source_item_id },
         catalog_id: catalog.catalogId, class_id: item.class_id, annotation_status: status,
+        annotation_review: {
+          unknown_fields: item.annotation?.unknown_fields ?? [],
+          issues: item.annotation?.issues ?? [],
+          ambiguities: item.annotation?.ambiguities ?? [],
+        },
         source: entry.source, identity: item.identity ?? {}, attributes: item.attributes ?? {}, ports: item.ports ?? [],
       }));
     }

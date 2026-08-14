@@ -25,7 +25,7 @@ export const createDefaultSessionMatchingSettings = (
 ): SessionMatchingSettings => ({
   schemaVersion: "1.0.0",
   maxMatchLevel: "alternative",
-  catalogNeedsReview: "exclude",
+  catalogNeedsReview: "manual_only",
   brands: { include: [], exclude: [], preferred: [], unknown: "allow" },
   catalogPriority: [...ids],
 });

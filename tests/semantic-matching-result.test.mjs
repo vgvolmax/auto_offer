@@ -75,3 +75,19 @@ test('rejects stale semantic result after request content changes', async () => 
   assert.equal(stale.valid, false);
   assert.ok(stale.errors.some(({ code }) => code === 'PACKAGE_TAMPERED'));
 });
+
+test('needs_review request accepts offer and no_offer despite legacy exclude', async () => {
+  const reviewRequest = structuredClone(request);
+  reviewRequest.request_document.lines[0].annotation.status = 'needs_review';
+  const reviewRecord = structuredClone(record);
+  reviewRecord.bundle.items[0].catalog_item.annotation.status = 'needs_review';
+  const matchingCatalog = await buildSemanticMatchingCatalog({ requestBundle: reviewRequest, catalogs: [reviewRecord], selectionPolicy: policy });
+  const root = (line) => ({ kind: 'semantic_match_result', schema_version: '1.0.0', taxonomy_version: '1.0.0', request_id: 'r', package_fingerprint: matchingCatalog.package_fingerprint, lines: [line, { line_id: '2', decision: 'request_unsupported' }] });
+  const offer = root({ line_id: '1', decision: 'offer', offer_ref: { catalog_record_id: 'c', source_item_id: 'i' }, match_level: 'exact', rationale_ru: 'Source подтверждает требования', differences_ru: [] });
+  const noOffer = root({ line_id: '1', decision: 'no_offer', reason_code: 'CATALOG_DATA_INSUFFICIENT', rationale_ru: 'Недостаточно данных' });
+  for (const result of [offer, noOffer]) {
+    const validation = await validateSemanticMatchResultObjects({ result, requestBundle: reviewRequest, matchingCatalog });
+    assert.equal(validation.valid, true, JSON.stringify(validation.errors));
+    assert.ok(!validation.errors?.some(({ code }) => code === 'NEEDS_REVIEW_EXCLUDED'));
+  }
+});

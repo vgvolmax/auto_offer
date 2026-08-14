@@ -54,6 +54,8 @@ export interface CandidateReviewView {
   resultPosition: number;
   semanticRationaleRu?: string;
   semanticDifferencesRu?: string[];
+  annotationStatus?: "validated" | "needs_review";
+  reviewReasonCount?: number;
 }
 export interface ExcludedCandidateReviewView extends CandidateReviewView {
   exclusionCodes: string[];
@@ -327,6 +329,12 @@ export function buildMatchResultReviewView(input: {
         resultPosition: 0,
         semanticRationaleRu: text(value.semanticRationaleRu),
         semanticDifferencesRu: array(value.semanticDifferencesRu).map(String),
+        annotationStatus: found && ["validated", "needs_review"].includes(text((found.catalogItem.annotation as Obj | undefined)?.status) ?? "")
+          ? text((found.catalogItem.annotation as Obj).status) as CandidateReviewView["annotationStatus"]
+          : undefined,
+        reviewReasonCount: found && object(found.catalogItem.annotation)
+          ? array(found.catalogItem.annotation.unknown_fields).length + array(found.catalogItem.annotation.issues).length + array(found.catalogItem.annotation.ambiguities).length
+          : undefined,
       };
       return excluded
         ? {

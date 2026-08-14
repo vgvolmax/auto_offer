@@ -77,3 +77,11 @@ kit, kit неполон или полный bundle построить нельз
 
 После файла сообщи только line count и количества `validated`, `needs_review`, `invalid` и `unsupported`. Финальной инстанцией истины остаётся внешний запуск
 `npm run validate:request-bundle -- <file>`.
+
+## Explicit fact preservation audit
+
+**EXPLICIT SOURCE FACT MUST NOT DISAPPEAR.** Перед финальной выдачей каждой строки проведи semantic fact audit: каждый materially relevant технический факт, явно присутствующий в `raw_text`, должен либо попасть в соответствующее semantic field (`requested_identity`, attributes, constraints или ports), либо быть отражён через `unknown_fields`, `ambiguities` или `issues`, если его нормализация действительно неоднозначна. Запрещено потерять явный факт и оставить строку `validated`; это правило не разрешает выдумывать отсутствующие характеристики.
+
+Regression case: `Труба PPR PN20 DN32x5.4` обязана сохранить pressure class PN20, wall thickness 5.4 и явно указанный DN/OD 32 как semantic value либо ambiguity. Результат с PN20 и 5.4, но без 32, не может быть `validated`.
+
+Минимальная canonical construction guidance: female-thread closure → `cap`; male-thread closure → `plug`; PPR + threaded mixed fitting → `adapter`. Для неоднозначного названия source всегда важнее догадки; не создавай общий словарь сантехнических эвристик.

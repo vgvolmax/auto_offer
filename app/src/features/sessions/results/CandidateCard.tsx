@@ -1,6 +1,7 @@
 import { getMatchLevelLabel } from "../../../domain/matching/match-result-labels";
 import type { CandidateReviewView } from "../../../domain/matching/match-result-review";
 import { CandidateChecks } from "./CandidateChecks";
+import { Link } from "react-router-dom";
 export function CandidateCard({
   candidate,
   lineId,
@@ -32,6 +33,14 @@ export function CandidateCard({
       </p>
       {candidate.availability === "manual_only" && (
         <p>Каталог требует ручной проверки</p>
+      )}
+      {candidate.annotationStatus === "needs_review" && (
+        <p className="warning-text">
+          ⚠ {candidate.reviewReasonCount
+            ? `Разметка неполная: ${candidate.reviewReasonCount} поля требуют проверки. `
+            : "Разметка товара неполная — требуется проверка данных каталога. "}
+          <Link to={`/catalogs/${candidate.offerRef.catalog_record_id}/review`}>Проверить разметку</Link>
+        </p>
       )}
       {candidate.semanticRationaleRu && (
         <section><h5>Почему предложено</h5><p>{candidate.semanticRationaleRu}</p></section>
