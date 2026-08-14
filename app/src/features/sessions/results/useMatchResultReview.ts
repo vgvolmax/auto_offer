@@ -27,6 +27,16 @@ export type ResultFilter =
   | "review_required"
   | "excluded_by_policy";
 export const MATCH_RESULTS_BATCH_SIZE = 50;
+export function matchesResultFilter(line: ReturnType<typeof buildMatchResultReviewView>["lines"][number], filter: ResultFilter, runKind: MatchRunRecord["runKind"]): boolean {
+  if (filter === "all") return true;
+  if (filter === "undecided") return runKind === "semantic" ? line.effectiveOutcome?.kind === "unresolved" : !line.hasDecision;
+  if (filter === "selected") return runKind === "semantic" ? line.effectiveOutcome?.kind === "selected_offer" : line.decisionKind === "selected_offer";
+  if (filter === "no_offer") return runKind === "semantic" ? line.effectiveOutcome?.kind === "no_offer" : line.decisionKind === "no_offer";
+  if (filter === "with_feedback") return Boolean(line.feedback);
+  if (filter === "no_match") return line.resolution === "no_match";
+  if (filter === "review_required") return ["request_review_required", "request_invalid"].includes(line.resolution);
+  return line.resolution === "excluded_by_policy";
+}
 export type MatchReviewState =
   | { kind: "loading" }
   | { kind: "ready"; selectionState: SelectionStateRecord }
@@ -94,25 +104,13 @@ export function useMatchResultReview(input: {
           ...l.candidates.map((c) => c.productLabel),
           l.selectedOfferRef?.source_item_id ?? "",
         ].some((x) => x.toLowerCase().includes(q));
-      const f =
-        filter === "all" ||
-        (filter === "undecided" && !l.hasDecision) ||
-        (filter === "selected" && l.decisionKind === "selected_offer") ||
-        (filter === "no_offer" && l.decisionKind === "no_offer") ||
-        (filter === "with_feedback" && Boolean(l.feedback)) ||
-        (filter === "no_match" && l.resolution === "no_match") ||
-        (filter === "review_required" &&
-          ["request_review_required", "request_invalid"].includes(
-            l.resolution,
-          )) ||
-        (filter === "excluded_by_policy" &&
-          l.resolution === "excluded_by_policy");
+      const f = matchesResultFilter(l, filter, input.run.runKind);
       return matches && f;
     });
-  }, [view, filter, query]);
+  }, [view, filter, query, input.run.runKind]);
   const bulkEligibleLineIds = useMemo(
-    () => view?.lines.filter((line) => !line.hasDecision && line.candidates.length === 0 && line.canMarkNoOffer).map((line) => line.lineId) ?? [],
-    [view],
+    () => input.run.runKind === "pilot" ? (view?.lines.filter((line) => !line.hasDecision && line.candidates.length === 0 && line.canMarkNoOffer).map((line) => line.lineId) ?? []) : [],
+    [view, input.run.runKind],
   );
   const setFilter = (x: ResultFilter) => {
       setFilterValue(x);

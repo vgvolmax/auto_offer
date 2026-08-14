@@ -54,12 +54,32 @@ describe("buildProposalTableView", () => {
   it("gives operator no-offer precedence over a recommendation", () => {
     const result = buildProposalTableView({ review: view([line({ candidates: [candidate()], decisionKind: "no_offer", hasDecision: true })]), runKind: "semantic" }).rows[0];
     expect(result.offer.kind).toBe("operator_no_offer");
-    expect(result.statusLabel).toBe("Без предложения");
+    expect(result.statusLabel).toBe("Готово");
   });
 
   it("marks manual-only recommendations for attention", () => {
     const result = buildProposalTableView({ review: view([line({ candidates: [candidate({ availability: "manual_only" })] })]), runKind: "semantic" });
     expect(result.rows[0].statusTone).toBe("warning");
     expect(result.summary.attention).toBe(1);
+  });
+
+  it("uses the canonical effective counters for a semantic summary", () => {
+    const lines = [
+      line({ lineId: "selected", effectiveOutcome: { kind: "selected_offer", source: "ai", offerRef: candidate().offerRef }, candidates: [candidate()] }),
+      line({ lineId: "no-offer", semanticRecommendation: "no_offer", effectiveOutcome: { kind: "no_offer", source: "ai" } }),
+      line({ lineId: "unsupported", resolution: "request_unsupported", effectiveOutcome: { kind: "no_offer", source: "unsupported" } }),
+      line({ lineId: "manual", candidates: [candidate({ availability: "manual_only" })], effectiveOutcome: { kind: "unresolved", reason: "manual_only" } }),
+    ];
+    const review = { ...view(lines), effectiveSelectedCount: 1, effectiveNoOfferCount: 2, effectiveUnresolvedCount: 1 };
+    const result = buildProposalTableView({ review, runKind: "semantic" });
+    expect(result.summary).toMatchObject({ total: 4, withOffer: 1, noOffer: 2, attention: 1 });
+    expect(result.summary.withOffer + result.summary.noOffer + result.summary.attention).toBe(result.summary.total);
+    expect(result.rows.find((row) => row.lineId === "unsupported")?.offer.kind).toBe("request_unsupported");
+  });
+
+  it("marks only semantic effective operator outcomes as overrides", () => {
+    const operatorLine = line({ hasDecision: true, decisionKind: "no_offer", effectiveOutcome: { kind: "no_offer", source: "operator" } });
+    expect(buildProposalTableView({ review: view([operatorLine]), runKind: "semantic" }).rows[0].operatorOverride).toBe(true);
+    expect(buildProposalTableView({ review: view([operatorLine]), runKind: "pilot" }).rows[0].operatorOverride).toBe(false);
   });
 });

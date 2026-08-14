@@ -13,7 +13,7 @@ describe("ProposalTable", () => {
     for (const label of ["№", "Запрос клиента", "Количество", "Наш товар", "Статус"]) expect(screen.getByRole("columnheader", { name: label })).toBeInTheDocument();
     expect(container.querySelectorAll("tr[data-proposal-row]")).toHaveLength(1);
     expect(screen.getByText("Кран наш")).toBeInTheDocument();
-    expect(screen.getByText("Рекомендация ИИ")).toBeInTheDocument();
+    expect(screen.getByText("Результат ИИ")).toBeInTheDocument();
     expect(screen.getByText("Не подтверждено")).toBeInTheDocument();
     expect(screen.queryByText("Подходит")).not.toBeInTheDocument();
   });
@@ -23,6 +23,19 @@ describe("ProposalTable", () => {
     renderTable(new Set(), [local]);
     expect(screen.getByText("Рекомендация локального подбора")).toBeInTheDocument();
     expect(screen.queryByText("Рекомендация ИИ")).not.toBeInTheDocument();
+  });
+
+  it("shows the operator badge only for a semantic override presentation", () => {
+    const semanticOverride = { ...row, hasDecision: true, operatorOverride: true, offer: { kind: "operator_no_offer" as const, recommendationSource: undefined } };
+    const pilotSelected = { ...row, hasDecision: true, operatorOverride: false, offer: { ...row.offer, kind: "selected_offer" as const, recommendationSource: undefined } };
+    const pilotNoOffer = { ...row, hasDecision: true, operatorOverride: false, offer: { kind: "operator_no_offer" as const, recommendationSource: undefined } };
+    const first = renderTable(new Set(), [semanticOverride]);
+    expect(screen.getByText("Изменено оператором")).toBeInTheDocument();
+    first.unmount();
+    const second = renderTable(new Set(), [pilotSelected, { ...pilotNoOffer, lineId: "line-2", position: 2 }]);
+    expect(screen.queryByText("Изменено оператором")).not.toBeInTheDocument();
+    expect(screen.queryByText("Результат ИИ")).not.toBeInTheDocument();
+    second.unmount();
   });
 
   it("renders an undecided Pilot row without exposing a candidate as the main product", () => {
