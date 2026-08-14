@@ -8,11 +8,25 @@ const STATUS_DECISIONS = {
 };
 const error = (code, message, path = '') => ({ code, path, message });
 
+const escapeJsonPointerToken = (value) => String(value).replaceAll('~', '~0').replaceAll('/', '~1');
+const normalizeSchemaError = (name, detail) => {
+  let path = detail.instancePath ?? '';
+  let description = detail.message ?? 'does not match the schema';
+  if (detail.keyword === 'additionalProperties' && detail.params?.additionalProperty !== undefined) {
+    path += `/${escapeJsonPointerToken(detail.params.additionalProperty)}`;
+    description = 'additional property is not allowed';
+  } else if (detail.keyword === 'required' && detail.params?.missingProperty !== undefined) {
+    path += `/${escapeJsonPointerToken(detail.params.missingProperty)}`;
+    description = 'required property is missing';
+  }
+  return error('SCHEMA_INVALID', `${name}: ${description}`, path);
+};
+
 export async function validateSemanticMatchResultObjects({ result, requestBundle, matchingCatalog, validators = {}, cryptoApi }) {
   const errors = [];
   for (const [name, value] of [['requestBundle', requestBundle], ['matchingCatalog', matchingCatalog], ['result', result]]) {
     const validate = validators[name];
-    if (validate && !validate(value)) errors.push(...(validate.errors ?? []).map((detail) => error('SCHEMA_INVALID', `${name}: ${detail.message}`, detail.instancePath)));
+    if (validate && !validate(value)) errors.push(...(validate.errors ?? []).map((detail) => normalizeSchemaError(name, detail)));
   }
   if (errors.length) return { valid: false, errors };
   const requestId = requestBundle?.request_document?.request_id;

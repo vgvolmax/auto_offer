@@ -96,6 +96,14 @@ describe("semantic result import orchestration", () => {
 
 describe("semantic import error messages", () => {
   it.each([
+    ["/lines", "result: required property is missing", "Неверный формат результата: отсутствует обязательное поле /lines"],
+    ["/lines/17/rationale_ru", "result: additional property is not allowed", "Неверный формат результата: лишнее поле /lines/17/rationale_ru"],
+    ["/lines/5/decision", "result: must be equal to one of the allowed values", "Неверный формат результата: поле /lines/5/decision must be equal to one of the allowed values"],
+  ])("shows actionable schema error for %s", (path, technicalMessage, message) => {
+    expect(getSemanticImportErrorMessage([{ code: "SCHEMA_INVALID", path, message: technicalMessage }])).toBe(message);
+  });
+
+  it.each([
     ["FINGERPRINT_MISMATCH", "Результат создан для другого пакета подбора"],
     ["PACKAGE_TAMPERED", "Заявка, каталоги или настройки изменились после подготовки файлов"],
     ["REQUEST_ID_MISMATCH", "Результат относится к другой заявке"],
