@@ -14,32 +14,51 @@ describe("buildProposalTableView", () => {
     ["request_invalid", line({ resolution: "request_invalid" })],
     ["request_unsupported", line({ resolution: "request_unsupported" })],
     ["undecided", line()],
-  ] as const)("maps %s independently", (kind, input) => expect(buildProposalTableView(view([input])).rows[0].offer.kind).toBe(kind));
+  ] as const)("maps %s independently", (kind, input) => expect(buildProposalTableView({ review: view([input]), runKind: "semantic" }).rows[0].offer.kind).toBe(kind));
 
   it("shows a recommendation without creating a decision", () => {
     const source = line({ candidates: [candidate()] });
-    const result = buildProposalTableView(view([source])).rows[0];
+    const result = buildProposalTableView({ review: view([source]), runKind: "semantic" }).rows[0];
     expect(result.offer.kind).toBe("recommended_offer");
+    expect(result.offer.recommendationSource).toBe("ai");
+    expect(result.offer.productLabel).toBe("Товар A");
     expect(result.statusLabel).toBe("Не подтверждено");
+    expect(result.hasDecision).toBe(false);
     expect(source.hasDecision).toBe(false);
+  });
+
+  it("labels a suggested Pilot candidate as a local recommendation", () => {
+    const result = buildProposalTableView({ review: view([line({ candidates: [candidate()] })]), runKind: "pilot" }).rows[0];
+    expect(result.offer.kind).toBe("recommended_offer");
+    expect(result.offer.recommendationSource).toBe("local");
+  });
+
+  it("does not promote the first Pilot candidate when none is suggested", () => {
+    const candidates = [candidate({ productLabel: "A", suggested: false }), candidate({ key: "b", productLabel: "B", suggested: false })];
+    const result = buildProposalTableView({ review: view([line({ candidates })]), runKind: "pilot" });
+    expect(result.rows[0].offer.kind).toBe("undecided");
+    expect(result.rows[0].offer.productLabel).toBeUndefined();
+    expect(result.rows[0].statusLabel).toBe("Не подтверждено");
+    expect(result.summary.withOffer).toBe(0);
+    expect(result.rows[0].source.candidates).toEqual(candidates);
   });
 
   it("gives an operator-selected offer precedence over the recommendation", () => {
     const recommended = candidate({ key: "a", productLabel: "A", suggested: true });
     const selected = candidate({ key: "b", productLabel: "B", suggested: false, selected: true });
-    const result = buildProposalTableView(view([line({ candidates: [recommended, selected], decisionKind: "selected_offer", hasDecision: true })])).rows[0];
+    const result = buildProposalTableView({ review: view([line({ candidates: [recommended, selected], decisionKind: "selected_offer", hasDecision: true })]), runKind: "semantic" }).rows[0];
     expect(result.offer.kind).toBe("selected_offer");
     expect(result.offer.productLabel).toBe("B");
   });
 
   it("gives operator no-offer precedence over a recommendation", () => {
-    const result = buildProposalTableView(view([line({ candidates: [candidate()], decisionKind: "no_offer", hasDecision: true })])).rows[0];
+    const result = buildProposalTableView({ review: view([line({ candidates: [candidate()], decisionKind: "no_offer", hasDecision: true })]), runKind: "semantic" }).rows[0];
     expect(result.offer.kind).toBe("operator_no_offer");
     expect(result.statusLabel).toBe("Без предложения");
   });
 
   it("marks manual-only recommendations for attention", () => {
-    const result = buildProposalTableView(view([line({ candidates: [candidate({ availability: "manual_only" })] })]));
+    const result = buildProposalTableView({ review: view([line({ candidates: [candidate({ availability: "manual_only" })] })]), runKind: "semantic" });
     expect(result.rows[0].statusTone).toBe("warning");
     expect(result.summary.attention).toBe(1);
   });

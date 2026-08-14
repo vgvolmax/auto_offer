@@ -71,8 +71,8 @@ export function MatchResultsPanel(input: {
     );
   const busy = review.state.kind === "saving";
   const bulkSaving = busy && review.state.kind === "saving" && review.state.savingLineId === "__bulk_no_offer__";
-  const proposal = buildProposalTableView(review.view);
-  const visibleProposal = buildProposalTableView({ ...review.view, lines: review.lines });
+  const proposal = buildProposalTableView({ review: review.view, runKind: input.run.runKind });
+  const visibleProposal = buildProposalTableView({ review: { ...review.view, lines: review.lines }, runKind: input.run.runKind });
   const confirm = async (request: {
     matchRunId: string;
     expectedSelectionRevision: number;
