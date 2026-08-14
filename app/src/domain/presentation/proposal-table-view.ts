@@ -20,6 +20,7 @@ export interface ProposalRowView {
     rationale?: string;
     differences?: string[];
     reasonLabel?: string;
+    recommendationSource?: "ai" | "local";
     candidate?: CandidateReviewView;
   };
   statusLabel: string;
@@ -32,11 +33,11 @@ export interface ProposalTableView {
   summary: { total: number; withOffer: number; noOffer: number; attention: number; unconfirmed: number };
 }
 
-function productOffer(kind: "selected_offer" | "recommended_offer", candidate: CandidateReviewView) {
-  return { kind, productLabel: candidate.productLabel, brand: candidate.brand, catalogLabel: candidate.catalogLabel, matchLevel: candidate.matchLevel, availability: candidate.availability, rationale: candidate.semanticRationaleRu, differences: candidate.semanticDifferencesRu, candidate } as const;
+function productOffer(kind: "selected_offer" | "recommended_offer", candidate: CandidateReviewView, recommendationSource?: "ai" | "local") {
+  return { kind, productLabel: candidate.productLabel, brand: candidate.brand, catalogLabel: candidate.catalogLabel, matchLevel: candidate.matchLevel, availability: candidate.availability, rationale: candidate.semanticRationaleRu, differences: candidate.semanticDifferencesRu, recommendationSource, candidate } as const;
 }
 
-function buildRow(line: MatchLineReviewView): ProposalRowView {
+function buildRow(line: MatchLineReviewView, runKind: "pilot" | "semantic"): ProposalRowView {
   const display = buildRequestLineDisplay({ rawText: line.requestText });
   const common = { lineId: line.lineId, position: line.position, source: line, request: { ...display, raw: line.requestText, quantity: line.quantityLabel }, hasDecision: line.hasDecision };
   const selected = line.candidates.find((candidate) => candidate.selected);
@@ -44,11 +45,11 @@ function buildRow(line: MatchLineReviewView): ProposalRowView {
     return { ...common, offer: productOffer("selected_offer", selected), statusLabel: "Выбрано", statusTone: "success" };
   if (line.decisionKind === "no_offer")
     return { ...common, offer: { kind: "operator_no_offer" }, statusLabel: "Без предложения", statusTone: "success" };
-  const recommended = line.candidates.find((candidate) => candidate.suggested) ?? line.candidates[0];
+  const recommended = line.candidates.find((candidate) => candidate.suggested);
   if (recommended)
-    return { ...common, offer: productOffer("recommended_offer", recommended), statusLabel: "Не подтверждено", statusTone: recommended.availability === "manual_only" ? "warning" : "info" };
-  if (line.semanticRecommendation === "no_offer")
-    return { ...common, offer: { kind: "recommended_no_offer", rationale: line.semanticRationaleRu, reasonLabel: line.semanticReasonCode ? getReasonCodeLabel(line.semanticReasonCode) : undefined }, statusLabel: "Рекомендация ИИ", statusTone: "info" };
+    return { ...common, offer: productOffer("recommended_offer", recommended, runKind === "semantic" ? "ai" : "local"), statusLabel: "Не подтверждено", statusTone: recommended.availability === "manual_only" ? "warning" : "info" };
+  if (runKind === "semantic" && line.semanticRecommendation === "no_offer")
+    return { ...common, offer: { kind: "recommended_no_offer", recommendationSource: "ai", rationale: line.semanticRationaleRu, reasonLabel: line.semanticReasonCode ? getReasonCodeLabel(line.semanticReasonCode) : undefined }, statusLabel: "Рекомендация ИИ", statusTone: "info" };
   if (line.semanticRecommendation === "reroute_required" || line.resolution === "reroute_required")
     return { ...common, offer: { kind: "reroute", rationale: line.semanticRationaleRu, reasonLabel: line.semanticReasonCode ? getReasonCodeLabel(line.semanticReasonCode) : undefined }, statusLabel: "Требуется уточнение", statusTone: "warning" };
   const problem = ({ request_review_required: ["request_review", "Требуется проверить заявку"], request_invalid: ["request_invalid", "Ошибка в строке заявки"], request_unsupported: ["request_unsupported", "Не поддерживается"] } as const)[line.resolution as "request_review_required" | "request_invalid" | "request_unsupported"];
@@ -56,8 +57,8 @@ function buildRow(line: MatchLineReviewView): ProposalRowView {
   return { ...common, offer: { kind: "undecided" }, statusLabel: "Не подтверждено", statusTone: "muted" };
 }
 
-export function buildProposalTableView(view: MatchResultReviewView): ProposalTableView {
-  const rows = view.lines.map(buildRow);
+export function buildProposalTableView(input: { review: MatchResultReviewView; runKind: "pilot" | "semantic" }): ProposalTableView {
+  const rows = input.review.lines.map((line) => buildRow(line, input.runKind));
   return { rows, summary: {
     total: rows.length,
     withOffer: rows.filter((row) => row.offer.kind === "selected_offer" || row.offer.kind === "recommended_offer").length,
