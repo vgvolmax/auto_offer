@@ -115,3 +115,19 @@ test('operator workflow lists catalog and two-step request attachments and valid
   assert.ok(workflow.includes('npm run validate:catalog-bundle -- <file>'));
   assert.ok(workflow.includes('npm run validate:request-bundle -- <file>'));
 });
+
+test('annotation prompts preserve explicit source facts and canonical constructions', async () => {
+  const catalog = await read(files.catalog), request = await read(files.request);
+  for (const prompt of [catalog, request]) {
+    assert.ok(prompt.includes('EXPLICIT SOURCE FACT MUST NOT DISAPPEAR'));
+    for (const marker of ['female-thread closure', 'male-thread closure', 'PPR + threaded mixed fitting']) assert.ok(prompt.includes(marker));
+  }
+  for (const marker of ['20x1/2', '25x20x25', '32x5.4 PN20', 'female/female', 'M8 ... (25-29)']) assert.ok(catalog.includes(marker), marker);
+  assert.ok(request.includes('Труба PPR PN20 DN32x5.4'));
+});
+
+test('source fact golden fixture covers the focused regression cases', async () => {
+  const cases = JSON.parse(await read('tests/fixtures/semantic-matching/source-fact-golden/cases.json'));
+  assert.deepEqual(cases.map(({ id }) => id), ['ppr-pipe', 'ppr-tee', 'ppr-male-adapter', 'ball-valve', 'brass-cap', 'pipe-support']);
+  assert.ok(cases.every(({ source, facts }) => source && facts.length >= 2));
+});

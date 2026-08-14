@@ -27,9 +27,9 @@ describe("buildEffectiveReview", () => {
     expect(buildEffectiveReview({ run: run({ decision }), catalogs: [], selectionState: selection() }).unresolvedCount).toBe(1);
   });
 
-  it("requires explicit approval for manual-only and lets an operator override win", () => {
+  it("accepts semantic needs-review offers while letting an operator override win", () => {
     const semanticRun = run({ decision: "offer", offer_ref: { catalog_record_id: "catalog-record", source_item_id: "item" } });
-    expect(buildEffectiveReview({ run: semanticRun, catalogs: [catalog("needs_review")], selectionState: selection() }).lines[0].outcome).toMatchObject({ kind: "unresolved", reason: "manual_only" });
+    expect(buildEffectiveReview({ run: semanticRun, catalogs: [catalog("needs_review")], selectionState: selection() }).lines[0].outcome).toMatchObject({ kind: "selected_offer", source: "ai" });
     const ref = { catalog_record_id: "catalog-record", catalog_id: "catalog", source_sha256: "sha", source_item_id: "item" };
     expect(buildEffectiveReview({ run: semanticRun, catalogs: [catalog("needs_review")], selectionState: selection({ kind: "selected_offer", offerRef: ref }) }).lines[0].outcome).toMatchObject({ kind: "selected_offer", source: "operator" });
     expect(buildEffectiveReview({ run: semanticRun, catalogs: [catalog()], selectionState: selection({ kind: "no_offer" }) }).lines[0].outcome).toEqual({ kind: "no_offer", source: "operator" });

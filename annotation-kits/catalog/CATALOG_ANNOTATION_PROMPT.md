@@ -82,3 +82,17 @@ embedded `schemas_by_id`. Не утверждай, что файл валиде�
 проверка не выполнена. Не печатай полный JSON в сообщении: приложи только
 скачиваемый файл. После каждого файла дай только краткую сводку: общее
 количество строк и количества `validated`, `needs_review`, `invalid`, `unsupported`.
+
+## Explicit fact preservation audit
+
+**EXPLICIT SOURCE FACT MUST NOT DISAPPEAR.** Перед финальной выдачей каждой позиции проведи semantic fact audit: каждый materially relevant технический факт, явно присутствующий в `source.raw_name` или `source.raw_fields`, должен либо попасть в соответствующее поле `identity` / `attributes` / `ports`, либо быть отражён в `unknown_fields`, `ambiguities` или `issues`, если честная нормализация неоднозначна. Запрещён результат «source содержит факт → output его теряет → `annotation.status = validated`». Это правило дополняет, а не отменяет запрет выдумывать отсутствующие факты.
+
+Обязательные pattern-проверки:
+
+- `20x1/2\"`, наружная резьба: сохрани обе стороны — PPR 20 mm и male thread 1/2\". Если connection semantics неоднозначна, поставь `needs_review`, но не удаляй размер.
+- переходной tee `25x20x25`: сохрани три соответствующих размера портов, не оставляй `ports: []`.
+- PPR pipe `32x5.4 PN20`: сохрани outer diameter 32, wall thickness 5.4 и pressure class PN20.
+- threaded valve female/female `1/2\"` (внутренняя/внутренняя резьба): размер не должен исчезнуть из обоих threaded ports.
+- pipe support `M8 ... (25-29)`: M8 относится к крепежу и не является диаметром трубы; размер трубы — диапазон 25–29. Непредставимый факт оставь unresolved/ambiguity, но не записывай неверное `diameter_mm: 8`.
+
+Минимальная canonical construction guidance: female-thread closure → `cap`; male-thread closure → `plug`; PPR + threaded mixed fitting → `adapter`. Не расширяй это до общего словаря эвристик: при неоднозначности исходный source важнее догадки.

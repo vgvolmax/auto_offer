@@ -5,7 +5,7 @@ import { canonicalJson } from '../matching/runtime/canonical-json.mjs';
 
 const policy = { max_match_level: 'equivalent', catalog_needs_review: 'exclude', brands: { include: [], exclude: [], preferred: [], unknown: 'allow' }, catalog_priority: ['b', 'a'] };
 const request = { taxonomy_version: '1.0.0', request_document: { request_id: 'r1', lines: [{ line_id: '1', class_id: 'valve.ball', annotation: { status: 'validated' } }, { line_id: '2', annotation: { status: 'unsupported' } }] } };
-const entry = (id, status = 'validated', classId = 'valve.ball', brand = 'brand.ok') => ({ source: { raw_name: id }, catalog_item: { source_item_id: id, class_id: classId, annotation: { status }, identity: { brand }, attributes: {}, ports: [] } });
+const entry = (id, status = 'validated', classId = 'valve.ball', brand = 'brand.ok') => ({ source: { raw_name: id }, catalog_item: { source_item_id: id, class_id: classId, annotation: { status, unknown_fields: [], issues: [], ambiguities: [] }, identity: { brand }, attributes: {}, ports: [] } });
 const catalog = (recordId, items) => ({ recordId, catalogId: `cat-${recordId}`, sourceSha256: recordId === 'a' ? 'a'.repeat(64) : 'b'.repeat(64), semanticRevision: 0, bundle: { taxonomy_version: '1.0.0', catalog: { catalog_id: `cat-${recordId}` }, items } });
 
 test('safe deterministic slice follows priority/source order and does no semantic top-N', async () => {
@@ -16,8 +16,8 @@ test('safe deterministic slice follows priority/source order and does no semanti
   const second = await buildSemanticMatchingCatalog({ requestBundle: request, catalogs, selectionPolicy: policy });
   assert.deepEqual({ request, catalogs, policy }, snapshot);
   assert.deepEqual(first, second); assert.equal(canonicalJson(first), canonicalJson(second));
-  assert.deepEqual(first.class_ids, ['valve.ball']); assert.equal(first.items.length, 101);
-  assert.equal(first.items[0].offer_ref.source_item_id, 'b-0'); assert.equal(first.items.at(-1).offer_ref.source_item_id, 'a-1');
+  assert.deepEqual(first.class_ids, ['valve.ball']); assert.equal(first.items.length, 102);
+  assert.equal(first.items[0].offer_ref.source_item_id, 'b-0'); assert.equal(first.items.at(-2).offer_ref.source_item_id, 'review'); assert.equal(first.items.at(-1).offer_ref.source_item_id, 'a-1');
   assert.match(first.package_fingerprint, /^[0-9a-f]{64}$/);
 });
 
@@ -64,4 +64,23 @@ test('fingerprint is invariant to request object key order and does not mutate i
     await computeSemanticMatchingFingerprint({ requestBundle: reorderedRequest, matchingCatalog: value }),
   );
   assert.deepEqual({ request, value }, snapshot);
+});
+
+
+test('legacy exclude does not hide needs_review and review metadata is preserved', async () => {
+  const reviewed = entry('review', 'needs_review');
+  reviewed.catalog_item.annotation = {
+    status: 'needs_review',
+    unknown_fields: ['/ports/0/connection_kind'],
+    issues: [{ code: 'MISSING_FIELD', json_pointer: '/ports/0/connection_kind', message: 'Нужно соединение', details: { missing: true } }],
+    ambiguities: [{ code: 'SIZE_AMBIGUOUS', json_pointer: '/ports/0/size', source_text: '20x1/2', possible_values: [20, '1/2'], blocking: true }],
+  };
+  const built = await buildSemanticMatchingCatalog({ requestBundle: request, catalogs: [catalog('a', [reviewed, entry('bad', 'invalid'), entry('unsupported', 'unsupported')])], selectionPolicy: { ...policy, catalog_priority: ['a'] } });
+  assert.equal(built.items.length, 1);
+  assert.equal(built.items[0].annotation_status, 'needs_review');
+  assert.deepEqual(built.items[0].annotation_review, {
+    unknown_fields: reviewed.catalog_item.annotation.unknown_fields,
+    issues: reviewed.catalog_item.annotation.issues,
+    ambiguities: reviewed.catalog_item.annotation.ambiguities,
+  });
 });

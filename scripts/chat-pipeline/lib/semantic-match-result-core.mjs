@@ -3,7 +3,7 @@ import { isOfferAllowedByBrandPolicy } from './semantic-matching-catalog.mjs';
 
 const LEVEL = { exact: 0, equivalent: 1, alternative: 2 };
 const STATUS_DECISIONS = {
-  validated: new Set(['offer', 'no_offer', 'reroute_required']), needs_review: new Set(['request_review_required']),
+  validated: new Set(['offer', 'no_offer', 'reroute_required']), needs_review: new Set(['offer', 'no_offer', 'reroute_required']),
   invalid: new Set(['request_invalid']), unsupported: new Set(['request_unsupported']),
 };
 const error = (code, message, path = '') => ({ code, path, message });
@@ -61,7 +61,6 @@ export async function validateSemanticMatchResultObjects({ result, requestBundle
     if (!catalogIds.has(line.offer_ref.catalog_record_id)) errors.push(error('UNKNOWN_CATALOG', 'Offer catalog is not in package', `/lines/${index}/offer_ref/catalog_record_id`));
     if (item?.class_id !== requestLine.class_id) errors.push(error('CLASS_MISMATCH', 'Offer class must exactly match request class', `/lines/${index}/offer_ref`));
     if (LEVEL[line.match_level] > LEVEL[matchingCatalog.selection_policy.max_match_level]) errors.push(error('MATCH_LEVEL_EXCEEDED', 'Offer exceeds max_match_level', `/lines/${index}/match_level`));
-    if (item && (item.annotation_status === 'needs_review' && matchingCatalog.selection_policy.catalog_needs_review !== 'manual_only')) errors.push(error('NEEDS_REVIEW_EXCLUDED', 'needs_review offer is excluded by policy', `/lines/${index}/offer_ref`));
     if (item && !['validated', 'needs_review'].includes(item.annotation_status)) errors.push(error('INELIGIBLE_ANNOTATION_STATUS', 'Offer annotation status is not eligible', `/lines/${index}/offer_ref`));
     const catalogRef = matchingCatalog.catalog_refs.find((ref) => ref.catalog_record_id === line.offer_ref.catalog_record_id);
     if (item && catalogRef?.catalog_id !== item.catalog_id) errors.push(error('CATALOG_ID_MISMATCH', 'Packaged item catalog_id does not match its catalog reference', `/lines/${index}/offer_ref`));

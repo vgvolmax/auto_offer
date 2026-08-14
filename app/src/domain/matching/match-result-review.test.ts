@@ -3,6 +3,34 @@ import { getReasonCodeLabel } from "./match-result-labels";
 import { buildMatchResultReviewView } from "./match-result-review";
 
 describe("match result review", () => {
+  it.each([
+    ["validated annotation", { status: "validated" }, 0],
+    ["one unresolved path", { status: "needs_review", unknown_fields: ["/ports/0/thread_size"] }, 1],
+    ["the same path in unknown fields and issues", { status: "needs_review", unknown_fields: ["/ports/0/thread_size"], issues: [{ code: "MISSING_VALUE", details: { missing_paths: ["/ports/0/thread_size"] } }] }, 1],
+    ["two different unresolved paths", { status: "needs_review", unknown_fields: ["/ports/0/thread_size"], issues: [{ code: "MISSING_VALUE", details: { missing_paths: ["/attributes/material"] } }] }, 2],
+  ])("counts review reasons for %s without affecting eligibility", (_name, annotation, expectedCount) => {
+    const offerRef = { catalog_record_id: "record-1", catalog_id: "catalog-1", source_sha256: "sha", source_item_id: "item-1" };
+    const catalog: any = {
+      recordId: "record-1", catalogId: "catalog-1", sourceSha256: "sha", sourceFileName: "catalog.xlsx",
+      bundle: { items: [{ source: { raw_name: "Товар" }, catalog_item: { source_item_id: "item-1", annotation } }] },
+    };
+    const run: any = {
+      id: "run", sessionId: "session", sessionRevision: 0, createdAt: "now", runKind: "semantic",
+      result: { package_fingerprint: "fp", lines: [{ line_id: "line-1", decision: "offer", offer_ref: offerRef, match_level: "exact", rationale_ru: "Подходит", differences_ru: [] }] },
+    };
+    const session: any = { requestBundle: { request_document: { lines: [{ line_id: "line-1", raw_text: "Товар" }] } } };
+    const selectionState: any = { matchRunId: "run", sessionId: "session", inputFingerprint: "fp", decisions: {}, feedback: {} };
+
+    const candidate = buildMatchResultReviewView({ session, catalogs: [catalog], run, selectionState, current: true }).lines[0].candidates[0];
+
+    expect(candidate).toMatchObject({
+      annotationStatus: annotation.status,
+      reviewReasonCount: expectedCount,
+      availability: "eligible",
+      selectable: true,
+    });
+  });
+
   it("preserves semantic decisions and resolves offers from the local catalog", () => {
     const catalog: any = {
       recordId: "record-1", catalogId: "local-catalog", sourceSha256: "local-sha", sourceFileName: "catalog.xlsx",
@@ -31,7 +59,7 @@ describe("match result review", () => {
       offerRef: { catalog_id: "local-catalog", source_sha256: "local-sha" }, availability: "eligible",
       semanticRationaleRu: "Обоснование 0", semanticDifferencesRu: ["Отличие"], checks: [], differences: [],
     });
-    expect(view.lines[2].candidates[0].availability).toBe("manual_only");
+    expect(view.lines[2].candidates[0]).toMatchObject({ availability: "eligible", annotationStatus: "needs_review" });
     expect(view.lines.slice(0, 3).map((line) => line.candidates[0].suggested)).toEqual([
       true,
       true,

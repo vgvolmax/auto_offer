@@ -18,10 +18,8 @@ export function resolveSemanticOffer(
   );
   const catalogItem = entry?.catalog_item;
   if (!entry || !catalogItem) return undefined;
-  let availability: CandidateAvailability;
-  if (catalogItem.annotation?.status === "validated") availability = "eligible";
-  else if (catalogItem.annotation?.status === "needs_review") availability = "manual_only";
-  else return undefined;
+  if (!["validated", "needs_review"].includes(catalogItem.annotation?.status ?? "")) return undefined;
+  const availability = "eligible" as CandidateAvailability;
   const offerRef: OfferRef = {
     catalog_record_id: catalog.recordId,
     catalog_id: catalog.catalogId,

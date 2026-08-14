@@ -1,0 +1,8 @@
+[
+  { "id": "ppr-pipe", "source": "PPR pipe 32x5.4 PN20", "facts": ["outer_diameter:32", "wall_thickness:5.4", "pressure_class:pn20"] },
+  { "id": "ppr-tee", "source": "PPR tee 25x20x25", "facts": ["port:25", "port:20", "port:25"] },
+  { "id": "ppr-male-adapter", "source": "PPR male adapter 20x1/2", "facts": ["ppr:20", "male_thread:1/2"] },
+  { "id": "ball-valve", "source": "ball valve F/F 1/2", "facts": ["female_thread:1/2", "female_thread:1/2"] },
+  { "id": "brass-cap", "source": "brass female closure 3/4", "facts": ["material:brass", "construction:cap", "female_thread:3/4"] },
+  { "id": "pipe-support", "source": "pipe support M8 (25-29)", "facts": ["fastener:M8", "pipe_range:25-29"] }
+]

@@ -12,6 +12,7 @@ import type { LineDecision } from "./selection-state";
 import type { LineFeedback } from "./line-feedback";
 import { resolveSemanticOffer } from "./resolve-semantic-offer";
 import { buildEffectiveReview, type EffectiveLineOutcome } from "../review/effective-review";
+import { countUnresolvedReviewReasons } from "../catalog-review-reasons";
 export type MatchLevel = "exact" | "equivalent" | "alternative";
 export type CandidateAvailability = "eligible" | "manual_only";
 export type MatchLineResolution =
@@ -54,6 +55,8 @@ export interface CandidateReviewView {
   resultPosition: number;
   semanticRationaleRu?: string;
   semanticDifferencesRu?: string[];
+  annotationStatus?: "validated" | "needs_review";
+  reviewReasonCount?: number;
 }
 export interface ExcludedCandidateReviewView extends CandidateReviewView {
   exclusionCodes: string[];
@@ -327,6 +330,12 @@ export function buildMatchResultReviewView(input: {
         resultPosition: 0,
         semanticRationaleRu: text(value.semanticRationaleRu),
         semanticDifferencesRu: array(value.semanticDifferencesRu).map(String),
+        annotationStatus: found && ["validated", "needs_review"].includes(text((found.catalogItem.annotation as Obj | undefined)?.status) ?? "")
+          ? text((found.catalogItem.annotation as Obj).status) as CandidateReviewView["annotationStatus"]
+          : undefined,
+        reviewReasonCount: found && object(found.catalogItem.annotation)
+          ? countUnresolvedReviewReasons(found.catalogItem.annotation)
+          : undefined,
       };
       return excluded
         ? {
