@@ -39,7 +39,7 @@ describe("complete pilot workflow", () => {
     expect(confirmed.confirmation).toMatchObject({ lineCount: 3, selectedOfferCount: 2, noOfferCount: 1, feedbackCount: 2, selectionStateRevision: 5 });
     const exportedAt = "2026-07-31T12:00:00.000Z";
     const first = buildAiFeedbackExport({ session: confirmed, catalogs: [primary, secondary], run: matched.runRecord, selectionState: state, current: true, exportedAt });
-    expect(JSON.parse(serializeAiFeedback(first))).toMatchObject({ schema_version: "1.1.0", export_type: "auto_offer_ai_feedback", session: { name: "Pilot workflow", status: "confirmed", confirmation: expect.any(Object) }, operator_review: { decided_count: 3, selected_offer_count: 2, no_offer_count: 1, feedback_count: 2 } });
+    expect(JSON.parse(serializeAiFeedback(first))).toMatchObject({ schema_version: "1.2.0", export_type: "auto_offer_ai_feedback", session: { name: "Pilot workflow", status: "confirmed", confirmation: expect.any(Object) }, operator_review: { decided_count: 3, selected_offer_count: 2, no_offer_count: 1, feedback_count: 2 } });
     resetDatabaseConnection();
     const restored = await appRepositories.sessions.get(draft.sessionId);
     const restoredState = await appRepositories.selectionStates.get(matched.runRecord.id);
