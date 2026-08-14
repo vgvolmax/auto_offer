@@ -21,8 +21,8 @@ describe("MatchLineCard semantic review", () => {
   });
 
   it("keeps a semantic needs-review recommendation selectable and links to catalog review", () => {
-    renderLine({ candidates: [{ key: "offer", offerRef: { catalog_record_id: "record-1", catalog_id: "catalog", source_sha256: "s", source_item_id: "i" }, catalogLabel: "catalog", sourceItemId: "i", productLabel: "Товар", matchLevel: "exact", availability: "eligible", checks: [], differences: [], selected: false, suggested: true, selectable: true, resultPosition: 1, annotationStatus: "needs_review", reviewReasonCount: 2 }] });
-    expect(screen.getByText(/Разметка неполная: 2 поля требуют проверки/)).toBeInTheDocument();
+    renderLine({ candidates: [{ key: "offer", offerRef: { catalog_record_id: "record-1", catalog_id: "catalog", source_sha256: "s", source_item_id: "i" }, catalogLabel: "catalog", sourceItemId: "i", productLabel: "Товар", matchLevel: "exact", availability: "eligible", checks: [], differences: [], selected: false, suggested: true, selectable: true, resultPosition: 1, annotationStatus: "needs_review", reviewReasonCount: 1 }] });
+    expect(screen.getByText(/Разметка неполная: 1 поле требует проверки/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Проверить разметку" })).toHaveAttribute("href", "/catalogs/record-1/review");
     expect(screen.getByRole("button", { name: "Выбрать" })).toBeEnabled();
     expect(screen.queryByRole("button", { name: "Подтвердить товар" })).not.toBeInTheDocument();

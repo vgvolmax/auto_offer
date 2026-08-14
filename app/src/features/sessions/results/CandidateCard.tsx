@@ -37,7 +37,7 @@ export function CandidateCard({
       {candidate.annotationStatus === "needs_review" && (
         <p className="warning-text">
           ⚠ {candidate.reviewReasonCount
-            ? `Разметка неполная: ${candidate.reviewReasonCount} поля требуют проверки. `
+            ? `Разметка неполная: ${candidate.reviewReasonCount} ${candidate.reviewReasonCount === 1 ? "поле требует" : "поля требуют"} проверки. `
             : "Разметка товара неполная — требуется проверка данных каталога. "}
           <Link to={`/catalogs/${candidate.offerRef.catalog_record_id}/review`}>Проверить разметку</Link>
         </p>
