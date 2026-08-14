@@ -36,7 +36,8 @@ test('canonical prompt result is production-schema valid', async () => {
   const { result: validate } = await loadSemanticMatchingValidators();
   const fixtureText = await readFile(new URL('./fixtures/semantic-matching/canonical-result.json', import.meta.url), 'utf8');
   const prompt = await readFile(new URL('../annotation-kits/matching/SEMANTIC_MATCH_PROMPT.md', import.meta.url), 'utf8');
-  const canonicalBlock = prompt.match(/## Canonical output example[\s\S]*?```json\n([\s\S]*?)\n```/)?.[1];
+  const normalizedPrompt = prompt.replace(/\r\n/g, '\n');
+  const canonicalBlock = normalizedPrompt.match(/## Canonical output example[\s\S]*?```json\n([\s\S]*?)\n```/)?.[1];
   assert.ok(canonicalBlock, 'prompt contains a canonical JSON example');
   assert.deepEqual(JSON.parse(canonicalBlock), JSON.parse(fixtureText), 'prompt and canonical fixture stay synchronized');
   assert.equal(validate(JSON.parse(fixtureText)), true, JSON.stringify(validate.errors));
