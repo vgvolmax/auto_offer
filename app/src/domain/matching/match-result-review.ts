@@ -12,6 +12,7 @@ import type { LineDecision } from "./selection-state";
 import type { LineFeedback } from "./line-feedback";
 import { resolveSemanticOffer } from "./resolve-semantic-offer";
 import { buildEffectiveReview, type EffectiveLineOutcome } from "../review/effective-review";
+import { countUnresolvedReviewReasons } from "../catalog-review-reasons";
 export type MatchLevel = "exact" | "equivalent" | "alternative";
 export type CandidateAvailability = "eligible" | "manual_only";
 export type MatchLineResolution =
@@ -333,7 +334,7 @@ export function buildMatchResultReviewView(input: {
           ? text((found.catalogItem.annotation as Obj).status) as CandidateReviewView["annotationStatus"]
           : undefined,
         reviewReasonCount: found && object(found.catalogItem.annotation)
-          ? array(found.catalogItem.annotation.unknown_fields).length + array(found.catalogItem.annotation.issues).length + array(found.catalogItem.annotation.ambiguities).length
+          ? countUnresolvedReviewReasons(found.catalogItem.annotation)
           : undefined,
       };
       return excluded

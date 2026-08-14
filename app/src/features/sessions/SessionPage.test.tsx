@@ -47,10 +47,11 @@ describe("SessionPage AI-only matching flow", () => {
     expect(screen.getByRole("heading", { name: "Шаг 3 — Подбор наших товаров" })).toBeVisible();
     expect(screen.queryByRole("button", { name: "Запустить подбор" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Перезапустить подбор" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Товары, которые требуют проверки")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio", { name: "Разрешить их как варианты с обязательной ручной проверкой" })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: "Только точное соответствие" }));
     expect(screen.getByRole("button", { name: "Сохранить настройки" })).toBeEnabled();
-    await user.click(screen.getByRole("radio", { name: "Разрешить их как варианты с обязательной ручной проверкой" }));
     await user.click(screen.getByRole("button", { name: "Сохранить настройки" }));
     expect(await screen.findByText("Сохранено")).toBeVisible();
   });
