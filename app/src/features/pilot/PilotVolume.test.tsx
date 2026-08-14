@@ -51,18 +51,18 @@ describe("Pilot 1.0 volume readiness", () => {
     expect(fixture).toEqual(before);
   });
 
-  it("renders the existing 50-card batch and paginates/filter without mounting 500 cards", async () => {
+  it("renders the existing 50-row batch and paginates/filter without mounting 500 rows", async () => {
     const fixture = await persistFixture();
     render(<MatchResultsPanel session={fixture.session} catalogs={fixture.catalogs} run={fixture.run} current locked={false} confirming={false} reopening={false} reviewRefreshing={false} onReviewRefreshingChange={() => undefined} onConfirm={async () => ({ ok: false, code: "REVIEW_INCOMPLETE", message: "not used" })} onReopen={async () => false} onRefreshSessionSnapshot={async () => true} />);
-    await screen.findByText(/500 позиций · 375 выбрано · 0 без вариантов · 0 требуют решения/);
-    const cards = () => document.querySelectorAll("article.match-line");
+    await screen.findByText(/500 позиций · 375 с предложением · 125 без предложения/);
+    const cards = () => document.querySelectorAll("tr[data-proposal-row]");
     expect(cards()).toHaveLength(MATCH_RESULTS_BATCH_SIZE);
     expect(cards().length).toBeLessThan(500);
     await userEvent.click(screen.getByRole("button", { name: "Показать ещё" }));
     expect(cards()).toHaveLength(MATCH_RESULTS_BATCH_SIZE * 2);
     await userEvent.selectOptions(screen.getByLabelText("Фильтр"), "no_offer");
     await waitFor(() => expect(cards()).toHaveLength(MATCH_RESULTS_BATCH_SIZE));
-    expect(document.querySelectorAll("article.match-line").length).toBeLessThan(500);
+    expect(document.querySelectorAll("tr[data-proposal-row]").length).toBeLessThan(500);
   });
 
   it("shows Pilot diagnostics only for legacy Pilot runs", async () => {
