@@ -9,6 +9,7 @@ import type { SessionMatchingSettings } from "../matching/session-policy";
 import { getAllowedRelatedOfferSource } from "../matching/line-feedback-validation";
 import { CompletedReviewError, validateCompletedReview } from "../review/completed-review";
 import { resolveSemanticOffer } from "../matching/resolve-semantic-offer";
+import { buildLineFeedbackReferenceContext } from "../matching/line-feedback-reference-context";
 
 export type AiFeedbackExportErrorCode = "AI_EXPORT_NOT_CURRENT" | "AI_EXPORT_STATE_MISMATCH" | "AI_EXPORT_INCOMPLETE" | "AI_EXPORT_RESULT_INCONSISTENT";
 export class AiFeedbackExportError extends Error {
@@ -53,10 +54,9 @@ export function buildAiFeedbackExport(input: { session: SessionRecord; catalogs:
   for (const requestLine of requestLines) {
     const lineId = requestLine.line_id;
     const resultLine = resultById.get(lineId)!;
-    const candidates = Array.isArray(resultLine.candidates) ? resultLine.candidates : [];
-    const excludedCandidates = Array.isArray(resultLine.excluded_candidates) ? resultLine.excluded_candidates : [];
+    const feedbackReferences = buildLineFeedbackReferenceContext({ runKind: run.runKind, line: resultLine, catalogs: input.catalogs });
     const feedback = selectionState.feedback[lineId];
-    if (feedback?.relatedOfferRef && !getAllowedRelatedOfferSource({ outcome: feedback.outcome, relatedOfferRef: feedback.relatedOfferRef, candidates, excludedCandidates }))
+    if (feedback?.relatedOfferRef && !getAllowedRelatedOfferSource({ outcome: feedback.outcome, relatedOfferRef: feedback.relatedOfferRef, candidates: feedbackReferences.candidates, excludedCandidates: feedbackReferences.excludedCandidates }))
       throw new AiFeedbackExportError("Связанный товар обратной связи не принадлежит строке", "AI_EXPORT_RESULT_INCONSISTENT");
   }
   const lines = requestLines.map(({ line_id }) => ({ line_id, ...(selectionState.decisions[line_id] && { decision: selectionState.decisions[line_id] }), ...(selectionState.feedback[line_id] && { feedback: selectionState.feedback[line_id] }) }));

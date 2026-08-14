@@ -89,14 +89,21 @@ describe("AI feedback export", () => {
   it("exports the authoritative semantic baseline offer snapshot, including after a no-offer override", () => {
     const input = semanticFixture({ decision: "offer", offer_ref: { catalog_record_id: "record", source_item_id: "sku" }, match_level: "exact", rationale_ru: "Подходит", differences: [] });
     input.catalogs = [{ recordId: "record", catalogId: "catalog", sourceSha256: "sha", sourceFileName: "catalog.xlsx", bundle: { items: [{ source: { raw_name: "Кран" }, catalog_item: { source_item_id: "sku", annotation: { status: "validated" } } }] } }];
+    input.selectionState.feedback.line = { outcome: "suggested_candidate_incorrect", relatedOfferRef: ref };
     let output = buildAiFeedbackExport(input);
-    expect(output.operator_review).toMatchObject({ decided_count: 0, selected_offer_count: 0, no_offer_count: 0 });
+    expect(output.operator_review).toMatchObject({ decided_count: 0, selected_offer_count: 0, no_offer_count: 0, feedback_count: 1, lines: [{ line_id: "line", feedback: { relatedOfferRef: ref } }] });
     expect(output.referenced_catalog_items).toEqual([expect.objectContaining({ offer_ref: ref, source: { raw_name: "Кран" }, missing: false })]);
     input.selectionState.decisions.line = { kind: "no_offer", confirmedAt: "now" };
     input.selectionState.revision = 1;
     output = buildAiFeedbackExport(input);
     expect(output.operator_review).toMatchObject({ decided_count: 1, no_offer_count: 1, lines: [{ line_id: "line", decision: { kind: "no_offer" } }] });
     expect(output.referenced_catalog_items).toEqual([expect.objectContaining({ offer_ref: ref, missing: false })]);
+  });
+  it("rejects a foreign offer related to semantic baseline feedback", () => {
+    const input = semanticFixture({ decision: "offer", offer_ref: { catalog_record_id: "record", source_item_id: "sku" }, match_level: "exact", rationale_ru: "Подходит", differences: [] });
+    input.catalogs = [{ recordId: "record", catalogId: "catalog", sourceSha256: "sha", sourceFileName: "catalog.xlsx", bundle: { items: [{ catalog_item: { source_item_id: "sku", annotation: { status: "validated" } } }, { catalog_item: { source_item_id: "other", annotation: { status: "validated" } } }] } }];
+    input.selectionState.feedback.line = { outcome: "suggested_candidate_incorrect", relatedOfferRef: { ...ref, source_item_id: "other" } };
+    expect(() => buildAiFeedbackExport(input)).toThrow(expect.objectContaining({ code: "AI_EXPORT_RESULT_INCONSISTENT" }));
   });
   it("exports semantic feedback without requiring an operator override", () => {
     const input = semanticFixture();

@@ -4,6 +4,7 @@ import { normalizeLineFeedback, type LineFeedback } from "./line-feedback";
 import { isMatchRunCurrent } from "./match-run-current";
 import { equalOfferRefs } from "./offer-ref";
 import { getAllowedRelatedOfferSource } from "./line-feedback-validation";
+import { buildLineFeedbackReferenceContext, type LineFeedbackReferenceContext } from "./line-feedback-reference-context";
 import { SelectionError, type SelectionStateRecord } from "./selection-state";
 
 type Obj = Record<string, unknown>;
@@ -20,14 +21,14 @@ async function context(input: { sessionId: string; matchRunId: string; lineId: s
   if (!object(line)) throw new SelectionError("Строка не найдена", "LINE_NOT_FOUND");
   const state = await input.repositories.selectionStates.getOrCreateForRun(run);
   if (state.revision !== input.expectedSelectionRevision) throw new SelectionError("Обратная связь изменена в другой вкладке", "STALE_SELECTION_STATE");
-  return { line, state };
+  return { line, state, feedbackReferenceContext: buildLineFeedbackReferenceContext({ runKind: run.runKind, line, catalogs: catalogs as never[] }) };
 }
-function allowed(line: Obj, feedback: LineFeedback): boolean {
+function allowed(referenceContext: LineFeedbackReferenceContext, feedback: LineFeedback): boolean {
   return !feedback.relatedOfferRef || Boolean(getAllowedRelatedOfferSource({
     outcome: feedback.outcome,
     relatedOfferRef: feedback.relatedOfferRef,
-    candidates: Array.isArray(line.candidates) ? line.candidates : [],
-    excludedCandidates: Array.isArray(line.excluded_candidates) ? line.excluded_candidates : [],
+    candidates: referenceContext.candidates,
+    excludedCandidates: referenceContext.excludedCandidates,
   }));
 }
 function persistenceError(error: unknown): never {
@@ -36,9 +37,9 @@ function persistenceError(error: unknown): never {
   throw new SelectionError("Не удалось сохранить обратную связь", "SELECTION_PERSIST_FAILED", { cause: error });
 }
 export async function saveFeedbackForLine(input: { sessionId: string; matchRunId: string; lineId: string; feedback: LineFeedback; expectedSelectionRevision: number; repositories: AppRepositories }): Promise<SelectionStateRecord> {
-  const { line, state } = await context(input);
+  const { state, feedbackReferenceContext } = await context(input);
   let normalized = normalizeLineFeedback(input.feedback);
-  if (normalized?.relatedOfferRef && !allowed(line, normalized)) {
+  if (normalized?.relatedOfferRef && !allowed(feedbackReferenceContext, normalized)) {
     const previous = state.feedback[input.lineId];
     if (previous?.relatedOfferRef && equalOfferRefs(previous.relatedOfferRef, normalized.relatedOfferRef) && previous.outcome !== normalized.outcome)
       normalized = normalizeLineFeedback({ ...normalized, relatedOfferRef: undefined });

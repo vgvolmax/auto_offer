@@ -26,6 +26,7 @@ export interface ProposalRowView {
   statusLabel: string;
   statusTone: ProposalStatusTone;
   hasDecision: boolean;
+  operatorOverride?: boolean;
 }
 
 export interface ProposalTableView {
@@ -39,7 +40,7 @@ function productOffer(kind: "selected_offer" | "recommended_offer", candidate: C
 
 function buildRow(line: MatchLineReviewView, runKind: "pilot" | "semantic"): ProposalRowView {
   const display = buildRequestLineDisplay({ rawText: line.requestText });
-  const common = { lineId: line.lineId, position: line.position, source: line, request: { ...display, raw: line.requestText, quantity: line.quantityLabel }, hasDecision: line.hasDecision };
+  const common = { lineId: line.lineId, position: line.position, source: line, request: { ...display, raw: line.requestText, quantity: line.quantityLabel }, hasDecision: line.hasDecision, operatorOverride: runKind === "semantic" && line.effectiveOutcome?.kind !== "unresolved" && line.effectiveOutcome?.source === "operator" };
   const legacySelected = line.selectedOfferRef ?? line.candidates.find((candidate) => candidate.selected)?.offerRef;
   const outcome = line.effectiveOutcome ?? (line.decisionKind === "selected_offer" && legacySelected
     ? { kind: "selected_offer" as const, offerRef: legacySelected, source: "operator" as const }
@@ -69,11 +70,14 @@ function equalRefs(left: CandidateReviewView["offerRef"], right?: CandidateRevie
 
 export function buildProposalTableView(input: { review: MatchResultReviewView; runKind: "pilot" | "semantic" }): ProposalTableView {
   const rows = input.review.lines.map((line) => buildRow(line, input.runKind));
+  const rowWithOffer = rows.filter((row) => row.offer.kind === "selected_offer" || row.offer.kind === "recommended_offer").length;
+  const rowNoOffer = rows.filter((row) => row.offer.kind === "operator_no_offer" || row.offer.kind === "recommended_no_offer").length;
+  const rowAttention = rows.filter((row) => ["reroute", "request_review", "request_invalid", "request_unsupported"].includes(row.offer.kind) || row.offer.availability === "manual_only").length;
   return { rows, summary: {
     total: rows.length,
-    withOffer: rows.filter((row) => row.offer.kind === "selected_offer" || row.offer.kind === "recommended_offer").length,
-    noOffer: rows.filter((row) => row.offer.kind === "operator_no_offer" || row.offer.kind === "recommended_no_offer").length,
-    attention: input.review.effectiveUnresolvedCount ?? rows.filter((row) => ["reroute", "request_review", "request_invalid", "request_unsupported"].includes(row.offer.kind) || row.offer.availability === "manual_only").length,
+    withOffer: input.runKind === "semantic" ? (input.review.effectiveSelectedCount ?? rowWithOffer) : rowWithOffer,
+    noOffer: input.runKind === "semantic" ? (input.review.effectiveNoOfferCount ?? rowNoOffer) : rowNoOffer,
+    attention: input.runKind === "semantic" ? (input.review.effectiveUnresolvedCount ?? rowAttention) : rowAttention,
     unconfirmed: rows.filter((row) => !row.hasDecision).length,
   } };
 }
