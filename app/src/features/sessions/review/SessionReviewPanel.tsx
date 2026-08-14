@@ -2,6 +2,13 @@ import { useState } from "react";
 import type { MatchRunRecord } from "../../../domain/matching/match-run";
 import type { SessionRecord } from "../../../domain/session";
 
+const positionWord = (count: number) => {
+  const mod100 = count % 100;
+  if (mod100 >= 11 && mod100 <= 14) return "позиций";
+  if (count % 10 === 1) return "позиция";
+  return count % 10 >= 2 && count % 10 <= 4 ? "позиции" : "позиций";
+};
+
 export function SessionReviewPanel(input: {
   session: SessionRecord;
   run: MatchRunRecord;
@@ -13,6 +20,10 @@ export function SessionReviewPanel(input: {
     noOfferCount: number;
     feedbackCount: number;
     undecidedCount: number;
+    effectiveReadyCount?: number;
+    effectiveUnresolvedCount?: number;
+    effectiveSelectedCount?: number;
+    effectiveNoOfferCount?: number;
   };
   selectionStateRevision: number;
   busy?: "confirming" | "reopening" | "refreshing" | "saving";
@@ -70,26 +81,30 @@ export function SessionReviewPanel(input: {
         )}
       </section>
     );
-  const complete = input.summary.undecidedCount === 0;
+  const semantic = input.run.runKind === "semantic";
+  const unresolved = semantic ? (input.summary.effectiveUnresolvedCount ?? input.summary.undecidedCount) : input.summary.undecidedCount;
+  const ready = semantic ? (input.summary.effectiveReadyCount ?? input.summary.decidedCount) : input.summary.decidedCount;
+  const selected = semantic ? (input.summary.effectiveSelectedCount ?? input.summary.selectedCount) : input.summary.selectedCount;
+  const noOffer = semantic ? (input.summary.effectiveNoOfferCount ?? input.summary.noOfferCount) : input.summary.noOfferCount;
+  const complete = unresolved === 0;
   return (
     <section className="session-review card">
       <h2>Завершение проверки</h2>
       {refreshText}
       <p
-        aria-label={`Обработано ${input.summary.decidedCount} из ${input.summary.lineCount}`}
+        aria-label={`Обработано ${ready} из ${input.summary.lineCount}`}
       >
         Обработано{" "}
         <strong>
-          {input.summary.decidedCount} из {input.summary.lineCount}
+          {ready} из {input.summary.lineCount}
         </strong>
       </p>
-      <p>Выбрано товаров: {input.summary.selectedCount}</p>
-      <p>Без предложения: {input.summary.noOfferCount}</p>
+      <p>Выбрано товаров: {selected}</p>
+      <p>Без предложения: {noOffer}</p>
       <p>С обратной связью: {input.summary.feedbackCount}</p>
       {!complete && (
         <p>
-          Для подтверждения примите решение ещё по{" "}
-          {input.summary.undecidedCount} строкам.
+          {semantic ? `Требуют внимания: ${unresolved} ${positionWord(unresolved)}.` : `Для подтверждения примите решение ещё по ${unresolved} строкам.`}
         </p>
       )}
       {!input.current && (
@@ -128,7 +143,7 @@ export function SessionReviewPanel(input: {
           >
             {input.busy === "confirming"
               ? "Подтверждаем результат…"
-              : "Подтвердить результат"}
+              : semantic ? "Подтвердить заявку" : "Подтвердить результат"}
           </button>
         </div>
       ) : (
@@ -136,7 +151,7 @@ export function SessionReviewPanel(input: {
           disabled={!complete || !input.current || busy}
           onClick={() => setAction("confirm")}
         >
-          Проверить и подтвердить
+          {semantic ? "Подтвердить заявку" : "Проверить и подтвердить"}
         </button>
       )}
     </section>

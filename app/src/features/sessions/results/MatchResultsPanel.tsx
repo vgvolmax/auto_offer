@@ -108,9 +108,9 @@ export function MatchResultsPanel(input: {
       <p>
         {proposal.summary.total} позиций · {proposal.summary.withOffer} с предложением ·{" "}
         {proposal.summary.noOffer} без предложения · {proposal.summary.attention} требуют внимания ·{" "}
-        Не подтверждено: {proposal.summary.unconfirmed}
+        {input.run.runKind === "pilot" ? `Не подтверждено: ${proposal.summary.unconfirmed}` : `Готово: ${review.view.effectiveReadyCount ?? 0}`}
       </p>
-      {review.bulkEligibleCount > 0 && (
+      {input.run.runKind === "pilot" && review.bulkEligibleCount > 0 && (
         <button disabled={writeLocked || busy || !input.current} onClick={() => void review.markAllWithoutOptions()}>
           {bulkSaving ? `Сохраняем ${review.bulkEligibleCount} строк…` : `Оставить без предложения ${review.bulkEligibleCount} строк без вариантов`}
         </button>
@@ -157,7 +157,7 @@ export function MatchResultsPanel(input: {
         <button
           disabled={
             (input.session.status === "draft" && !input.current) ||
-            review.view.undecidedCount > 0 ||
+            (input.run.runKind === "semantic" ? (review.view.effectiveUnresolvedCount ?? 0) : review.view.undecidedCount) > 0 ||
             busy ||
             transitionBusy ||
             review.state.kind === "error"
@@ -198,10 +198,9 @@ export function MatchResultsPanel(input: {
         </button>
         {input.session.status === "draft" && !input.current ? (
           <p>Экспорт доступен только для текущего результата подбора.</p>
-        ) : review.view.undecidedCount > 0 ? (
+        ) : (input.run.runKind === "semantic" ? (review.view.effectiveUnresolvedCount ?? 0) : review.view.undecidedCount) > 0 ? (
           <p>
-            Для экспорта примите решение ещё по {review.view.undecidedCount}{" "}
-            строкам.
+            Требуют внимания: {input.run.runKind === "semantic" ? review.view.effectiveUnresolvedCount : review.view.undecidedCount} строк.
           </p>
         ) : null}
         {exportStatus.kind === "success" && (

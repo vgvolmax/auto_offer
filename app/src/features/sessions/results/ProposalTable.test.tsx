@@ -13,7 +13,7 @@ describe("ProposalTable", () => {
     for (const label of ["№", "Запрос клиента", "Количество", "Наш товар", "Статус"]) expect(screen.getByRole("columnheader", { name: label })).toBeInTheDocument();
     expect(container.querySelectorAll("tr[data-proposal-row]")).toHaveLength(1);
     expect(screen.getByText("Кран наш")).toBeInTheDocument();
-    expect(screen.getByText("Рекомендация ИИ")).toBeInTheDocument();
+    expect(screen.getByText("Результат ИИ")).toBeInTheDocument();
     expect(screen.getByText("Не подтверждено")).toBeInTheDocument();
     expect(screen.queryByText("Подходит")).not.toBeInTheDocument();
   });

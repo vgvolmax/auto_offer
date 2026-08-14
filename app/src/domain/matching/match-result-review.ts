@@ -11,6 +11,7 @@ import { SelectionError, type SelectionStateRecord } from "./selection-state";
 import type { LineDecision } from "./selection-state";
 import type { LineFeedback } from "./line-feedback";
 import { resolveSemanticOffer } from "./resolve-semantic-offer";
+import { buildEffectiveReview, type EffectiveLineOutcome } from "../review/effective-review";
 export type MatchLevel = "exact" | "equivalent" | "alternative";
 export type CandidateAvailability = "eligible" | "manual_only";
 export type MatchLineResolution =
@@ -79,6 +80,8 @@ export interface MatchLineReviewView {
   semanticRecommendation?: "no_offer" | "reroute_required";
   semanticReasonCode?: string;
   semanticRationaleRu?: string;
+  effectiveOutcome?: EffectiveLineOutcome;
+  runKind?: "pilot" | "semantic";
 }
 export interface MatchResultReviewDiagnostic {
   code:
@@ -102,6 +105,10 @@ export interface MatchResultReviewView {
   undecidedCount: number;
   noOfferCount: number;
   feedbackCount: number;
+  effectiveReadyCount?: number;
+  effectiveUnresolvedCount?: number;
+  effectiveSelectedCount?: number;
+  effectiveNoOfferCount?: number;
   diagnostics: MatchResultReviewDiagnostic[];
 }
 type Obj = Record<string, unknown>;
@@ -183,6 +190,8 @@ export function buildMatchResultReviewView(input: {
       "SELECTION_STATE_RUN_MISMATCH",
     );
   const diagnostics: MatchResultReviewDiagnostic[] = [];
+  const effective = buildEffectiveReview({ run, catalogs: input.catalogs, selectionState });
+  const effectiveByLine = new Map(effective.lines.map((line) => [line.lineId, line.outcome]));
   const requests = new Map(
     input.session.requestBundle.request_document.lines.map((x) => [
       x.line_id,
@@ -381,8 +390,10 @@ export function buildMatchResultReviewView(input: {
       semanticRecommendation: text(raw.semanticRecommendation) as MatchLineReviewView["semanticRecommendation"],
       semanticReasonCode: text(raw.reason_code),
       semanticRationaleRu: text(raw.rationale_ru),
+      effectiveOutcome: effectiveByLine.get(lineId) ?? { kind: "unresolved", reason: "invalid_offer" },
+      runKind: run.runKind,
     });
-    if (resolution === "reroute_required") {
+    if (run.runKind === "semantic" && text(raw.decision) !== "offer") {
       lines[lines.length - 1].canMarkNoOffer = false;
     }
   });
@@ -400,6 +411,10 @@ export function buildMatchResultReviewView(input: {
     undecidedCount: lines.filter((x) => !x.hasDecision).length,
     noOfferCount: lines.filter((x) => x.decisionKind === "no_offer").length,
     feedbackCount: lines.filter((x) => x.feedback).length,
+    effectiveReadyCount: effective.readyCount,
+    effectiveUnresolvedCount: effective.unresolvedCount,
+    effectiveSelectedCount: effective.selectedOfferCount,
+    effectiveNoOfferCount: effective.noOfferCount,
     diagnostics,
   };
 }

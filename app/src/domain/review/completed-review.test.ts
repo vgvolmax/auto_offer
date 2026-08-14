@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildSessionMatchingPolicy, createDefaultSessionMatchingSettings } from "../matching/session-policy";
 import { pilotPolicyRegistry } from "../matching/pilot-config";
 import { CompletedReviewError, validateCompletedReview } from "./completed-review";
+import { buildSemanticSelectionPolicy } from "../matching/semantic-session-matching";
 
 function fixture() {
   const settings = createDefaultSessionMatchingSettings([]);
@@ -10,9 +11,26 @@ function fixture() {
   const selectionState: any = { matchRunId: "r", sessionId: "s", inputFingerprint: "fp", revision: 2, decisions: { a: { kind: "no_offer" }, b: { kind: "no_offer" } }, feedback: { a: { comment: "ok" } } };
   return { session, run, selectionState, catalogs: [] };
 }
+function semanticFixture(decisions = ["no_offer", "request_unsupported"]) {
+  const input: any = fixture();
+  input.session.requestBundle.taxonomy_version = "1";
+  input.run = {
+    id: "r", sessionId: "s", sessionRevision: 1, runKind: "semantic",
+    semanticContext: { taxonomyVersion: "1", requestId: "q", packageFingerprint: "pkg", selectionPolicy: buildSemanticSelectionPolicy(input.session.matchingSettings), catalogRefs: [] },
+    result: { kind: "semantic_match_result", schema_version: "1.0.0", taxonomy_version: "1", request_id: "q", package_fingerprint: "pkg", lines: decisions.map((decision, index) => ({ line_id: index ? "b" : "a", decision })) },
+  };
+  input.selectionState = { matchRunId: "r", sessionId: "s", inputFingerprint: "pkg", revision: 0, decisions: {}, feedback: {} };
+  return input;
+}
 describe("validateCompletedReview", () => {
   it("returns deterministic counts without mutating inputs", () => { const input = fixture(); const before = structuredClone(input); expect(validateCompletedReview({ ...input, mode: "current_draft" })).toMatchObject({ lineCount: 2, noOfferCount: 2, feedbackCount: 1, selectionStateRevision: 2 }); expect(input).toEqual(before); });
   it("reports incomplete line ids in request order", () => { const input = fixture(); delete input.selectionState.decisions.a; delete input.selectionState.decisions.b; try { validateCompletedReview({ ...input, mode: "current_draft" }); } catch (error) { expect(error).toBeInstanceOf(CompletedReviewError); expect(error).toMatchObject({ code: "REVIEW_INCOMPLETE", lineIds: ["a", "b"] }); } });
+  it("confirms ready semantic baselines with an empty override state", () => {
+    expect(validateCompletedReview({ ...semanticFixture(), mode: "current_draft" })).toMatchObject({ lineCount: 2, selectedOfferCount: 0, noOfferCount: 2, selectionStateRevision: 0 });
+  });
+  it.each(["reroute_required", "request_review_required", "request_invalid"])("blocks a semantic %s baseline", (decision) => {
+    expect(() => validateCompletedReview({ ...semanticFixture([decision, "no_offer"]), mode: "current_draft" })).toThrow(expect.objectContaining({ code: "REVIEW_INCOMPLETE", lineIds: ["a"] }));
+  });
   it.each([
     ["duplicate request line", (x: any) => x.session.requestBundle.request_document.lines.push({ line_id: "a" })],
     ["duplicate result line", (x: any) => x.run.result.lines.push(structuredClone(x.run.result.lines[0]))],

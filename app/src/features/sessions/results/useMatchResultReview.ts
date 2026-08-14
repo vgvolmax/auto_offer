@@ -96,7 +96,7 @@ export function useMatchResultReview(input: {
         ].some((x) => x.toLowerCase().includes(q));
       const f =
         filter === "all" ||
-        (filter === "undecided" && !l.hasDecision) ||
+        (filter === "undecided" && (input.run.runKind === "semantic" ? l.effectiveOutcome?.kind === "unresolved" : !l.hasDecision)) ||
         (filter === "selected" && l.decisionKind === "selected_offer") ||
         (filter === "no_offer" && l.decisionKind === "no_offer") ||
         (filter === "with_feedback" && Boolean(l.feedback)) ||
@@ -109,10 +109,10 @@ export function useMatchResultReview(input: {
           l.resolution === "excluded_by_policy");
       return matches && f;
     });
-  }, [view, filter, query]);
+  }, [view, filter, query, input.run.runKind]);
   const bulkEligibleLineIds = useMemo(
-    () => view?.lines.filter((line) => !line.hasDecision && line.candidates.length === 0 && line.canMarkNoOffer).map((line) => line.lineId) ?? [],
-    [view],
+    () => input.run.runKind === "pilot" ? (view?.lines.filter((line) => !line.hasDecision && line.candidates.length === 0 && line.canMarkNoOffer).map((line) => line.lineId) ?? []) : [],
+    [view, input.run.runKind],
   );
   const setFilter = (x: ResultFilter) => {
       setFilterValue(x);

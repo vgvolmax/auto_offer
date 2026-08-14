@@ -54,7 +54,7 @@ describe("buildProposalTableView", () => {
   it("gives operator no-offer precedence over a recommendation", () => {
     const result = buildProposalTableView({ review: view([line({ candidates: [candidate()], decisionKind: "no_offer", hasDecision: true })]), runKind: "semantic" }).rows[0];
     expect(result.offer.kind).toBe("operator_no_offer");
-    expect(result.statusLabel).toBe("Без предложения");
+    expect(result.statusLabel).toBe("Готово");
   });
 
   it("marks manual-only recommendations for attention", () => {

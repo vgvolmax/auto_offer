@@ -7,12 +7,16 @@ export function CandidateCard({
   disabled,
   onSelect,
   onClear,
+  baselineReady = false,
+  operatorOverride = false,
 }: {
   candidate: CandidateReviewView;
   lineId: string;
   disabled: boolean;
   onSelect: () => void;
   onClear: () => void;
+  baselineReady?: boolean;
+  operatorOverride?: boolean;
 }) {
   return (
     <article className="candidate-card">
@@ -35,7 +39,7 @@ export function CandidateCard({
       {candidate.semanticDifferencesRu && candidate.semanticDifferencesRu.length > 0 && (
         <section><h5>Отличия</h5><ul>{candidate.semanticDifferencesRu.map((value) => <li key={value}>{value}</li>)}</ul></section>
       )}
-      <label>
+      {!baselineReady && <><label>
         <input
           type="radio"
           name={`selection-${lineId}`}
@@ -47,13 +51,13 @@ export function CandidateCard({
       </label>{" "}
       {candidate.selected ? (
         <button disabled={disabled} onClick={onClear}>
-          Снять выбор
+          {operatorOverride ? "Вернуть результат ИИ" : "Снять выбор"}
         </button>
       ) : (
         <button disabled={disabled || !candidate.selectable} onClick={onSelect}>
-          Выбрать
+          {candidate.availability === "manual_only" ? "Подтвердить товар" : "Выбрать"}
         </button>
-      )}
+      )}</>}
       <CandidateChecks
         checks={candidate.checks}
         differences={candidate.differences}
