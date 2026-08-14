@@ -7,6 +7,7 @@ import { equalOfferRefs, type OfferRef } from "../matching/offer-ref";
 import type { SelectionStateRecord } from "../matching/selection-state";
 import type { SessionRecord } from "../session";
 import { buildEffectiveReview } from "./effective-review";
+import { buildLineFeedbackReferenceContext } from "../matching/line-feedback-reference-context";
 
 export type CompletedReviewMode = "current_draft" | "confirmed_snapshot";
 export interface CompletedReviewSummary { matchRunId: string; inputFingerprint: string; matchingRevision: number; selectionStateRevision: number; lineCount: number; selectedOfferCount: number; noOfferCount: number; feedbackCount: number }
@@ -46,13 +47,13 @@ export function validateCompletedReview(input: { session: SessionRecord; catalog
   for (const lineId of requestIds) {
     const line = byId.get(lineId)!;
     const candidates = Array.isArray(line.candidates) ? line.candidates : [];
-    const excludedCandidates = Array.isArray(line.excluded_candidates) ? line.excluded_candidates : [];
+    const feedbackReferences = buildLineFeedbackReferenceContext({ runKind: run.runKind, line, catalogs: input.catalogs });
     const decision = selectionState.decisions[lineId];
     if (decision && decision.kind !== "selected_offer" && decision.kind !== "no_offer") fail("Решение повреждено", "REVIEW_RESULT_INCONSISTENT", [lineId]);
     if (decision?.kind === "selected_offer" && effectiveById.get(lineId)?.outcome.kind === "unresolved") fail("Выбранный товар не принадлежит строке", "REVIEW_RESULT_INCONSISTENT", [lineId]);
     if (run.runKind === "pilot" && decision?.kind === "selected_offer" && (!offerRef(decision.offerRef) || !candidates.some((candidate) => object(candidate) && offerRef(candidate.offer_ref) && equalOfferRefs(offerRef(candidate.offer_ref)!, decision.offerRef)))) fail("Выбранный товар не принадлежит строке", "REVIEW_RESULT_INCONSISTENT", [lineId]);
     const feedback = selectionState.feedback[lineId];
-    if (feedback?.relatedOfferRef && !getAllowedRelatedOfferSource({ outcome: feedback.outcome, relatedOfferRef: feedback.relatedOfferRef, candidates, excludedCandidates })) fail("Связанный товар не принадлежит строке", "REVIEW_RESULT_INCONSISTENT", [lineId]);
+    if (feedback?.relatedOfferRef && !getAllowedRelatedOfferSource({ outcome: feedback.outcome, relatedOfferRef: feedback.relatedOfferRef, candidates: feedbackReferences.candidates, excludedCandidates: feedbackReferences.excludedCandidates })) fail("Связанный товар не принадлежит строке", "REVIEW_RESULT_INCONSISTENT", [lineId]);
   }
   const missing = requestIds.filter((id) => effectiveById.get(id)?.outcome.kind === "unresolved");
   if (missing.length) fail("Не по всем строкам готово предложение", "REVIEW_INCOMPLETE", missing);

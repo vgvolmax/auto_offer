@@ -25,6 +25,19 @@ describe("ProposalTable", () => {
     expect(screen.queryByText("Рекомендация ИИ")).not.toBeInTheDocument();
   });
 
+  it("shows the operator badge only for a semantic override presentation", () => {
+    const semanticOverride = { ...row, hasDecision: true, operatorOverride: true, offer: { kind: "operator_no_offer" as const, recommendationSource: undefined } };
+    const pilotSelected = { ...row, hasDecision: true, operatorOverride: false, offer: { ...row.offer, kind: "selected_offer" as const, recommendationSource: undefined } };
+    const pilotNoOffer = { ...row, hasDecision: true, operatorOverride: false, offer: { kind: "operator_no_offer" as const, recommendationSource: undefined } };
+    const first = renderTable(new Set(), [semanticOverride]);
+    expect(screen.getByText("Изменено оператором")).toBeInTheDocument();
+    first.unmount();
+    const second = renderTable(new Set(), [pilotSelected, { ...pilotNoOffer, lineId: "line-2", position: 2 }]);
+    expect(screen.queryByText("Изменено оператором")).not.toBeInTheDocument();
+    expect(screen.queryByText("Результат ИИ")).not.toBeInTheDocument();
+    second.unmount();
+  });
+
   it("renders an undecided Pilot row without exposing a candidate as the main product", () => {
     const undecided = { ...row, offer: { kind: "undecided" as const }, statusLabel: "Не подтверждено", statusTone: "muted" as const };
     renderTable(new Set(), [undecided]);
